@@ -3,508 +3,1367 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>FeltAI — Prøvedokumentasjon</title>
+<title>FeltAI</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="FeltAI">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#1D9E75">
+<meta name="theme-color" content="#0057FF">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
+:root {
+  /* Brand blue */
+  --blue-50:  #EEF3FF;
+  --blue-100: #C7D8FF;
+  --blue-400: #4E8EFF;
+  --blue-500: #0057FF;
+  --blue-600: #0044CC;
+  --blue-700: #003399;
+
+  /* Teal / ocean */
+  --teal-50:  #E0F7F4;
+  --teal-100: #A7ECE4;
+  --teal-400: #1FC9B2;
+  --teal-500: #00B8A0;
+  --teal-600: #008F7C;
+
+  /* Coral / danger */
+  --coral-50:  #FFF2F0;
+  --coral-100: #FFCCBB;
+  --coral-400: #FF6B4A;
+  --coral-500: #F04020;
+  --coral-600: #C0320F;
+
+  /* Amber / warning */
+  --amber-50:  #FFFBEB;
+  --amber-400: #FBBF24;
+  --amber-600: #D97706;
+
+  /* Green */
+  --green-50:  #ECFDF5;
+  --green-400: #34D399;
+  --green-600: #059669;
+
+  /* Neutrals */
+  --gray-50:  #F9FAFB;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+
+  /* Surfaces */
+  --bg:       #F0F4FA;
+  --surface:  #FFFFFF;
+  --surface2: #F7F9FC;
+  --surface3: #EEF3FF;
+
+  --text:   #0F1723;
+  --text2:  #4B5563;
+  --text3:  #9CA3AF;
+  --border: rgba(15,23,35,0.08);
+  --border2: rgba(15,23,35,0.15);
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow:    0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-2xl: 24px;
+  --r-full: 9999px;
+
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --mono: 'SF Mono', 'Fira Code', Consolas, monospace;
+  --nav-h: 56px;
+}
+
+@media (prefers-color-scheme: dark) {
   :root {
-    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-200: #5DCAA5;
-    --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
-    --coral-50: #FAECE7; --coral-200: #F0997B; --coral-400: #D85A30; --coral-600: #993C1D;
-    --amber-50: #FAEEDA; --amber-400: #BA7517; --amber-600: #854F0B;
-    --blue-50: #E6F1FB; --blue-400: #378ADD; --blue-600: #185FA5;
-    --green-50: #EAF3DE; --green-400: #639922; --green-600: #3B6D11;
-    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-200: #B4B2A9;
-    --gray-400: #888780; --gray-600: #5F5E5A; --gray-800: #444441; --gray-900: #2C2C2A;
-    --bg: #F5F4F0; --surface: #FFFFFF; --surface2: #F1EFE8;
-    --text: #2C2C2A; --text2: #5F5E5A; --text3: #888780;
-    --border: rgba(44,44,42,0.12); --border2: rgba(44,44,42,0.22);
-    --r-md: 8px; --r-lg: 12px; --r-xl: 16px;
-    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --mono: 'SF Mono', 'Fira Code', monospace;
+    --bg:      #0C1020;
+    --surface: #141824;
+    --surface2:#1C2236;
+    --surface3:#1A2040;
+    --text:    #EDF0F7;
+    --text2:   #8892A4;
+    --text3:   #505C74;
+    --border:  rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --gray-100: #1C2236;
+    --gray-200: #252D42;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow:    0 4px 16px rgba(0,0,0,0.4);
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1a1a18; --surface: #242422; --surface2: #2e2e2b;
-      --text: #e8e6df; --text2: #a8a69e; --text3: #706e68;
-      --border: rgba(232,230,223,0.1); --border2: rgba(232,230,223,0.2);
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; }
+}
 
-  /* Layout */
-  .layout { display: flex; height: 100vh; height: 100dvh; flex-direction: column; }
-  .topbar {
-    background: var(--surface); border-bottom: 0.5px solid var(--border);
-    padding: 0 max(20px, env(safe-area-inset-right));
-    padding-left: max(20px, env(safe-area-inset-left));
-    padding-top: env(safe-area-inset-top);
-    height: calc(52px + env(safe-area-inset-top));
-    display: flex; align-items: flex-end; padding-bottom: 0;
-    justify-content: space-between; flex-shrink: 0; position: relative; z-index: 10;
-  }
-  .topbar-left, .topbar-right { padding-bottom: 12px; }
-  .topbar-left { display: flex; align-items: center; gap: 12px; }
-  .logo { background: var(--teal-400); color: #fff; font-size: 12px; font-weight: 600;
-    padding: 4px 10px; border-radius: 6px; letter-spacing: 0.03em; }
-  .topbar-title { font-size: 15px; font-weight: 500; }
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
-  .status-pill {
-    display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2);
-    padding: 5px 11px; background: var(--surface2); border-radius: 20px;
-    border: 0.5px solid var(--border);
-  }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-200); transition: background 0.3s; }
-  .status-dot.online { background: var(--teal-400); }
-  .status-dot.recording { background: var(--coral-400); animation: blink 0.8s infinite; }
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* ── Reset & Base ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-family: var(--font); background: var(--bg); color: var(--text); font-size: 15px; -webkit-text-size-adjust: 100%; }
+body { height: 100%; }
+button { font-family: var(--font); cursor: pointer; }
+input, textarea, select { font-family: var(--font); }
 
-  .api-key-btn {
-    font-size: 12px; padding: 5px 12px; border-radius: var(--r-md);
-    border: 0.5px solid var(--border2); background: var(--surface2);
-    color: var(--text2); cursor: pointer; transition: all 0.15s;
-  }
-  .api-key-btn:hover { background: var(--teal-50); color: var(--teal-600); border-color: var(--teal-200); }
-  .api-key-btn.set { color: var(--teal-600); border-color: var(--teal-200); background: var(--teal-50); }
+/* ── App shell ────────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
 
-  /* Tabs */
-  .tabs { display: flex; background: var(--surface); border-bottom: 0.5px solid var(--border); padding: 0 max(20px, env(safe-area-inset-left)); flex-shrink: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tab { font-size: 13px; padding: 11px 16px; cursor: pointer; color: var(--text2);
-    border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap;
-    display: flex; align-items: center; gap: 5px; }
-  .tab.active { color: var(--teal-400); border-bottom-color: var(--teal-400); font-weight: 500; }
-  .tab:hover:not(.active) { color: var(--text); }
-  .tab-badge { display: inline-flex; align-items: center; justify-content: center;
-    background: var(--coral-400); color: #fff; font-size: 10px; font-weight: 700;
-    min-width: 16px; height: 16px; border-radius: 8px; padding: 0 4px; }
+/* ── Header ───────────────────────────────────────────── */
+.app-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  padding-top: env(safe-area-inset-top);
+  height: calc(56px + env(safe-area-inset-top));
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 0;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+  box-shadow: var(--shadow-sm);
+}
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 12px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-icon {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, var(--blue-500) 0%, var(--teal-500) 100%);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,87,255,0.35);
+}
+.brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+.brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
+}
+.brand-sub {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.header-right { display: flex; align-items: center; gap: 10px; }
 
-  .main { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: max(20px, env(safe-area-inset-bottom)); padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); display: flex; flex-direction: column; gap: 14px; -webkit-overflow-scrolling: touch; }
-  .panel { display: none; flex-direction: column; gap: 14px; }
-  .panel.active { display: flex; }
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--r-full);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text2);
+}
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  transition: background 0.3s;
+}
+.status-dot.online    { background: var(--green-400); }
+.status-dot.recording { background: var(--coral-400); animation: dot-blink 0.9s infinite; }
+@keyframes dot-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
 
-  /* Cards */
-  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--r-lg); padding: 18px; }
-  .card-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase;
-    letter-spacing: 0.06em; margin-bottom: 14px; }
+.header-btn {
+  width: 34px; height: 34px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  background: var(--surface2);
+  color: var(--text2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.header-btn:hover { background: var(--blue-50); color: var(--blue-500); border-color: var(--blue-100); }
+.header-btn.active { background: var(--blue-50); color: var(--blue-500); border-color: var(--blue-100); }
+.header-btn svg { width: 16px; height: 16px; }
 
-  /* Voice */
-  .mode-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .mode-toggle { display: flex; gap: 6px; }
-  .mode-btn { font-size: 12px; padding: 5px 13px; border-radius: 20px; cursor: pointer;
-    border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text2); transition: all 0.15s; }
-  .mode-btn.active { background: var(--teal-400); color: #fff; border-color: var(--teal-400); }
+/* ── Main scroll area ─────────────────────────────────── */
+.app-main {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px);
+}
 
-  .mic-area { display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 14px; }
-  .mic-btn { width: 74px; height: 74px; border-radius: 50%; border: none; cursor: pointer;
-    background: var(--teal-400); display: flex; align-items: center; justify-content: center;
-    transition: all 0.18s; }
-  .mic-btn:hover { background: var(--teal-600); transform: scale(1.04); }
-  .mic-btn.recording { background: var(--coral-400); box-shadow: 0 0 0 0 rgba(216,90,48,0.4); animation: pulse 1.2s infinite; }
-  .mic-btn:disabled { background: var(--gray-200); cursor: not-allowed; transform: none; }
-  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(216,90,48,0.4)} 70%{box-shadow:0 0 0 16px rgba(216,90,48,0)} 100%{box-shadow:0 0 0 0 rgba(216,90,48,0)} }
-  .mic-icon { width: 30px; height: 30px; fill: #fff; }
-  .mic-status { font-size: 13px; color: var(--text2); text-align: center; }
+/* ── Panels ───────────────────────────────────────────── */
+.panel { display: none; flex-direction: column; gap: 0; }
+.panel.active { display: flex; }
 
-  .transcript-area { background: var(--surface2); border: 0.5px solid var(--border); border-radius: var(--r-md);
-    padding: 13px 15px; min-height: 70px; font-size: 14px; line-height: 1.65;
-    color: var(--text); width: 100%; position: relative; }
-  .transcript-area .hint { color: var(--text3); font-style: italic; }
-  .waveform { display: flex; align-items: center; justify-content: center; gap: 3px;
-    height: 30px; display: none; }
-  .wave-bar { width: 3px; background: var(--teal-400); border-radius: 2px; animation: wave 0.8s ease-in-out infinite; }
-  .wave-bar:nth-child(2){animation-delay:.1s;} .wave-bar:nth-child(3){animation-delay:.2s;}
-  .wave-bar:nth-child(4){animation-delay:.3s;} .wave-bar:nth-child(5){animation-delay:.4s;}
-  @keyframes wave { 0%,100%{height:4px} 50%{height:22px} }
+/* ── Bottom Nav ───────────────────────────────────────── */
+.app-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  z-index: 30;
+}
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text3);
+  transition: color 0.15s;
+  position: relative;
+  padding: 4px 0 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav-item.active { color: var(--blue-500); }
+.nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.nav-label { font-size: 10px; font-weight: 500; letter-spacing: 0.02em; }
+.nav-bar {
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 24px; height: 2.5px;
+  background: var(--blue-500);
+  border-radius: 0 0 3px 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.nav-item.active .nav-bar { opacity: 1; }
+.nav-badge {
+  position: absolute;
+  top: 4px; right: calc(50% - 18px);
+  background: var(--coral-500);
+  color: #fff;
+  font-size: 9px; font-weight: 700;
+  min-width: 15px; height: 15px;
+  border-radius: var(--r-full);
+  padding: 0 4px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--surface);
+}
 
-  /* AI Parse bar */
-  .parse-bar { display: none; align-items: flex-start; gap: 10px; padding: 12px 14px;
-    background: var(--teal-50); border: 0.5px solid var(--teal-100); border-radius: var(--r-md); margin-top: 12px; }
-  .parse-bar.visible { display: flex; }
-  .ai-badge { font-size: 11px; font-weight: 600; color: var(--teal-800); background: var(--teal-100);
-    padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
-  .parse-text { font-size: 13px; color: var(--teal-600); flex: 1; line-height: 1.5; }
-  .parse-actions { display: flex; gap: 6px; flex-shrink: 0; flex-wrap: wrap; }
-  .btn-apply { font-size: 12px; padding: 5px 13px; border-radius: var(--r-md); cursor: pointer;
-    background: var(--teal-400); color: #fff; border: none; font-weight: 500; transition: background 0.15s; }
-  .btn-apply:hover { background: var(--teal-600); }
-  .btn-discard { font-size: 12px; padding: 5px 11px; border-radius: var(--r-md); cursor: pointer;
-    background: transparent; color: var(--text2); border: 0.5px solid var(--border2); transition: all 0.15s; }
-  .btn-discard:hover { background: var(--surface2); }
+/* ── Section spacing helper ───────────────────────────── */
+.section { padding: 16px 16px 0; }
+.section:last-child { padding-bottom: 0; }
+.gap-section { height: 14px; }
 
-  /* Alert */
-  .alert-box { display: none; align-items: flex-start; gap: 10px; padding: 12px 14px;
-    background: var(--coral-50); border: 0.5px solid var(--coral-200); border-radius: var(--r-md); }
-  .alert-box.visible { display: flex; }
-  .alert-icon { width: 18px; height: 18px; border-radius: 50%; background: var(--coral-400);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .alert-icon span { color: #fff; font-size: 11px; font-weight: 700; }
-  .alert-text { font-size: 13px; color: var(--coral-600); line-height: 1.5; flex: 1; }
-  .severity-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 7px;
-    border-radius: 4px; margin-left: 6px; vertical-align: middle; }
-  .severity-lav { background: var(--green-50); color: var(--green-600); }
-  .severity-moderat { background: var(--amber-50); color: var(--amber-600); }
-  .severity-høy, .severity-kritisk { background: var(--coral-50); color: var(--coral-600); }
+/* ── Cards ────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.card-header {
+  padding: 14px 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.card-body { padding: 14px 16px 16px; }
 
-  /* Offline badge */
-  .offline-badge { display: flex; align-items: center; gap: 7px; font-size: 12px;
-    color: var(--text2); padding: 6px 13px; background: var(--surface2);
-    border-radius: 20px; border: 0.5px solid var(--border); width: fit-content; }
-  .offline-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber-400); }
-  .offline-dot.online { background: var(--teal-400); }
+/* ── Connection banner ────────────────────────────────── */
+.conn-bar {
+  margin: 12px 16px 0;
+  padding: 9px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text2);
+}
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--amber-400); margin-right: 7px; flex-shrink: 0; }
+.conn-dot.online { background: var(--green-400); }
+.conn-left { display: flex; align-items: center; }
 
-  /* Log */
-  .log-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn-log-action { font-size: 12px; padding: 6px 13px; border-radius: var(--r-md); cursor: pointer;
-    border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text2);
-    font-family: var(--font); transition: all 0.15s; }
-  .btn-log-action:hover { background: var(--teal-50); color: var(--teal-600); border-color: var(--teal-200); }
-  .btn-log-action.danger:hover { background: var(--coral-50); color: var(--coral-600); border-color: var(--coral-200); }
+/* ── Stats row ────────────────────────────────────────── */
+.stats-row {
+  margin: 10px 16px 0;
+  display: flex;
+  gap: 8px;
+}
+.stat-chip {
+  flex: 1;
+  background: var(--surface);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.stat-val { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1; }
+.stat-label { font-size: 10px; color: var(--text3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  .log-list { display: flex; flex-direction: column; gap: 8px; }
-  .log-item { border-radius: var(--r-md); border: 0.5px solid var(--border); overflow: hidden; }
-  .log-item-header { display: flex; align-items: center; gap: 10px; padding: 11px 14px;
-    background: var(--surface2); cursor: pointer; transition: background 0.15s; }
-  .log-item-header:hover { background: var(--teal-50); }
-  .log-item.open .log-item-header { background: var(--teal-50); }
-  .log-item-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal-400); flex-shrink: 0; }
-  .log-item-dot.pending { background: var(--amber-400); }
-  .log-item-text { flex: 1; font-size: 13px; color: var(--text); min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .log-item-meta { font-size: 11px; color: var(--text3); flex-shrink: 0; }
-  .log-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; flex-shrink: 0; }
-  .log-badge.synced { background: var(--teal-50); color: var(--teal-600); }
-  .log-badge.pending { background: var(--amber-50); color: var(--amber-600); }
-  .log-chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; flex-shrink: 0; }
-  .log-item.open .log-chevron { transform: rotate(180deg); }
+/* ── Recording card ───────────────────────────────────── */
+.record-card {
+  margin: 12px 16px 0;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+.mode-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.mode-label { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.mode-toggle {
+  display: flex;
+  background: var(--gray-100);
+  border-radius: var(--r-full);
+  padding: 3px;
+  gap: 3px;
+}
+.mode-btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 13px;
+  border-radius: var(--r-full);
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  transition: all 0.2s;
+}
+.mode-btn.active {
+  background: var(--surface);
+  color: var(--blue-500);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
 
-  .log-item-expanded { padding: 14px; background: var(--surface); border-top: 0.5px solid var(--border); display: none; }
-  .log-item.open .log-item-expanded { display: block; }
-  .log-transcript-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase;
-    letter-spacing: 0.05em; margin-bottom: 5px; }
-  .log-transcript-box { background: var(--surface2); border-radius: var(--r-md); padding: 9px 12px;
-    font-size: 12px; color: var(--text2); line-height: 1.6; margin-bottom: 12px; font-style: italic; }
-  .log-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 16px; font-size: 12px; margin-bottom: 12px; }
-  .log-field { display: flex; gap: 5px; }
-  .log-field-key { color: var(--text3); min-width: 80px; flex-shrink: 0; }
-  .log-field-val { color: var(--text); font-weight: 500; }
-  .log-symptoms { font-size: 12px; margin-bottom: 12px; }
-  .log-symptoms-key { color: var(--text3); margin-bottom: 4px; }
-  .log-symptom-tags { display: flex; flex-wrap: wrap; gap: 5px; }
-  .log-symptom-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px;
-    background: var(--teal-50); color: var(--teal-600); }
-  .log-item-actions { display: flex; gap: 8px; }
-  .btn-log-apply { font-size: 12px; padding: 5px 12px; border-radius: var(--r-md); cursor: pointer;
-    background: var(--teal-400); color: #fff; border: none; font-family: var(--font); transition: background 0.15s; }
-  .btn-log-apply:hover { background: var(--teal-600); }
-  .btn-log-del { font-size: 12px; padding: 5px 11px; border-radius: var(--r-md); cursor: pointer;
-    background: transparent; color: var(--coral-400); border: 0.5px solid var(--coral-200);
-    font-family: var(--font); transition: all 0.15s; }
-  .btn-log-del:hover { background: var(--coral-50); }
+/* Mic area */
+.mic-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 0 20px;
+}
+.mic-ring {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mic-btn {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease;
+  background: linear-gradient(145deg, var(--blue-400) 0%, var(--blue-500) 100%);
+  box-shadow: 0 8px 32px rgba(0,87,255,0.32), 0 2px 8px rgba(0,87,255,0.2);
+}
+.mic-btn:hover:not(:disabled) {
+  transform: scale(1.06);
+  box-shadow: 0 12px 40px rgba(0,87,255,0.42), 0 4px 12px rgba(0,87,255,0.25);
+}
+.mic-btn:active:not(:disabled) { transform: scale(0.96); }
+.mic-btn:disabled {
+  background: linear-gradient(145deg, var(--gray-300), var(--gray-400));
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.mic-btn.recording {
+  background: linear-gradient(145deg, var(--teal-400) 0%, var(--teal-500) 100%);
+  box-shadow: 0 8px 32px rgba(0,184,160,0.35), 0 2px 8px rgba(0,184,160,0.2);
+}
+.mic-btn svg { width: 34px; height: 34px; fill: #fff; }
 
-  /* Form */
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
-  .form-group.full { grid-column: 1/-1; }
-  .form-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; }
-  .form-input { font-size: 14px; padding: 9px 12px; border-radius: var(--r-md);
-    border: 0.5px solid var(--border2); background: var(--surface); color: var(--text);
-    outline: none; transition: border-color 0.15s; font-family: var(--font); resize: vertical; }
-  .form-input:focus { border-color: var(--teal-400); }
-  .form-input.ai-filled { border-color: var(--teal-200); background: var(--teal-50); }
-  .section-sep { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase;
-    letter-spacing: 0.06em; grid-column: 1/-1; padding-top: 6px;
-    border-top: 0.5px solid var(--border); margin-top: 4px; }
-  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag { font-size: 12px; padding: 5px 11px; border-radius: 20px; cursor: pointer;
-    border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text2);
-    transition: all 0.15s; user-select: none; }
-  .tag.active { background: var(--teal-400); color: #fff; border-color: var(--teal-400); }
+/* Recording ripple rings */
+.mic-ripple {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.mic-ripple::before,
+.mic-ripple::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid var(--teal-400);
+  opacity: 0;
+  inset: -10px;
+}
+.mic-ripple::after { inset: -22px; }
+.mic-btn.recording ~ .mic-ripple::before { animation: ripple 1.8s ease-out infinite; }
+.mic-btn.recording ~ .mic-ripple::after  { animation: ripple 1.8s ease-out infinite 0.5s; }
+@keyframes ripple {
+  0%   { opacity: 0.6; transform: scale(0.92); }
+  100% { opacity: 0;   transform: scale(1.12); }
+}
 
-  /* Export */
-  .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .export-card { background: var(--surface); border: 0.5px solid var(--border);
-    border-radius: var(--r-lg); padding: 14px; cursor: pointer; transition: all 0.15s;
-    display: flex; flex-direction: column; gap: 7px; }
-  .export-card:hover { border-color: var(--teal-200); background: var(--teal-50); }
-  .export-card.selected { border-color: var(--teal-400); border-width: 1.5px; }
-  .export-name { font-size: 14px; font-weight: 500; }
-  .export-desc { font-size: 12px; color: var(--text2); line-height: 1.4; }
-  .export-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; width: fit-content; font-weight: 500; }
-  .badge-pdf { background: var(--coral-50); color: var(--coral-600); }
-  .badge-api { background: var(--blue-50); color: var(--blue-600); }
-  .badge-json { background: var(--green-50); color: var(--green-600); }
+.mic-status-text {
+  font-size: 13px;
+  color: var(--text2);
+  text-align: center;
+  line-height: 1.4;
+  min-height: 18px;
+}
 
-  .preview-card { background: var(--surface2); border: 0.5px solid var(--border);
-    border-radius: var(--r-md); padding: 16px; font-size: 13px; font-family: var(--mono); }
-  .preview-row { display: flex; justify-content: space-between; padding: 4px 0;
-    border-bottom: 0.5px solid var(--border); }
-  .preview-row:last-child { border-bottom: none; }
-  .preview-key { color: var(--teal-600); }
-  .preview-val { color: var(--text); font-weight: 500; }
+/* Waveform */
+.waveform {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 24px;
+}
+.wave-bar {
+  width: 3px;
+  border-radius: 3px;
+  background: var(--teal-400);
+  animation: wave-anim 0.8s ease-in-out infinite;
+}
+.wave-bar:nth-child(1) { animation-delay: 0.0s; }
+.wave-bar:nth-child(2) { animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; }
+@keyframes wave-anim { 0%,100%{ height:4px } 50%{ height:20px } }
 
-  .btn-primary { width: 100%; padding: 12px; background: var(--teal-400); color: #fff;
-    border: none; border-radius: var(--r-md); font-size: 14px; font-weight: 500;
-    cursor: pointer; transition: all 0.15s; font-family: var(--font); }
-  .btn-primary:hover { background: var(--teal-600); }
-  .btn-primary:disabled { background: var(--gray-100); color: var(--gray-400); cursor: not-allowed; }
-  .btn-primary.success { background: var(--teal-800); }
+/* Transcript */
+.transcript-wrap {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px 14px;
+  min-height: 64px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text);
+}
+.transcript-hint { color: var(--text3); font-style: italic; }
 
-  /* Modal */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-    z-index: 100; align-items: center; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--r-xl); padding: 24px;
-    max-width: 420px; width: 90%; border: 0.5px solid var(--border); }
-  .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
-  .modal p { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 16px; }
-  .modal-input { width: 100%; font-size: 14px; padding: 10px 12px; border-radius: var(--r-md);
-    border: 0.5px solid var(--border2); background: var(--surface2); color: var(--text);
-    outline: none; font-family: var(--mono); margin-bottom: 12px; }
-  .modal-input:focus { border-color: var(--teal-400); }
-  .modal-row { display: flex; gap: 8px; }
-  .btn-secondary { flex: 1; padding: 10px; border-radius: var(--r-md); border: 0.5px solid var(--border2);
-    background: var(--surface2); color: var(--text2); cursor: pointer; font-size: 14px;
-    font-family: var(--font); transition: all 0.15s; }
-  .btn-secondary:hover { background: var(--surface); }
-  .btn-modal-save { flex: 1; padding: 10px; border-radius: var(--r-md); background: var(--teal-400);
-    color: #fff; border: none; cursor: pointer; font-size: 14px; font-weight: 500;
-    font-family: var(--font); transition: background 0.15s; }
-  .btn-modal-save:hover { background: var(--teal-600); }
+/* AI result card */
+.ai-result {
+  display: none;
+  margin-top: 12px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  border: 1px solid var(--teal-100);
+}
+.ai-result.visible { display: block; }
+.ai-result-header {
+  background: linear-gradient(90deg, var(--teal-50), var(--blue-50));
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ai-chip {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-600);
+  background: var(--teal-100);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ai-summary { font-size: 13px; color: var(--teal-600); flex: 1; line-height: 1.45; }
+.ai-result-actions {
+  padding: 10px 14px;
+  display: flex;
+  gap: 8px;
+  background: var(--surface);
+}
+.btn-use {
+  flex: 1;
+  padding: 9px 0;
+  background: var(--blue-500);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-use:hover { background: var(--blue-600); }
+.btn-dismiss {
+  padding: 9px 16px;
+  background: transparent;
+  color: var(--text2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.btn-dismiss:hover { background: var(--surface2); }
 
-  /* Continuous mode log */
-  .continuous-log { background: var(--surface2); border: 0.5px solid var(--border);
-    border-radius: var(--r-md); padding: 14px; min-height: 120px; max-height: 240px;
-    overflow-y: auto; font-size: 13px; line-height: 1.7; color: var(--text); }
-  .continuous-entry { padding: 3px 0; border-bottom: 0.5px solid var(--border); }
-  .continuous-entry:last-child { border-bottom: none; }
-  .entry-time { color: var(--text3); font-size: 11px; font-family: var(--mono); }
+/* Alert box */
+.alert-card {
+  display: none;
+  margin: 10px 16px 0;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  background: var(--coral-50);
+  border: 1px solid var(--coral-100);
+  flex-direction: column;
+  gap: 6px;
+}
+.alert-card.visible { display: flex; }
+.alert-top { display: flex; align-items: center; gap: 8px; }
+.alert-icon-wrap {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--coral-500);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.alert-icon-wrap svg { width: 12px; height: 12px; stroke: #fff; stroke-width: 2.5; }
+.alert-title { font-size: 13px; font-weight: 600; color: var(--coral-600); }
+.alert-msg { font-size: 12px; color: var(--coral-500); line-height: 1.5; padding-left: 30px; }
+.severity-badge {
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--r-full);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.sev-lav      { background: var(--green-50); color: var(--green-600); }
+.sev-moderat  { background: var(--amber-50); color: var(--amber-600); }
+.sev-høy,
+.sev-kritisk  { background: var(--coral-50); color: var(--coral-500); }
 
-  /* Fagord-info */
-  .fagord-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+/* Fagord */
+.fagord-card {
+  margin: 10px 16px 0;
+}
+.fagord-toggle {
+  width: 100%;
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: var(--shadow-sm);
+  transition: background 0.15s;
+}
+.fagord-toggle:hover { background: var(--surface2); }
+.fagord-chevron { font-size: 10px; transition: transform 0.2s; }
+.fagord-toggle.open .fagord-chevron { transform: rotate(180deg); }
+.fagord-content {
+  display: none;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px 14px;
+  background: var(--surface);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  box-shadow: var(--shadow-sm);
+}
+.fagord-content.open { display: flex; }
+.chip {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: var(--r-full);
+  background: var(--blue-50);
+  color: var(--blue-600);
+  font-weight: 500;
+}
 
-  /* Toast */
-  .toast { position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--gray-900); color: #fff; font-size: 13px; padding: 10px 18px;
-    border-radius: 20px; z-index: 200; transition: transform 0.3s; white-space: nowrap; max-width: 90vw; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* Continuous mode */
+.continuous-feed {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px;
+  min-height: 120px;
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.7;
+  -webkit-overflow-scrolling: touch;
+}
+.feed-entry { padding: 3px 0; border-bottom: 1px solid var(--border); }
+.feed-entry:last-child { border-bottom: none; }
+.feed-time { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-right: 6px; }
 
-  @media (max-width: 480px) {
-    .form-grid { grid-template-columns: 1fr; }
-    .export-grid { grid-template-columns: 1fr; }
-    .form-group.full { grid-column: 1; }
-    .section-sep { grid-column: 1; }
-    .log-fields { grid-template-columns: 1fr; }
-  }
+/* ── Form ─────────────────────────────────────────────── */
+.form-section { padding: 0 16px; margin-top: 14px; }
+.form-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 10px;
+  padding-left: 2px;
+}
+.form-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.form-field {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.form-field:nth-child(even) { border-right: none; }
+.form-field.full {
+  grid-column: 1/-1;
+  border-right: none;
+}
+.form-field:last-child, .form-field:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+.form-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.form-input {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  border: none;
+  background: transparent;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  font-family: var(--font);
+  resize: none;
+}
+.form-input::placeholder { color: var(--text3); font-weight: 400; }
+.form-input:focus { color: var(--blue-500); }
+.form-input.ai-filled { color: var(--teal-600); }
+
+.symptom-section { padding: 12px 14px; }
+.symptom-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.tag-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text2);
+  transition: all 0.15s;
+  user-select: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+.tag.active {
+  background: var(--blue-500);
+  color: #fff;
+  border-color: var(--blue-500);
+}
+.tag.active.syk {
+  background: var(--amber-400);
+  border-color: var(--amber-400);
+  color: #000;
+}
+
+.form-actions { padding: 16px; display: flex; gap: 10px; }
+.btn-save {
+  flex: 1;
+  padding: 13px;
+  background: var(--blue-500);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-save:hover { background: var(--blue-600); }
+.btn-clear {
+  padding: 13px 18px;
+  background: var(--surface);
+  color: var(--text2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.btn-clear:hover { background: var(--surface2); }
+
+/* ── Export ───────────────────────────────────────────── */
+.export-section { padding: 0 16px; margin-top: 14px; }
+.export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.export-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1.5px solid transparent;
+  box-shadow: var(--shadow-sm);
+}
+.export-card:hover { border-color: var(--blue-200, #C7D8FF); }
+.export-card.selected {
+  border-color: var(--blue-500);
+  background: var(--blue-50);
+}
+.export-card-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.export-card-desc { font-size: 11px; color: var(--text3); line-height: 1.4; }
+.export-pill {
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  margin-bottom: 6px;
+}
+.pill-pdf  { background: var(--coral-50);  color: var(--coral-600); }
+.pill-api  { background: var(--blue-50);   color: var(--blue-600); }
+.pill-json { background: var(--green-50);  color: var(--green-600); }
+
+.preview-section { margin: 14px 16px 0; }
+.preview-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.preview-row {
+  display: flex;
+  align-items: center;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.preview-row:last-child { border-bottom: none; }
+.preview-key { color: var(--text3); min-width: 120px; font-size: 12px; }
+.preview-val { color: var(--text); font-weight: 500; flex: 1; }
+
+.send-section { padding: 12px 16px 0; }
+.btn-send {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--blue-500), var(--teal-500));
+  color: #fff;
+  border: none;
+  border-radius: var(--r-lg);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 4px 20px rgba(0,87,255,0.3);
+}
+.btn-send:hover { opacity: 0.92; }
+.btn-send:active { transform: scale(0.98); }
+.btn-send:disabled { background: var(--gray-200); color: var(--gray-400); box-shadow: none; }
+.btn-send.success { background: linear-gradient(135deg, var(--teal-500), var(--green-400)); }
+
+/* ── Log ──────────────────────────────────────────────── */
+.log-toolbar {
+  margin: 14px 16px 10px;
+  display: flex;
+  gap: 8px;
+}
+.btn-tool {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.btn-tool svg { width: 13px; height: 13px; }
+.btn-tool:hover { background: var(--blue-50); color: var(--blue-500); border-color: var(--blue-100); }
+.btn-tool.danger:hover { background: var(--coral-50); color: var(--coral-500); border-color: var(--coral-100); }
+
+.log-section { padding: 0 16px; }
+.log-list { display: flex; flex-direction: column; gap: 8px; }
+.log-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text3);
+  font-size: 14px;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+.log-empty svg { width: 40px; height: 40px; opacity: 0.3; margin-bottom: 12px; }
+
+/* Log item */
+.log-item {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  border-left: 3px solid var(--gray-200);
+  transition: box-shadow 0.15s;
+}
+.log-item.sev-lav      { border-left-color: var(--green-400); }
+.log-item.sev-moderat  { border-left-color: var(--amber-400); }
+.log-item.sev-høy,
+.log-item.sev-kritisk  { border-left-color: var(--coral-500); }
+.log-item.open { box-shadow: var(--shadow); }
+
+.log-item-head {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.log-item-head:hover { background: var(--surface2); }
+.log-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  flex-shrink: 0;
+}
+.log-dot.synced  { background: var(--green-400); }
+.log-dot.pending { background: var(--amber-400); }
+.log-item-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.log-item-time { font-size: 11px; color: var(--text3); flex-shrink: 0; }
+.log-status-pill {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  flex-shrink: 0;
+}
+.log-status-pill.synced  { background: var(--green-50); color: var(--green-600); }
+.log-status-pill.pending { background: var(--amber-50); color: var(--amber-600); }
+.log-chevron {
+  font-size: 9px;
+  color: var(--text3);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.log-item.open .log-chevron { transform: rotate(180deg); }
+
+.log-item-body {
+  display: none;
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.log-item.open .log-item-body { display: block; }
+
+.log-transcript {
+  background: var(--surface2);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--text2);
+  font-style: italic;
+  line-height: 1.6;
+  margin: 12px 0 10px;
+}
+.log-detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+.log-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 16px;
+  font-size: 12px;
+}
+.log-kv { display: flex; gap: 6px; align-items: baseline; }
+.log-k { color: var(--text3); min-width: 80px; flex-shrink: 0; font-size: 11px; }
+.log-v { color: var(--text); font-weight: 600; }
+.log-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+.log-tag {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: var(--r-full);
+  background: var(--blue-50);
+  color: var(--blue-600);
+  font-weight: 500;
+}
+.log-tag.warn { background: var(--amber-50); color: var(--amber-600); }
+.log-tiltak {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--surface2);
+  border-radius: var(--r-sm);
+  border-left: 2px solid var(--blue-400);
+}
+.log-item-btns { display: flex; gap: 8px; margin-top: 12px; }
+.btn-log-use {
+  flex: 1;
+  padding: 8px;
+  background: var(--blue-500);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.btn-log-use:hover { background: var(--blue-600); }
+.btn-log-del {
+  padding: 8px 14px;
+  border: 1px solid var(--coral-100);
+  background: transparent;
+  color: var(--coral-500);
+  border-radius: var(--r-md);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.btn-log-del:hover { background: var(--coral-50); }
+
+.sync-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 32px);
+  margin: 12px 16px 0;
+  padding: 11px;
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  font-size: 13px;
+  color: var(--text2);
+  font-weight: 500;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.sync-btn:hover { background: var(--surface2); }
+
+/* ── Modal ────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: var(--r-2xl) var(--r-2xl) 0 0;
+  padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
+  width: 100%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  animation: slide-up 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--border2);
+  border-radius: var(--r-full);
+  margin: 0 auto 20px;
+}
+.modal-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 6px; }
+.modal-desc { font-size: 13px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+.modal-input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--mono);
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color 0.15s;
+}
+.modal-input:focus { border-color: var(--blue-500); background: var(--surface); }
+.modal-actions { display: flex; gap: 10px; }
+.btn-modal-cancel {
+  flex: 1;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border2);
+  background: var(--surface2);
+  color: var(--text2);
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.btn-modal-cancel:hover { background: var(--gray-100); }
+.btn-modal-save {
+  flex: 1.5;
+  padding: 12px;
+  border-radius: var(--r-md);
+  border: none;
+  background: var(--blue-500);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.15s;
+}
+.btn-modal-save:hover { background: var(--blue-600); }
+
+/* ── Toast ────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--gray-900);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: var(--r-full);
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
+  white-space: nowrap;
+  max-width: calc(100vw - 48px);
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 400px) {
+  .form-row { grid-template-columns: 1fr; }
+  .form-field { border-right: none; }
+  .form-field.full { grid-column: 1; }
+}
+@media (min-width: 600px) {
+  .app-main { max-width: 600px; margin: 0 auto; }
+  .app-nav  { max-width: 600px; left: 50%; transform: translateX(-50%); border-radius: var(--r-xl) var(--r-xl) 0 0; border: 1px solid var(--border); }
+}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="layout">
-
-  <!-- Topbar -->
-  <div class="topbar">
-    <div class="topbar-left">
-      <span class="logo">FeltAI</span>
-      <span class="topbar-title">Prøvedokumentasjon</span>
-    </div>
-    <div class="topbar-right">
-      <div class="status-pill">
-        <span class="status-dot" id="statusDot"></span>
-        <span id="statusText">Klar</span>
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+        </div>
+        <div>
+          <div class="brand-name">FeltAI</div>
+          <div class="brand-sub">Havbruksdokumentasjon</div>
+        </div>
       </div>
-      <button class="api-key-btn" id="apiKeyBtn" onclick="openApiModal()">API-nøkkel</button>
+      <div class="header-right">
+        <div class="status-indicator">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusText" style="font-size:12px;">Klar</span>
+        </div>
+        <button class="header-btn" id="apiKeyBtn" onclick="openApiModal()" title="API-nøkkel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <div class="tab active" onclick="showTab('stemme',this)">Stemme</div>
-    <div class="tab" onclick="showTab('skjema',this)">Skjema</div>
-    <div class="tab" onclick="showTab('eksport',this)">Eksport</div>
-    <div class="tab" id="tab-logg" onclick="showTab('logg',this)">Logg</div>
-  </div>
+  <!-- ── Main ───────────────────────────────────────────── -->
+  <div class="app-main">
 
-  <!-- Main -->
-  <div class="main">
-
-    <!-- STEMME PANEL -->
+    <!-- ════ STEMME PANEL ════════════════════════════════ -->
     <div class="panel active" id="panel-stemme">
 
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-        <div class="offline-badge">
-          <span class="offline-dot" id="offlineDot"></span>
-          <span id="offlineText">Sjekker tilkobling...</span>
+      <div class="conn-bar">
+        <div class="conn-left">
+          <span class="conn-dot" id="connDot"></span>
+          <span id="connText">Sjekker tilkobling...</span>
         </div>
-        <div id="syncCount" style="font-size:12px;color:var(--text3);"></div>
+        <span id="syncCount" style="font-size:11px;color:var(--text3);"></span>
       </div>
 
-      <div class="card">
+      <div class="stats-row">
+        <div class="stat-chip">
+          <div class="stat-val" id="statToday">0</div>
+          <div class="stat-label">I dag</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-val" id="statTotal">0</div>
+          <div class="stat-label">Totalt</div>
+        </div>
+        <div class="stat-chip" style="flex:2;">
+          <div class="stat-val" style="font-size:12px;font-weight:600;" id="statLast">—</div>
+          <div class="stat-label">Siste lokalitet</div>
+        </div>
+      </div>
+
+      <!-- Recording card -->
+      <div class="record-card">
         <div class="mode-row">
-          <div class="card-label" style="margin-bottom:0;">Opptaksmodus</div>
+          <span class="mode-label">Modus</span>
           <div class="mode-toggle">
-            <div class="mode-btn active" onclick="setMode('ptt',this)">Trykk og snakk</div>
-            <div class="mode-btn" onclick="setMode('continuous',this)">Kontinuerlig</div>
+            <button class="mode-btn active" onclick="setMode('ptt',this)">Trykk&snakk</button>
+            <button class="mode-btn" onclick="setMode('continuous',this)">Kontinuerlig</button>
           </div>
         </div>
 
         <div class="mic-area">
-          <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
-            <svg class="mic-icon" viewBox="0 0 24 24">
-              <path d="M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4zm0 2a2 2 0 00-2 2v6a2 2 0 004 0V5a2 2 0 00-2-2zm-7 9h2a5 5 0 0010 0h2a7 7 0 01-6 6.92V21h2v2H9v-2h2v-2.08A7 7 0 015 12z"/>
-            </svg>
-          </button>
-          <span class="mic-status" id="micStatus">Trykk på mikrofon for å starte opptak</span>
-          <div class="waveform" id="waveform">
-            <div class="wave-bar" style="animation-delay:0s;"></div>
-            <div class="wave-bar" style="animation-delay:0.1s;"></div>
-            <div class="wave-bar" style="animation-delay:0.2s;"></div>
-            <div class="wave-bar" style="animation-delay:0.3s;"></div>
-            <div class="wave-bar" style="animation-delay:0.4s;"></div>
+          <div class="mic-ring">
+            <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
+              <svg viewBox="0 0 24 24"><path d="M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4zm0 2a2 2 0 00-2 2v6a2 2 0 004 0V5a2 2 0 00-2-2zm-7 9h2a5 5 0 0010 0h2a7 7 0 01-6 6.92V21h2v2H9v-2h2v-2.08A7 7 0 015 12z"/></svg>
+            </button>
+            <div class="mic-ripple"></div>
           </div>
+          <div class="waveform" id="waveform">
+            <div class="wave-bar" style="height:4px;"></div>
+            <div class="wave-bar" style="height:4px;"></div>
+            <div class="wave-bar" style="height:4px;"></div>
+            <div class="wave-bar" style="height:4px;"></div>
+            <div class="wave-bar" style="height:4px;"></div>
+          </div>
+          <p class="mic-status-text" id="micStatus">Trykk på mikrofon for å starte opptak</p>
         </div>
 
-        <!-- PTT mode -->
+        <!-- PTT -->
         <div id="pttMode">
-          <div class="transcript-area" id="transcriptBox">
-            <span class="hint" id="transcriptHint">Transkripsjon vises her under opptak...</span>
+          <div class="transcript-wrap" id="transcriptBox">
+            <span class="transcript-hint" id="transcriptHint">Transkripsjon vises her under opptak...</span>
             <span id="transcriptText"></span>
           </div>
-          <div class="parse-bar" id="parseBar">
-            <span class="ai-badge" id="aiBadge">AI</span>
-            <span class="parse-text" id="parseText">Tolker...</span>
-            <div class="parse-actions">
-              <button class="btn-discard" onclick="discardParsed()">Forkast</button>
-              <button class="btn-apply" onclick="applyParsed()">Bruk i skjema</button>
+          <div class="ai-result" id="parseBar">
+            <div class="ai-result-header">
+              <span class="ai-chip" id="aiBadge">AI</span>
+              <span class="ai-summary" id="parseText">Analyserer...</span>
+            </div>
+            <div class="ai-result-actions">
+              <button class="btn-use" onclick="applyParsed()">Bruk i skjema</button>
+              <button class="btn-dismiss" onclick="discardParsed()">Forkast</button>
             </div>
           </div>
         </div>
 
-        <!-- Continuous mode -->
+        <!-- Continuous -->
         <div id="continuousMode" style="display:none;">
-          <div class="continuous-log" id="continuousLog">
-            <div style="color:var(--text3);font-style:italic;font-size:13px;">Løpende logg vises her under inspeksjon...</div>
+          <div class="continuous-feed" id="continuousLog">
+            <span style="color:var(--text3);font-style:italic;font-size:13px;">Løpende logg vises her under inspeksjon...</span>
           </div>
         </div>
       </div>
 
-      <div class="alert-box" id="alertBox">
-        <div class="alert-icon"><span>!</span></div>
-        <div class="alert-text" id="alertText"></div>
+      <!-- Alert -->
+      <div class="alert-card" id="alertBox">
+        <div class="alert-top">
+          <div class="alert-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor"/></svg>
+          </div>
+          <span class="alert-title" id="alertTitle">Varsel</span>
+        </div>
+        <div class="alert-msg" id="alertText"></div>
       </div>
 
-      <div class="card">
-        <div class="card-label">Fagord som tolkes automatisk</div>
-        <div class="fagord-grid">
-          <span class="tag active">gjellelokk</span><span class="tag active">snittvekt</span>
-          <span class="tag active">lusenivå</span><span class="tag active">dødfisk</span>
-          <span class="tag active">AGD</span><span class="tag active">merd</span>
-          <span class="tag active">biomasse</span><span class="tag active">katarakt</span>
-          <span class="tag active">PD</span><span class="tag active">IHN</span>
-          <span class="tag active">ILA</span><span class="tag active">sår</span>
-          <span class="tag active">blek lever</span><span class="tag active">oksygen</span>
-          <span class="tag active">salinitet</span><span class="tag active">hunnlus</span>
+      <!-- Fagord -->
+      <div class="fagord-card">
+        <button class="fagord-toggle" id="fagordToggle" onclick="toggleFagord()">
+          Fagord tolkes automatisk
+          <span class="fagord-chevron">▼</span>
+        </button>
+        <div class="fagord-content" id="fagordContent">
+          <span class="chip">gjellelokk</span><span class="chip">snittvekt</span>
+          <span class="chip">lusenivå</span><span class="chip">dødfisk</span>
+          <span class="chip">AGD</span><span class="chip">merd</span>
+          <span class="chip">biomasse</span><span class="chip">katarakt</span>
+          <span class="chip">PD</span><span class="chip">IHN</span>
+          <span class="chip">ILA</span><span class="chip">sår</span>
+          <span class="chip">blek lever</span><span class="chip">oksygen</span>
+          <span class="chip">salinitet</span><span class="chip">hunnlus</span>
         </div>
       </div>
+
+      <div style="height:8px;"></div>
     </div>
 
-    <!-- SKJEMA PANEL -->
+    <!-- ════ SKJEMA PANEL ════════════════════════════════ -->
     <div class="panel" id="panel-skjema">
-      <div class="card">
-        <div class="card-label">Lokasjon og tid</div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Lokalitet</label>
-            <input class="form-input" id="f-lokalitet" placeholder="Navn på lokalitet">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Oppdrettsselskap</label>
-            <input class="form-input" id="f-selskap" placeholder="Selskapsnavn">
-          </div>
-          <div class="form-group">
-            <label class="form-label">GPS-koordinater</label>
-            <input class="form-input" id="f-gps" placeholder="Henter...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Dato</label>
-            <input class="form-input" id="f-dato" type="date">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Klokkeslett</label>
-            <input class="form-input" id="f-tid" type="time">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Ansvarlig veterinær / biolog</label>
-            <input class="form-input" id="f-ansvarlig" placeholder="Navn">
+
+      <div class="form-section" style="margin-top:14px;">
+        <div class="form-section-title">Lokasjon og tid</div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-field">
+              <div class="form-label">Lokalitet</div>
+              <input class="form-input" id="f-lokalitet" placeholder="Navn på lokalitet">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Oppdrettsselskap</div>
+              <input class="form-input" id="f-selskap" placeholder="Selskapsnavn">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Dato</div>
+              <input class="form-input" id="f-dato" type="date">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Klokkeslett</div>
+              <input class="form-input" id="f-tid" type="time">
+            </div>
+            <div class="form-field">
+              <div class="form-label">GPS</div>
+              <input class="form-input" id="f-gps" placeholder="Henter...">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Ansvarlig</div>
+              <input class="form-input" id="f-ansvarlig" placeholder="Veterinær / biolog">
+            </div>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-label">Feltmålinger</div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Merd nr.</label>
-            <input class="form-input" id="f-merd" placeholder="—">
+
+      <div class="form-section">
+        <div class="form-section-title">Feltmålinger</div>
+        <div class="form-card">
+          <div class="form-row">
+            <div class="form-field">
+              <div class="form-label">Merd nr.</div>
+              <input class="form-input" id="f-merd" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Snittvekt (kg)</div>
+              <input class="form-input" id="f-vekt" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Antall fisk</div>
+              <input class="form-input" id="f-antall-fisk" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Biomasse (tonn)</div>
+              <input class="form-input" id="f-biomasse" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Antall dødfisk</div>
+              <input class="form-input" id="f-dod" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Prøvetype</div>
+              <input class="form-input" id="f-prove" placeholder="organprøve / PCR...">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Temp (°C)</div>
+              <input class="form-input" id="f-temp" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Oksygen (%)</div>
+              <input class="form-input" id="f-oksygen" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Salinitet (‰)</div>
+              <input class="form-input" id="f-salinitet" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Lusenivå (total)</div>
+              <input class="form-input" id="f-lus" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Hunnlus</div>
+              <input class="form-input" id="f-lus-hunnlus" placeholder="—">
+            </div>
+            <div class="form-field">
+              <div class="form-label">Bevegelig lus</div>
+              <input class="form-input" id="f-lus-bevegelig" placeholder="—">
+            </div>
+            <div class="form-field full">
+              <div class="form-label">Fastsittende lus</div>
+              <input class="form-input" id="f-lus-fastsittende" placeholder="—">
+            </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">Snittvekt (kg)</label>
-            <input class="form-input" id="f-vekt" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Antall fisk (estimat)</label>
-            <input class="form-input" id="f-antall-fisk" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Biomasse (tonn)</label>
-            <input class="form-input" id="f-biomasse" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Antall dødfisk</label>
-            <input class="form-input" id="f-dod" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Prøvetype</label>
-            <input class="form-input" id="f-prove" placeholder="organprøve / blod / PCR...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Vanntemperatur (°C)</label>
-            <input class="form-input" id="f-temp" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Oksygen (%)</label>
-            <input class="form-input" id="f-oksygen" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Salinitet (‰)</label>
-            <input class="form-input" id="f-salinitet" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Lus — voksen hunnlus</label>
-            <input class="form-input" id="f-lus-hunnlus" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Lus — bevegelig</label>
-            <input class="form-input" id="f-lus-bevegelig" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Lus — fastsittende</label>
-            <input class="form-input" id="f-lus-fastsittende" placeholder="—">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Lusenivå (total)</label>
-            <input class="form-input" id="f-lus" placeholder="—">
-          </div>
-          <div class="section-sep">Symptomer og observasjoner</div>
-          <div class="form-group full">
-            <label class="form-label">Raske symptomer</label>
-            <div class="tag-list">
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Kliniske funn</div>
+        <div class="form-card">
+          <div class="symptom-section">
+            <div class="symptom-group-title">Symptomer</div>
+            <div class="tag-wrap">
               <span class="tag" onclick="this.classList.toggle('active')">Blek lever</span>
               <span class="tag" onclick="this.classList.toggle('active')">Gjellelokk normalt</span>
               <span class="tag" onclick="this.classList.toggle('active')">Sår</span>
@@ -519,64 +1378,68 @@
               <span class="tag" onclick="this.classList.toggle('active')">Petekier</span>
             </div>
           </div>
-          <div class="form-group full">
-            <label class="form-label">Sykdomsmistanke</label>
-            <div class="tag-list" id="sykdomTags">
-              <span class="tag" onclick="this.classList.toggle('active')">PD</span>
-              <span class="tag" onclick="this.classList.toggle('active')">AGD</span>
-              <span class="tag" onclick="this.classList.toggle('active')">IHN</span>
-              <span class="tag" onclick="this.classList.toggle('active')">ILA</span>
-              <span class="tag" onclick="this.classList.toggle('active')">Vintersår</span>
-              <span class="tag" onclick="this.classList.toggle('active')">Amøbegjellesykdom</span>
-              <span class="tag" onclick="this.classList.toggle('active')">Hjerte-/muskelbetennelse</span>
+          <div class="symptom-section" style="border-top:1px solid var(--border);">
+            <div class="symptom-group-title">Sykdomsmistanke</div>
+            <div class="tag-wrap" id="sykdomTags">
+              <span class="tag syk" onclick="this.classList.toggle('active')">PD</span>
+              <span class="tag syk" onclick="this.classList.toggle('active')">AGD</span>
+              <span class="tag syk" onclick="this.classList.toggle('active')">IHN</span>
+              <span class="tag syk" onclick="this.classList.toggle('active')">ILA</span>
+              <span class="tag syk" onclick="this.classList.toggle('active')">Vintersår</span>
+              <span class="tag syk" onclick="this.classList.toggle('active')">Amøbegjellesykdom</span>
+              <span class="tag syk" onclick="this.classList.toggle('active')">Hjerte-/muskelbetennelse</span>
             </div>
           </div>
-          <div class="form-group full">
-            <label class="form-label">Fritekst observasjon</label>
-            <textarea class="form-input" id="f-fritekst" rows="4" placeholder="Skriv eller dikter observasjoner..."></textarea>
-          </div>
-          <div class="form-group full">
-            <label class="form-label">Anbefalt tiltak</label>
-            <textarea class="form-input" id="f-tiltak" rows="2" placeholder="AI foreslår tiltak basert på observasjonene..."></textarea>
+          <div class="form-row" style="border-top:1px solid var(--border);">
+            <div class="form-field full">
+              <div class="form-label">Fritekst observasjon</div>
+              <textarea class="form-input" id="f-fritekst" rows="3" placeholder="Observasjoner, atferd, utseende..."></textarea>
+            </div>
+            <div class="form-field full">
+              <div class="form-label">Anbefalt tiltak</div>
+              <textarea class="form-input" id="f-tiltak" rows="2" placeholder="AI foreslår tiltak automatisk..."></textarea>
+            </div>
           </div>
         </div>
       </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn-primary" style="background:var(--surface2);color:var(--text2);border:0.5px solid var(--border2);" onclick="clearForm()">Tøm skjema</button>
-        <button class="btn-primary" onclick="saveToLocal()">Lagre i logg</button>
+
+      <div class="form-actions">
+        <button class="btn-clear" onclick="clearForm()">Tøm</button>
+        <button class="btn-save" onclick="saveToLocal()">Lagre i logg</button>
       </div>
     </div>
 
-    <!-- EKSPORT PANEL -->
+    <!-- ════ EKSPORT PANEL ════════════════════════════════ -->
     <div class="panel" id="panel-eksport">
-      <div class="card">
-        <div class="card-label">Velg mottaker</div>
+      <div class="export-section">
+        <div class="form-section-title" style="margin-top:14px;">Velg mottaker</div>
         <div class="export-grid">
           <div class="export-card selected" id="exp-vi" onclick="selectExport('vi',this)">
-            <span class="export-name">Veterinærinstituttet</span>
-            <span class="export-badge badge-pdf">PDF-skjema</span>
-            <span class="export-desc">Offisielt norsk innsendingsskjema</span>
+            <div class="export-pill pill-pdf">PDF</div>
+            <div class="export-card-name">Veterinærinstituttet</div>
+            <div class="export-card-desc">Offisielt norsk innsendingsskjema</div>
           </div>
           <div class="export-card" id="exp-pat" onclick="selectExport('pat',this)">
-            <span class="export-name">Patogen</span>
-            <span class="export-badge badge-api">API</span>
-            <span class="export-desc">Direkte innsending med automapping</span>
+            <div class="export-pill pill-api">API</div>
+            <div class="export-card-name">Patogen</div>
+            <div class="export-card-desc">Direkte innsending, automapping</div>
           </div>
           <div class="export-card" id="exp-phq" onclick="selectExport('phq',this)">
-            <span class="export-name">PHARMAQ</span>
-            <span class="export-badge badge-json">JSON</span>
-            <span class="export-desc">Engelsk terminologi, digital rapport</span>
+            <div class="export-pill pill-json">JSON</div>
+            <div class="export-card-name">PHARMAQ</div>
+            <div class="export-card-desc">Engelsk terminologi, digital rapport</div>
           </div>
           <div class="export-card" id="exp-ba" onclick="selectExport('ba',this)">
-            <span class="export-name">Blue Analytics</span>
-            <span class="export-badge badge-api">API</span>
-            <span class="export-desc">Dataanalyse og historikk</span>
+            <div class="export-pill pill-api">API</div>
+            <div class="export-card-name">Blue Analytics</div>
+            <div class="export-card-desc">Dataanalyse og historikk</div>
           </div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-label">Forhåndsvisning — feltmapping</div>
-        <div class="preview-card" id="previewCard">
+
+      <div class="preview-section">
+        <div class="form-section-title">Forhåndsvisning</div>
+        <div class="preview-card">
           <div class="preview-row"><span class="preview-key" id="pk1">Vekt</span><span class="preview-val" id="pv1">—</span></div>
           <div class="preview-row"><span class="preview-key" id="pk2">Antall døde</span><span class="preview-val" id="pv2">—</span></div>
           <div class="preview-row"><span class="preview-key">Lokalitet</span><span class="preview-val" id="pv3">—</span></div>
@@ -585,57 +1448,99 @@
           <div class="preview-row"><span class="preview-key">Dato</span><span class="preview-val" id="pv6">—</span></div>
           <div class="preview-row"><span class="preview-key">Symptomer</span><span class="preview-val" id="pv7">—</span></div>
           <div class="preview-row"><span class="preview-key">Sykdomsmistanke</span><span class="preview-val" id="pv8">—</span></div>
-          <div class="preview-row"><span class="preview-key" style="color:var(--text3);">Format</span><span class="preview-val" id="pv-format" style="color:var(--text3);">—</span></div>
+          <div class="preview-row" style="opacity:0.5;"><span class="preview-key">Format</span><span class="preview-val" id="pv-format">—</span></div>
         </div>
-        <button class="btn-primary" id="sendBtn" onclick="sendReport()" style="margin-top:12px;">Send rapport til Veterinærinstituttet</button>
       </div>
+
+      <div class="send-section">
+        <button class="btn-send" id="sendBtn" onclick="sendReport()">Send rapport til Veterinærinstituttet</button>
+      </div>
+      <div style="height:8px;"></div>
     </div>
 
-    <!-- LOGG PANEL -->
+    <!-- ════ LOGG PANEL ══════════════════════════════════ -->
     <div class="panel" id="panel-logg">
-      <div class="log-actions">
-        <button class="btn-log-action" onclick="exportLogCSV()">⬇ Eksporter CSV</button>
-        <button class="btn-log-action" onclick="exportLogJSON()">⬇ Eksporter JSON</button>
-        <button class="btn-log-action danger" onclick="clearLog()">Tøm logg</button>
+      <div class="log-toolbar">
+        <button class="btn-tool" onclick="exportLogCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          CSV
+        </button>
+        <button class="btn-tool" onclick="exportLogJSON()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          JSON
+        </button>
+        <button class="btn-tool danger" onclick="clearLog()" style="margin-left:auto;">Tøm logg</button>
       </div>
-      <div class="card" style="padding:14px;">
-        <div class="card-label">Registreringer</div>
+      <div class="log-section">
         <div class="log-list" id="logList">
-          <div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">Ingen registreringer ennå</div>
+          <div class="log-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <div>Ingen registreringer ennå</div>
+            <div style="font-size:12px;margin-top:4px;">Bruk mikrofonen for å starte</div>
+          </div>
         </div>
       </div>
-      <button class="btn-primary" onclick="syncAll()" id="syncBtn" style="background:var(--surface2);color:var(--text2);border:0.5px solid var(--border2);">Synkroniser alle ventende</button>
+      <button class="sync-btn" onclick="syncAll()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+        Synkroniser ventende
+      </button>
+      <div style="height:8px;"></div>
     </div>
 
-  </div><!-- /main -->
-</div><!-- /layout -->
+  </div><!-- /app-main -->
 
-<!-- API Key Modal -->
+  <!-- ── Bottom Nav ──────────────────────────────────────── -->
+  <nav class="app-nav">
+    <div class="nav-item active" id="nav-stemme" onclick="showTab('stemme',this)">
+      <div class="nav-bar"></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4z"/><path d="M5 12a7 7 0 0014 0M12 19v4M8 23h8"/></svg>
+      <span class="nav-label">Opptak</span>
+    </div>
+    <div class="nav-item" id="nav-skjema" onclick="showTab('skjema',this)">
+      <div class="nav-bar"></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><path d="M9 12h6M9 16h4"/></svg>
+      <span class="nav-label">Skjema</span>
+    </div>
+    <div class="nav-item" id="nav-eksport" onclick="showTab('eksport',this)">
+      <div class="nav-bar"></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+      <span class="nav-label">Send</span>
+    </div>
+    <div class="nav-item" id="nav-logg" onclick="showTab('logg',this)">
+      <div class="nav-bar"></div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      <span class="nav-label">Logg</span>
+    </div>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- API Key Modal (bottom sheet) -->
 <div class="modal-overlay" id="apiModal">
   <div class="modal">
-    <h3>Anthropic API-nøkkel</h3>
-    <p>Brukes til AI-analyse av feltdata. Lagres lokalt på enheten og forblir der mellom økter.</p>
-    <input class="modal-input" type="password" id="apiKeyInput" placeholder="sk-ant-...">
-    <div class="modal-row">
-      <button class="btn-secondary" onclick="closeApiModal()">Avbryt</button>
+    <div class="modal-handle"></div>
+    <div class="modal-title">API-nøkkel</div>
+    <div class="modal-desc">Anthropic-nøkkelen brukes til AI-analyse og lagres kun lokalt på denne enheten. Den forblir mellom alle økter.</div>
+    <input class="modal-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeApiModal()">Avbryt</button>
       <button class="btn-modal-save" onclick="saveApiKey()">Lagre nøkkel</button>
     </div>
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
-let apiKey = localStorage.getItem('feltai_api_key') || '';
-let recording = false;
+let apiKey      = localStorage.getItem('feltai_api_key') || '';
+let recording   = false;
 let recognition = null;
 let currentTranscript = '';
-let parsedData = null;
+let parsedData  = null;
 let selectedExport = 'vi';
-let mode = 'ptt';
-let isOnline = navigator.onLine;
+let mode        = 'ptt';
+let isOnline    = navigator.onLine;
 let continuousEntries = [];
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
@@ -646,85 +1551,96 @@ document.addEventListener('DOMContentLoaded', () => {
   updateApiKeyBtn();
   renderLog();
   updatePreview();
-  updateLogBadge();
+  updateStats();
 
-  window.addEventListener('online', () => { isOnline = true; updateOnlineStatus(); autoSync(); });
+  window.addEventListener('online',  () => { isOnline = true;  updateOnlineStatus(); autoSync(); });
   window.addEventListener('offline', () => { isOnline = false; updateOnlineStatus(); });
-
   detectSpeechSupport();
 
-  // Load saved responsible name
-  const saved = localStorage.getItem('feltai_ansvarlig');
-  if (saved) document.getElementById('f-ansvarlig').value = saved;
-  document.getElementById('f-ansvarlig').addEventListener('change', e => {
-    localStorage.setItem('feltai_ansvarlig', e.target.value);
-  });
+  const savedAns = localStorage.getItem('feltai_ansvarlig');
+  if (savedAns) document.getElementById('f-ansvarlig').value = savedAns;
+  document.getElementById('f-ansvarlig').addEventListener('change', e =>
+    localStorage.setItem('feltai_ansvarlig', e.target.value));
 
-  // Load saved company
-  const savedSelskap = localStorage.getItem('feltai_selskap');
-  if (savedSelskap) document.getElementById('f-selskap').value = savedSelskap;
-  document.getElementById('f-selskap').addEventListener('change', e => {
-    localStorage.setItem('feltai_selskap', e.target.value);
-  });
+  const savedSel = localStorage.getItem('feltai_selskap');
+  if (savedSel) document.getElementById('f-selskap').value = savedSel;
+  document.getElementById('f-selskap').addEventListener('change', e =>
+    localStorage.setItem('feltai_selskap', e.target.value));
 });
 
 function setDates() {
   const now = new Date();
   document.getElementById('f-dato').value = now.toISOString().split('T')[0];
-  document.getElementById('f-tid').value = now.toTimeString().slice(0,5);
+  document.getElementById('f-tid').value  = now.toTimeString().slice(0,5);
 }
-
 function getGPS() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude.toFixed(5);
-      const lon = pos.coords.longitude.toFixed(5);
-      document.getElementById('f-gps').value = `${lat}, ${lon}`;
-    }, () => {
-      if (!document.getElementById('f-gps').value)
-        document.getElementById('f-gps').value = 'Ikke tilgjengelig';
-    });
-  }
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude.toFixed(5);
+    const lon = pos.coords.longitude.toFixed(5);
+    document.getElementById('f-gps').value = `${lat}, ${lon}`;
+  }, () => {
+    if (!document.getElementById('f-gps').value)
+      document.getElementById('f-gps').value = 'Ikke tilgjengelig';
+  });
 }
 
-function checkOnline() {
-  isOnline = navigator.onLine;
-  updateOnlineStatus();
-}
-
+// ─── Online status ────────────────────────────────────────────────────────────
+function checkOnline() { isOnline = navigator.onLine; updateOnlineStatus(); }
 function updateOnlineStatus() {
-  const dot = document.getElementById('offlineDot');
-  const text = document.getElementById('offlineText');
-  const statusDot = document.getElementById('statusDot');
+  const dot  = document.getElementById('connDot');
+  const text = document.getElementById('connText');
+  const sd   = document.getElementById('statusDot');
   if (isOnline) {
     dot.classList.add('online');
     text.textContent = 'Online — synkronisert';
-    statusDot.classList.add('online');
+    sd.classList.add('online');
   } else {
     dot.classList.remove('online');
     text.textContent = 'Offline — lagrer lokalt';
-    statusDot.classList.remove('online');
+    sd.classList.remove('online');
   }
   const pending = getSavedEntries().filter(e => e.status === 'pending').length;
-  document.getElementById('syncCount').textContent = pending > 0 ? `${pending} venter på synk` : '';
+  document.getElementById('syncCount').textContent = pending > 0 ? `${pending} venter` : '';
 }
 
-// ─── Tabs ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const entries = getSavedEntries();
+  const today   = new Date().toISOString().split('T')[0];
+  const todayN  = entries.filter(e => e.timestamp.startsWith(today)).length;
+  document.getElementById('statToday').textContent = todayN;
+  document.getElementById('statTotal').textContent = entries.length;
+  const last = entries[0];
+  document.getElementById('statLast').textContent =
+    last ? (last.data?.lokalitet || last.parsed?.merd && 'Merd ' + last.parsed.merd || '—') : '—';
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
 function showTab(name, el) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
+  // Activate nav item by data or by name
+  const navEl = document.getElementById('nav-' + name);
+  if (navEl) navEl.classList.add('active');
   if (name === 'eksport') updatePreview();
-  if (name === 'logg') { renderLog(); updateLogBadge(); }
+  if (name === 'logg')    { renderLog(); updateStats(); }
 }
 
-// ─── Mode ────────────────────────────────────────────────────────────────────
+// ─── Fagord ───────────────────────────────────────────────────────────────────
+function toggleFagord() {
+  const toggle  = document.getElementById('fagordToggle');
+  const content = document.getElementById('fagordContent');
+  toggle.classList.toggle('open');
+  content.classList.toggle('open');
+}
+
+// ─── Mode ─────────────────────────────────────────────────────────────────────
 function setMode(m, el) {
   mode = m;
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('pttMode').style.display = m === 'ptt' ? 'block' : 'none';
+  document.getElementById('pttMode').style.display        = m === 'ptt'        ? 'block' : 'none';
   document.getElementById('continuousMode').style.display = m === 'continuous' ? 'block' : 'none';
   if (recording) stopRecording();
 }
@@ -735,35 +1651,28 @@ function detectSpeechSupport() {
   if (!SR) {
     document.getElementById('micBtn').disabled = true;
     setMicStatus('Nettleseren støtter ikke talegjenkjenning — bruk Safari eller Chrome');
-    return;
   }
-  setMicStatus('Trykk på mikrofon for å starte opptak');
 }
-
-function toggleRecording() {
-  if (recording) stopRecording();
-  else startRecording();
-}
+function toggleRecording() { recording ? stopRecording() : startRecording(); }
 
 function startRecording() {
-  // No API key gate — recording works with fallback parser too
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { showManualFallback(); return; }
 
   recording = true;
   currentTranscript = '';
-  setDates(); // refresh timestamp on each recording
-  getGPS();   // refresh GPS on each recording
+  setDates(); getGPS();
 
-  document.getElementById('transcriptHint').style.display = 'inline';
-  document.getElementById('transcriptHint').textContent = 'Opptak pågår — snakk tydelig på norsk...';
-  document.getElementById('transcriptText').textContent = '';
-  document.getElementById('parseBar').classList.remove('visible');
-  document.getElementById('alertBox').classList.remove('visible');
-  document.getElementById('micBtn').classList.add('recording');
+  const mb = document.getElementById('micBtn');
+  mb.classList.add('recording');
   document.getElementById('waveform').style.display = 'flex';
   document.getElementById('statusDot').classList.add('recording');
   document.getElementById('statusDot').classList.remove('online');
+  document.getElementById('parseBar').classList.remove('visible');
+  document.getElementById('alertBox').classList.remove('visible');
+  document.getElementById('transcriptHint').style.display = 'inline';
+  document.getElementById('transcriptHint').textContent   = 'Opptak pågår — snakk tydelig på norsk...';
+  document.getElementById('transcriptText').textContent   = '';
   setMicStatus('Opptak pågår — trykk stopp når du er ferdig');
 
   recognition = new SR();
@@ -771,16 +1680,14 @@ function startRecording() {
   recognition.continuous = true;
   recognition.interimResults = true;
 
-  recognition.onresult = (event) => {
+  recognition.onresult = e => {
     let interim = '';
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      const t = event.results[i][0].transcript;
-      if (event.results[i].isFinal) {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
         currentTranscript += t + ' ';
         if (mode === 'continuous') addContinuousEntry(t.trim());
-      } else {
-        interim = t;
-      }
+      } else { interim = t; }
     }
     if (mode === 'ptt') {
       document.getElementById('transcriptText').textContent = (currentTranscript + interim).trim();
@@ -788,19 +1695,17 @@ function startRecording() {
     }
   };
 
-  recognition.onerror = (event) => {
-    if (event.error === 'not-allowed') {
-      setMicStatus('Mikrofontilgang nektet — tillat mikrofon i nettleserinnstillinger');
+  recognition.onerror = e => {
+    if (e.error === 'not-allowed') {
+      setMicStatus('Mikrofontilgang nektet — tillat mikrofon i innstillinger');
       showToast('Mikrofontilgang nektet');
       stopRecording();
-    } else if (event.error === 'network') {
-      // Network errors are non-fatal, just continue
     }
   };
 
   recognition.onend = () => {
     if (recording) {
-      try { recognition.start(); } catch(e) {}
+      try { recognition.start(); } catch(err) {}
     } else if (mode === 'ptt' && currentTranscript.trim()) {
       setMicStatus('Analyserer...');
       analyzeWithAI(currentTranscript.trim());
@@ -811,10 +1716,9 @@ function startRecording() {
     }
   };
 
-  try {
-    recognition.start();
-  } catch(e) {
-    showToast('Klarte ikke starte talegjenkjenning');
+  try { recognition.start(); }
+  catch(err) {
+    showToast('Klarte ikke starte opptak');
     recording = false;
     document.getElementById('micBtn').classList.remove('recording');
     document.getElementById('waveform').style.display = 'none';
@@ -829,26 +1733,20 @@ function stopRecording() {
   document.getElementById('statusDot').classList.remove('recording');
   if (isOnline) document.getElementById('statusDot').classList.add('online');
   if (recognition) { recognition.stop(); recognition = null; }
-  if (mode === 'ptt' && !currentTranscript.trim()) {
+  if (mode === 'ptt' && !currentTranscript.trim())
     setMicStatus('Trykk på mikrofon for å starte opptak');
-  }
 }
-
-function setMicStatus(text) {
-  document.getElementById('micStatus').textContent = text;
-}
+function setMicStatus(t) { document.getElementById('micStatus').textContent = t; }
 
 function showManualFallback() {
-  document.getElementById('transcriptHint').style.display = 'none';
-  document.getElementById('transcriptText').textContent = '';
-  setMicStatus('Skriv inn observasjonen nedenfor og trykk Enter');
+  setMicStatus('Skriv inn observasjonen og trykk Enter');
   const box = document.getElementById('transcriptBox');
   let inp = document.getElementById('manualInput');
   if (!inp) {
     inp = document.createElement('textarea');
     inp.id = 'manualInput';
-    inp.placeholder = 'F.eks: Merd 4, snittvekt 2,1 kg, tre dødfisk, blek lever...';
-    inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-size:14px;font-family:inherit;color:var(--text);resize:none;min-height:64px;margin-top:4px;';
+    inp.placeholder = 'F.eks: Merd 4, 2,1 kg, tre dødfisk, blek lever...';
+    inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-size:14px;font-family:inherit;color:var(--text);resize:none;min-height:60px;margin-top:6px;';
     inp.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -861,17 +1759,17 @@ function showManualFallback() {
   setTimeout(() => inp.focus(), 100);
 }
 
-// ─── Continuous log ───────────────────────────────────────────────────────────
+// ─── Continuous ───────────────────────────────────────────────────────────────
 function addContinuousEntry(text) {
-  const now = new Date().toTimeString().slice(0, 5);
+  const now = new Date().toTimeString().slice(0,5);
   continuousEntries.push({ time: now, text });
   const log = document.getElementById('continuousLog');
   log.innerHTML = '';
   continuousEntries.forEach(e => {
-    const div = document.createElement('div');
-    div.className = 'continuous-entry';
-    div.innerHTML = `<span class="entry-time">${e.time}</span> ${e.text}`;
-    log.appendChild(div);
+    const d = document.createElement('div');
+    d.className = 'feed-entry';
+    d.innerHTML = `<span class="feed-time">${e.time}</span>${e.text}`;
+    log.appendChild(d);
   });
   log.scrollTop = log.scrollHeight;
   if (apiKey) analyzeWithAI(text, true);
@@ -879,52 +1777,46 @@ function addContinuousEntry(text) {
 
 // ─── AI Analysis ──────────────────────────────────────────────────────────────
 async function analyzeWithAI(transcript, continuous = false) {
-  if (!apiKey) {
-    if (!continuous) showFallbackParse(transcript);
-    return;
-  }
+  if (!apiKey) { if (!continuous) showFallbackParse(transcript); return; }
 
-  const systemPrompt = `Du er en spesialisert AI-assistent for norsk havbruksnæring. Din oppgave er å analysere feltnotater fra fiskehelsebiologer og veterinærer som jobber med lakseoppdrett.
+  const systemPrompt = `Du er en spesialisert AI-assistent for norsk havbruksnæring. Analyser feltnotater fra fiskehelsebiologer og veterinærer.
 
-BAKGRUNN OG TERMINOLOGI:
-- Arbeider i felt på oppdrettsanlegg langs norskekysten
-- Registrerer helsestatus, behandlinger og prøvetaking på laks og regnbueørret
-- Viktige sykdommer: PD (Pancreas Disease), AGD (Amoebic Gill Disease), IHN (Infectious Haematopoietic Necrosis), ILA (Infeksiøs Lakseanemi), CMS (Cardiomyopati Syndrom), SGS (Støtfeber/Gill Score)
-- Lusetelling: voksne hunnlus (maks 0,5 per fisk etter behandling), bevegelige, fastsittende chalimus
-- Lusegrenser: 0,2 voksne hunnlus i perioden aug-okt (pre-smolt), 0,5 ellers
-- Alvorlig: ILA-mistanke (meldepliktig), >20 dødfisk/dag/merd, oksygen <70%, kraftige sår
+DOMENEKUNSKAP:
+- Sykdommer: PD (Pancreas Disease), AGD (Amoebic Gill Disease), IHN, ILA (meldepliktig!), CMS, Vintersår
+- Luse-grenser: 0,2 voksne hunnlus (aug-okt), 0,5 ellers. Over grensen = tiltak påkrevd
+- Varsle ved: ILA-mistanke, oksygen <70%, >20 dødfisk/dag/merd, kraftige sår, akutt høy dødelighet
 
-ANALYSE:
-Ekstraher KUN det som er nevnt. Bruk null for ikke-nevnte felt.
-Returner KUN gyldig JSON:
+Ekstraher KUN nevnte data. Returner KUN gyldig JSON:
 {
-  "merd": "string",
-  "snittvekt_kg": "string",
-  "antall_fisk": "string",
-  "biomasse_tonn": "string",
-  "dod_fisk": "string",
-  "luseniva": "string",
-  "lus_voksen_hunnlus": "string",
-  "lus_bevegelig": "string",
-  "lus_fastsittende": "string",
-  "prove_type": "string",
-  "temperatur": "string",
-  "oksygen": "string",
-  "salinitet": "string",
-  "symptomer": ["liste med symptomer observert"],
-  "sykdomsmistanke": ["liste med aktuelle diagnoser/mistanker"],
-  "alvorlighetsgrad": "lav|moderat|høy|kritisk",
-  "anbefalt_tiltak": "konkret anbefaling basert på funn",
-  "fritekst": "andre observasjoner og notater",
-  "varsel": true/false,
-  "varsel_tekst": "kort varselmelding ved alvorlige funn (ILA-mistanke, høy dødelighet, lave oksygenverdier)",
-  "sammendrag": "1-2 setninger som oppsummerer registreringen for UI-visning"
+  "merd": null,
+  "snittvekt_kg": null,
+  "antall_fisk": null,
+  "biomasse_tonn": null,
+  "dod_fisk": null,
+  "luseniva": null,
+  "lus_voksen_hunnlus": null,
+  "lus_bevegelig": null,
+  "lus_fastsittende": null,
+  "prove_type": null,
+  "temperatur": null,
+  "oksygen": null,
+  "salinitet": null,
+  "symptomer": [],
+  "sykdomsmistanke": [],
+  "alvorlighetsgrad": "lav",
+  "anbefalt_tiltak": null,
+  "fritekst": null,
+  "varsel": false,
+  "varsel_tekst": null,
+  "sammendrag": "kort sammendrag"
 }`;
 
   try {
-    document.getElementById('parseText').textContent = 'Analyserer med AI...';
-    document.getElementById('aiBadge').textContent = 'AI';
-    if (!continuous) document.getElementById('parseBar').classList.add('visible');
+    if (!continuous) {
+      document.getElementById('aiBadge').textContent = 'AI...';
+      document.getElementById('parseText').textContent = 'Analyserer...';
+      document.getElementById('parseBar').classList.add('visible');
+    }
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -944,31 +1836,19 @@ Returner KUN gyldig JSON:
 
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-
-    const raw = data.content[0].text.replace(/```json|```/g, '').trim();
+    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
     parsedData = JSON.parse(raw);
 
-    // AUTO-SAVE to log on every successful analysis
     autoSaveEntry(transcript, parsedData);
 
     if (!continuous) {
-      document.getElementById('parseText').textContent = parsedData.sammendrag || 'Analysert';
       document.getElementById('aiBadge').textContent = 'AI ✓';
-      document.getElementById('parseBar').classList.add('visible');
-      setMicStatus('Analysert og lagret i logg — godkjenn eller forkast for skjema');
-
-      if (parsedData.varsel) {
-        document.getElementById('alertBox').classList.add('visible');
-        document.getElementById('alertText').innerHTML =
-          parsedData.varsel_tekst +
-          (parsedData.alvorlighetsgrad ? `<span class="severity-badge severity-${parsedData.alvorlighetsgrad}">${parsedData.alvorlighetsgrad.toUpperCase()}</span>` : '');
-      }
+      document.getElementById('parseText').textContent = parsedData.sammendrag || 'Analysert';
+      setMicStatus('Analysert og lagret — bruk i skjema eller forkast');
+      if (parsedData.varsel) showAlert(parsedData.varsel_tekst, parsedData.alvorlighetsgrad);
     } else {
-      if (parsedData.varsel) {
-        document.getElementById('alertBox').classList.add('visible');
-        document.getElementById('alertText').textContent = parsedData.varsel_tekst;
-      }
-      showToast('Lagret: ' + (parsedData.sammendrag || '').slice(0, 55));
+      if (parsedData.varsel) showAlert(parsedData.varsel_tekst, parsedData.alvorlighetsgrad);
+      showToast((parsedData.sammendrag || '').slice(0,60) || 'Lagret');
     }
   } catch(err) {
     console.error('AI feil:', err);
@@ -979,97 +1859,92 @@ Returner KUN gyldig JSON:
   }
 }
 
-function showFallbackParse(text) {
-  parsedData = localParse(text);
-  // AUTO-SAVE with fallback data too
-  autoSaveEntry(text, parsedData);
-  document.getElementById('parseText').textContent = parsedData.sammendrag || 'Tolket lokalt';
-  document.getElementById('aiBadge').textContent = apiKey ? 'Lokal' : 'Lokal (ingen API)';
-  document.getElementById('parseBar').classList.add('visible');
-  setMicStatus('Lagret i logg — godkjenn eller forkast for skjema');
+function showAlert(msg, sev) {
+  document.getElementById('alertBox').classList.add('visible');
+  document.getElementById('alertTitle').textContent = sev === 'kritisk' ? 'KRITISK VARSEL' : 'Varsel';
+  document.getElementById('alertText').innerHTML = msg + (sev ?
+    ` <span class="severity-badge sev-${sev}">${sev.toUpperCase()}</span>` : '');
 }
 
-// ─── Local parser (no-API fallback) ──────────────────────────────────────────
+function showFallbackParse(text) {
+  parsedData = localParse(text);
+  autoSaveEntry(text, parsedData);
+  document.getElementById('aiBadge').textContent = apiKey ? 'Lokal' : 'Lokal';
+  document.getElementById('parseText').textContent = parsedData.sammendrag || 'Tolket lokalt';
+  document.getElementById('parseBar').classList.add('visible');
+  setMicStatus('Lagret i logg — bruk i skjema eller forkast');
+}
+
+// ─── Local parser ─────────────────────────────────────────────────────────────
 function localParse(text) {
   const t = text.toLowerCase();
   const d = {
-    merd: null, snittvekt_kg: null, antall_fisk: null, biomasse_tonn: null,
-    dod_fisk: null, luseniva: null, lus_voksen_hunnlus: null,
-    lus_bevegelig: null, lus_fastsittende: null,
-    prove_type: null, temperatur: null, oksygen: null, salinitet: null,
-    symptomer: [], sykdomsmistanke: [], alvorlighetsgrad: 'lav',
-    anbefalt_tiltak: null, fritekst: text, varsel: false, varsel_tekst: null
+    merd:null, snittvekt_kg:null, antall_fisk:null, biomasse_tonn:null,
+    dod_fisk:null, luseniva:null, lus_voksen_hunnlus:null,
+    lus_bevegelig:null, lus_fastsittende:null,
+    prove_type:null, temperatur:null, oksygen:null, salinitet:null,
+    symptomer:[], sykdomsmistanke:[], alvorlighetsgrad:'lav',
+    anbefalt_tiltak:null, fritekst:text, varsel:false, varsel_tekst:null
   };
+  const m = t.match(/merd\s+(\d+)/);               if(m) d.merd = m[1];
+  const v = t.match(/(\d+[,.]?\d*)\s*kg/);          if(v) d.snittvekt_kg = v[1].replace(',','.');
+  const f = t.match(/(\d+)\s*(d[øo]dfisk|d[øo]de)/);if(f) d.dod_fisk = f[1];
+  const l = t.match(/luse?niv[åa]\s+(\d+[,.]?\d*)/);if(l) d.luseniva = l[1];
+  const h = t.match(/hunnlus\s+(\d+[,.]?\d*)/);    if(h) d.lus_voksen_hunnlus = h[1];
+  const tp= t.match(/(\d+[,.]?\d*)\s*°c/);          if(tp)d.temperatur = tp[1].replace(',','.');
+  const o = t.match(/oksygen\s+(\d+[,.]?\d*)/);     if(o) d.oksygen = o[1];
+  const s = t.match(/salinitet\s+(\d+[,.]?\d*)/);   if(s) d.salinitet = s[1];
 
-  const merd = t.match(/merd\s+(\d+)/); if (merd) d.merd = merd[1];
-  const vekt = t.match(/(\d+[,.]?\d*)\s*kg/); if (vekt) d.snittvekt_kg = vekt[1].replace(',', '.');
-  const dod = t.match(/(\d+)\s*(d[øo]dfisk|d[øo]de\s+fisk|d[øo]de)/); if (dod) d.dod_fisk = dod[1];
-  const lus = t.match(/luse?niv[åa]\s+(\d+[,.]?\d*)/); if (lus) d.luseniva = lus[1];
-  const hunnlus = t.match(/hunnlus\s+(\d+[,.]?\d*)/); if (hunnlus) d.lus_voksen_hunnlus = hunnlus[1];
-  const temp = t.match(/(\d+[,.]?\d*)\s*°?c|temperatur\s+(\d+[,.]?\d*)/);
-  if (temp) d.temperatur = (temp[1] || temp[2]).replace(',', '.');
-  const oks = t.match(/oksygen\s+(\d+[,.]?\d*)/); if (oks) d.oksygen = oks[1];
-  const sal = t.match(/salinitet\s+(\d+[,.]?\d*)/); if (sal) d.salinitet = sal[1];
+  if(t.includes('ila')) { d.sykdomsmistanke.push('ILA'); d.varsel=true; d.alvorlighetsgrad='kritisk'; d.varsel_tekst='ILA-mistanke — meldepliktig! Kontakt Mattilsynet umiddelbart.'; }
+  if(t.includes('agd')) d.sykdomsmistanke.push('AGD');
+  if(t.includes(' pd ') || t.includes('pancreas')) d.sykdomsmistanke.push('PD');
+  if(t.includes('ihn')) d.sykdomsmistanke.push('IHN');
+  if(t.includes('blek lever')) d.symptomer.push('Blek lever');
+  if(t.includes('sår')) d.symptomer.push('Sår');
+  if(t.includes('katarakt')) d.symptomer.push('Katarakt');
+  if(t.includes('avmagret')) d.symptomer.push('Avmagret');
 
-  if (t.includes('agd') || t.includes('amøbe')) { d.sykdomsmistanke.push('AGD'); }
-  if (t.includes('pd') || t.includes('pancreas')) { d.sykdomsmistanke.push('PD'); }
-  if (t.includes('ihn')) { d.sykdomsmistanke.push('IHN'); }
-  if (t.includes('ila') || t.includes('infeksiøs lakseanemi')) { d.sykdomsmistanke.push('ILA'); d.varsel = true; }
-  if (t.includes('blek lever')) d.symptomer.push('Blek lever');
-  if (t.includes('gjellelokk')) d.symptomer.push('Gjellelokk normalt');
-  if (t.includes('sår')) d.symptomer.push('Sår');
-  if (t.includes('katarakt')) d.symptomer.push('Katarakt');
-  if (t.includes('avmagret')) d.symptomer.push('Avmagret');
-  if (t.includes('petekier')) d.symptomer.push('Petekier');
-
-  const dodN = parseInt(d.dod_fisk || '0');
-  if (d.sykdomsmistanke.includes('ILA')) {
-    d.varsel = true; d.alvorlighetsgrad = 'kritisk';
-    d.varsel_tekst = 'ILA-mistanke — meldepliktig sykdom! Kontakt Mattilsynet umiddelbart.';
-  } else if (t.includes('høy dødelighet') || dodN > 20) {
-    d.varsel = true; d.alvorlighetsgrad = 'høy';
-    d.varsel_tekst = `Høy dødelighet${d.merd ? ' (merd ' + d.merd + ')' : ''}. Kontakt driftsansvarlig.`;
+  const dodN = parseInt(d.dod_fisk||'0');
+  if(!d.varsel && (t.includes('høy dødelighet')||dodN>20)) {
+    d.varsel=true; d.alvorlighetsgrad='høy';
+    d.varsel_tekst=`Høy dødelighet${d.merd?' merd '+d.merd:''}. Kontakt driftsansvarlig.`;
   }
 
   d.sammendrag = [
-    d.merd && 'Merd ' + d.merd,
-    d.snittvekt_kg && 'Vekt ' + d.snittvekt_kg + ' kg',
-    d.dod_fisk && d.dod_fisk + ' dødfisk',
-    d.luseniva && 'Lus ' + d.luseniva,
-    d.temperatur && 'Temp ' + d.temperatur + '°C',
-    ...d.symptomer, ...d.sykdomsmistanke
+    d.merd&&'Merd '+d.merd, d.snittvekt_kg&&d.snittvekt_kg+' kg',
+    d.dod_fisk&&d.dod_fisk+' dødfisk', d.luseniva&&'Lus '+d.luseniva,
+    d.temperatur&&d.temperatur+'°C', ...d.symptomer, ...d.sykdomsmistanke
   ].filter(Boolean).join(' · ') || 'Registrert';
-
   return d;
 }
 
-// ─── Auto-save to log ─────────────────────────────────────────────────────────
+// ─── Auto-save ────────────────────────────────────────────────────────────────
 function autoSaveEntry(transcript, parsed) {
   const entries = getSavedEntries();
-  const entry = {
+  entries.unshift({
     id: Date.now(),
     timestamp: new Date().toISOString(),
-    transcript: transcript,
-    parsed: parsed,
+    transcript,
+    parsed,
     data: getFormData(),
     status: 'pending'
-  };
-  entries.unshift(entry);
+  });
   setSavedEntries(entries);
   updateLogBadge();
   updateOnlineStatus();
+  updateStats();
   if (isOnline) autoSync();
 }
 
 function updateLogBadge() {
   const count = getSavedEntries().length;
-  const tab = document.getElementById('tab-logg');
-  const existing = tab.querySelector('.tab-badge');
+  const nav = document.getElementById('nav-logg');
+  let badge = nav.querySelector('.nav-badge');
   if (count > 0) {
-    if (existing) { existing.textContent = count; }
-    else { tab.innerHTML = 'Logg <span class="tab-badge">' + count + '</span>'; }
+    if (!badge) { badge = document.createElement('span'); badge.className = 'nav-badge'; nav.appendChild(badge); }
+    badge.textContent = count;
   } else {
-    if (existing) tab.innerHTML = 'Logg';
+    if (badge) badge.remove();
   }
 }
 
@@ -1077,33 +1952,33 @@ function updateLogBadge() {
 function applyParsed() {
   if (!parsedData) return;
   const set = (id, val) => {
-    if (val === null || val === undefined || val === '') return;
+    if (val == null || val === '') return;
     const el = document.getElementById(id);
     if (el) { el.value = val; el.classList.add('ai-filled'); }
   };
-  set('f-merd', parsedData.merd);
-  set('f-vekt', parsedData.snittvekt_kg);
-  set('f-dod', parsedData.dod_fisk);
-  set('f-lus', parsedData.luseniva);
-  set('f-lus-hunnlus', parsedData.lus_voksen_hunnlus);
-  set('f-lus-bevegelig', parsedData.lus_bevegelig);
-  set('f-lus-fastsittende', parsedData.lus_fastsittende);
-  set('f-prove', parsedData.prove_type);
-  set('f-temp', parsedData.temperatur);
-  set('f-oksygen', parsedData.oksygen);
-  set('f-salinitet', parsedData.salinitet);
-  set('f-antall-fisk', parsedData.antall_fisk);
-  set('f-biomasse', parsedData.biomasse_tonn);
-  if (parsedData.fritekst) set('f-fritekst', parsedData.fritekst);
-  if (parsedData.anbefalt_tiltak) set('f-tiltak', parsedData.anbefalt_tiltak);
+  set('f-merd',            parsedData.merd);
+  set('f-vekt',            parsedData.snittvekt_kg);
+  set('f-dod',             parsedData.dod_fisk);
+  set('f-lus',             parsedData.luseniva);
+  set('f-lus-hunnlus',     parsedData.lus_voksen_hunnlus);
+  set('f-lus-bevegelig',   parsedData.lus_bevegelig);
+  set('f-lus-fastsittende',parsedData.lus_fastsittende);
+  set('f-prove',           parsedData.prove_type);
+  set('f-temp',            parsedData.temperatur);
+  set('f-oksygen',         parsedData.oksygen);
+  set('f-salinitet',       parsedData.salinitet);
+  set('f-antall-fisk',     parsedData.antall_fisk);
+  set('f-biomasse',        parsedData.biomasse_tonn);
+  if (parsedData.fritekst)        set('f-fritekst', parsedData.fritekst);
+  if (parsedData.anbefalt_tiltak) set('f-tiltak',   parsedData.anbefalt_tiltak);
 
-  if (parsedData.symptomer && parsedData.symptomer.length) {
-    document.querySelectorAll('.tag-list .tag').forEach(tag => {
+  if (parsedData.symptomer?.length) {
+    document.querySelectorAll('.tag-wrap .tag:not(.syk)').forEach(tag => {
       if (parsedData.symptomer.some(s => tag.textContent.trim().toLowerCase() === s.toLowerCase()))
         tag.classList.add('active');
     });
   }
-  if (parsedData.sykdomsmistanke && parsedData.sykdomsmistanke.length) {
+  if (parsedData.sykdomsmistanke?.length) {
     document.querySelectorAll('#sykdomTags .tag').forEach(tag => {
       if (parsedData.sykdomsmistanke.some(s => tag.textContent.trim().toLowerCase() === s.toLowerCase()))
         tag.classList.add('active');
@@ -1113,11 +1988,7 @@ function applyParsed() {
   document.getElementById('parseBar').classList.remove('visible');
   updatePreview();
   showToast('Skjema oppdatert fra AI-analyse');
-  // Switch to form tab
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab')[1].classList.add('active');
-  document.getElementById('panel-skjema').classList.add('active');
+  showTab('skjema', document.getElementById('nav-skjema'));
 }
 
 function discardParsed() {
@@ -1126,160 +1997,132 @@ function discardParsed() {
   parsedData = null;
   document.getElementById('transcriptText').textContent = '';
   document.getElementById('transcriptHint').style.display = 'inline';
-  document.getElementById('transcriptHint').textContent = 'Transkripsjon vises her under opptak...';
+  document.getElementById('transcriptHint').textContent  = 'Transkripsjon vises her under opptak...';
   setMicStatus('Trykk på mikrofon for å starte opptak');
 }
 
 // ─── Form ─────────────────────────────────────────────────────────────────────
 function clearForm() {
-  ['f-merd','f-vekt','f-antall-fisk','f-biomasse','f-dod','f-lus','f-lus-hunnlus',
-   'f-lus-bevegelig','f-lus-fastsittende','f-prove','f-temp','f-oksygen','f-salinitet',
-   'f-fritekst','f-tiltak'].forEach(id => {
+  ['f-merd','f-vekt','f-antall-fisk','f-biomasse','f-dod','f-lus',
+   'f-lus-hunnlus','f-lus-bevegelig','f-lus-fastsittende',
+   'f-prove','f-temp','f-oksygen','f-salinitet','f-fritekst','f-tiltak'].forEach(id => {
     const el = document.getElementById(id);
     if (el) { el.value = ''; el.classList.remove('ai-filled'); }
   });
-  document.querySelectorAll('.tag-list .tag').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('#sykdomTags .tag').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
   setDates();
   showToast('Skjema tømt');
 }
 
 function getFormData() {
-  const symptoms = [...document.querySelectorAll('.tag-list .tag.active')].map(t => t.textContent.trim());
-  const sykdom = [...document.querySelectorAll('#sykdomTags .tag.active')].map(t => t.textContent.trim());
+  const symptoms = [...document.querySelectorAll('.tag-wrap .tag.active:not(.syk)')].map(t => t.textContent.trim());
+  const sykdom   = [...document.querySelectorAll('#sykdomTags .tag.active')].map(t => t.textContent.trim());
   return {
-    lokalitet: document.getElementById('f-lokalitet').value,
-    selskap: document.getElementById('f-selskap').value,
-    gps: document.getElementById('f-gps').value,
-    dato: document.getElementById('f-dato').value,
-    tid: document.getElementById('f-tid').value,
-    ansvarlig: document.getElementById('f-ansvarlig').value,
-    merd: document.getElementById('f-merd').value,
-    snittvekt: document.getElementById('f-vekt').value,
-    antall_fisk: document.getElementById('f-antall-fisk').value,
-    biomasse: document.getElementById('f-biomasse').value,
-    dod_fisk: document.getElementById('f-dod').value,
-    luseniva: document.getElementById('f-lus').value,
-    lus_hunnlus: document.getElementById('f-lus-hunnlus').value,
-    lus_bevegelig: document.getElementById('f-lus-bevegelig').value,
-    lus_fastsittende: document.getElementById('f-lus-fastsittende').value,
-    prove_type: document.getElementById('f-prove').value,
-    temperatur: document.getElementById('f-temp').value,
-    oksygen: document.getElementById('f-oksygen').value,
-    salinitet: document.getElementById('f-salinitet').value,
-    symptomer: symptoms,
+    lokalitet:       document.getElementById('f-lokalitet').value,
+    selskap:         document.getElementById('f-selskap').value,
+    gps:             document.getElementById('f-gps').value,
+    dato:            document.getElementById('f-dato').value,
+    tid:             document.getElementById('f-tid').value,
+    ansvarlig:       document.getElementById('f-ansvarlig').value,
+    merd:            document.getElementById('f-merd').value,
+    snittvekt:       document.getElementById('f-vekt').value,
+    antall_fisk:     document.getElementById('f-antall-fisk').value,
+    biomasse:        document.getElementById('f-biomasse').value,
+    dod_fisk:        document.getElementById('f-dod').value,
+    luseniva:        document.getElementById('f-lus').value,
+    lus_hunnlus:     document.getElementById('f-lus-hunnlus').value,
+    lus_bevegelig:   document.getElementById('f-lus-bevegelig').value,
+    lus_fastsittende:document.getElementById('f-lus-fastsittende').value,
+    prove_type:      document.getElementById('f-prove').value,
+    temperatur:      document.getElementById('f-temp').value,
+    oksygen:         document.getElementById('f-oksygen').value,
+    salinitet:       document.getElementById('f-salinitet').value,
+    symptomer:       symptoms,
     sykdomsmistanke: sykdom,
-    fritekst: document.getElementById('f-fritekst').value,
-    tiltak: document.getElementById('f-tiltak').value
+    fritekst:        document.getElementById('f-fritekst').value,
+    tiltak:          document.getElementById('f-tiltak').value
   };
 }
 
-// ─── Local storage ────────────────────────────────────────────────────────────
-function getSavedEntries() {
-  return JSON.parse(localStorage.getItem('feltai_entries') || '[]');
-}
-function setSavedEntries(arr) {
-  localStorage.setItem('feltai_entries', JSON.stringify(arr));
-}
+// ─── Storage ──────────────────────────────────────────────────────────────────
+function getSavedEntries() { return JSON.parse(localStorage.getItem('feltai_entries')||'[]'); }
+function setSavedEntries(a) { localStorage.setItem('feltai_entries', JSON.stringify(a)); }
 
 function saveToLocal() {
   const entries = getSavedEntries();
-  const entry = {
-    id: Date.now(),
-    timestamp: new Date().toISOString(),
-    transcript: currentTranscript || '',
-    parsed: parsedData || null,
-    data: getFormData(),
-    status: 'pending'
-  };
-  entries.unshift(entry);
+  entries.unshift({ id:Date.now(), timestamp:new Date().toISOString(),
+    transcript:currentTranscript||'', parsed:parsedData||null,
+    data:getFormData(), status:'pending' });
   setSavedEntries(entries);
-  updateLogBadge();
-  updateOnlineStatus();
-  renderLog();
+  updateLogBadge(); updateOnlineStatus(); updateStats(); renderLog();
   showToast('Lagret i logg');
   if (isOnline) autoSync();
 }
 
+// ─── Render log ───────────────────────────────────────────────────────────────
 function renderLog() {
   const entries = getSavedEntries();
-  const list = document.getElementById('logList');
+  const list    = document.getElementById('logList');
   if (!entries.length) {
-    list.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px 0;">Ingen registreringer ennå</div>';
+    list.innerHTML = `<div class="log-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/><path d="M9 12h6M9 16h4"/></svg>
+      <div>Ingen registreringer ennå</div>
+      <div style="font-size:12px;margin-top:4px;">Bruk mikrofonen for å starte</div>
+    </div>`;
     return;
   }
   list.innerHTML = '';
   entries.forEach(e => {
-    const p = e.parsed || {};
-    const d = e.data || {};
+    const p   = e.parsed || {};
+    const d   = e.data   || {};
+    const sev = p.alvorlighetsgrad || '';
     const label = [
-      d.lokalitet || p.merd && 'Merd ' + p.merd,
-      d.merd && 'merd ' + d.merd,
-      (d.snittvekt || p.snittvekt_kg) && (d.snittvekt || p.snittvekt_kg) + ' kg',
-      (d.dod_fisk || p.dod_fisk) && (d.dod_fisk || p.dod_fisk) + ' dødfisk'
+      d.lokalitet || (p.merd ? 'Merd '+p.merd : null),
+      d.merd && 'merd '+d.merd,
+      (d.snittvekt||p.snittvekt_kg) && (d.snittvekt||p.snittvekt_kg)+' kg',
+      (d.dod_fisk||p.dod_fisk) && (d.dod_fisk||p.dod_fisk)+' dødfisk'
     ].filter(Boolean).join(' · ') || 'Registrering';
 
-    const timeStr = new Date(e.timestamp).toLocaleString('nb-NO', {
-      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-    });
+    const timeStr = new Date(e.timestamp).toLocaleString('nb-NO',
+      { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
 
-    const item = document.createElement('div');
-    item.className = 'log-item';
-    item.dataset.id = e.id;
-
-    // Build expanded content
     const fields = [
-      ['Lokalitet', d.lokalitet || '—'],
-      ['Merd', p.merd || d.merd || '—'],
-      ['Snittvekt', (p.snittvekt_kg || d.snittvekt) ? (p.snittvekt_kg || d.snittvekt) + ' kg' : '—'],
-      ['Dødfisk', p.dod_fisk || d.dod_fisk || '—'],
-      ['Lus (total)', p.luseniva || d.luseniva || '—'],
-      ['Hunnlus', p.lus_voksen_hunnlus || d.lus_hunnlus || '—'],
-      ['Temperatur', (p.temperatur || d.temperatur) ? (p.temperatur || d.temperatur) + ' °C' : '—'],
-      ['Oksygen', (p.oksygen || d.oksygen) ? (p.oksygen || d.oksygen) + ' %' : '—'],
-      ['Salinitet', (p.salinitet || d.salinitet) ? (p.salinitet || d.salinitet) + ' ‰' : '—'],
-      ['Prøvetype', p.prove_type || d.prove_type || '—'],
-      ['Alvorlighet', p.alvorlighetsgrad || '—'],
+      ['Merd',       p.merd||d.merd||'—'],
+      ['Snittvekt',  (p.snittvekt_kg||d.snittvekt) ? (p.snittvekt_kg||d.snittvekt)+' kg':'—'],
+      ['Dødfisk',    p.dod_fisk||d.dod_fisk||'—'],
+      ['Lus total',  p.luseniva||d.luseniva||'—'],
+      ['Hunnlus',    p.lus_voksen_hunnlus||d.lus_hunnlus||'—'],
+      ['Temperatur', (p.temperatur||d.temperatur)?(p.temperatur||d.temperatur)+'°C':'—'],
+      ['Oksygen',    (p.oksygen||d.oksygen)?(p.oksygen||d.oksygen)+'%':'—'],
+      ['Salinitet',  (p.salinitet||d.salinitet)?(p.salinitet||d.salinitet)+'‰':'—'],
+      ['Prøvetype',  p.prove_type||d.prove_type||'—'],
+      ['Lokalitet',  d.lokalitet||'—'],
     ];
 
-    const allSymptoms = [...(p.symptomer || []), ...(d.symptomer || [])].filter((v,i,a) => a.indexOf(v) === i);
-    const allSykdom = [...(p.sykdomsmistanke || []), ...(d.sykdomsmistanke || [])].filter((v,i,a) => a.indexOf(v) === i);
-    const tiltak = p.anbefalt_tiltak || d.tiltak || '';
-    const fritekst = p.fritekst || d.fritekst || '';
+    const allSymp = [...(p.symptomer||[]),...(d.symptomer||[])].filter((v,i,a)=>a.indexOf(v)===i);
+    const allSyk  = [...(p.sykdomsmistanke||[]),...(d.sykdomsmistanke||[])].filter((v,i,a)=>a.indexOf(v)===i);
+    const tiltak  = p.anbefalt_tiltak||d.tiltak||'';
 
+    const item = document.createElement('div');
+    item.className = `log-item ${sev ? 'sev-'+sev : ''}`;
+    item.dataset.id = e.id;
     item.innerHTML = `
-      <div class="log-item-header" onclick="toggleLogItem(${e.id})">
-        <div class="log-item-dot ${e.status === 'synced' ? '' : 'pending'}"></div>
-        <div class="log-item-text">${label}</div>
-        <span class="log-item-meta">${timeStr}</span>
-        <span class="log-badge ${e.status === 'synced' ? 'synced' : 'pending'}">${e.status === 'synced' ? 'Synkronisert' : 'Lagret'}</span>
+      <div class="log-item-head" onclick="toggleLogItem(${e.id})">
+        <div class="log-dot ${e.status==='synced'?'synced':'pending'}"></div>
+        <div class="log-item-name">${label}</div>
+        <div class="log-item-time">${timeStr}</div>
+        <span class="log-status-pill ${e.status==='synced'?'synced':'pending'}">${e.status==='synced'?'Synkronisert':'Lagret'}</span>
         <span class="log-chevron">▼</span>
       </div>
-      <div class="log-item-expanded">
-        ${e.transcript ? `
-          <div class="log-transcript-label">Transkripsjon</div>
-          <div class="log-transcript-box">${e.transcript}</div>
-        ` : ''}
-        <div class="log-fields">
-          ${fields.map(([k,v]) => `<div class="log-field"><span class="log-field-key">${k}</span><span class="log-field-val">${v}</span></div>`).join('')}
-        </div>
-        ${allSymptoms.length ? `
-          <div class="log-symptoms">
-            <div class="log-symptoms-key">Symptomer</div>
-            <div class="log-symptom-tags">${allSymptoms.map(s => `<span class="log-symptom-tag">${s}</span>`).join('')}</div>
-          </div>
-        ` : ''}
-        ${allSykdom.length ? `
-          <div class="log-symptoms">
-            <div class="log-symptoms-key">Sykdomsmistanke</div>
-            <div class="log-symptom-tags">${allSykdom.map(s => `<span class="log-symptom-tag" style="background:var(--amber-50);color:var(--amber-600);">${s}</span>`).join('')}</div>
-          </div>
-        ` : ''}
-        ${tiltak ? `<div style="font-size:12px;color:var(--text2);margin-bottom:10px;"><span style="color:var(--text3);">Tiltak:</span> ${tiltak}</div>` : ''}
-        ${fritekst ? `<div style="font-size:12px;color:var(--text2);margin-bottom:10px;"><span style="color:var(--text3);">Notat:</span> ${fritekst}</div>` : ''}
-        <div class="log-item-actions">
-          <button class="btn-log-apply" onclick="applyLogEntry(${e.id})">Bruk i skjema</button>
-          <button class="btn-log-del" onclick="deleteLogEntry(event, ${e.id})">Slett</button>
+      <div class="log-item-body">
+        ${e.transcript?`<div class="log-transcript">"${e.transcript}"</div>`:''}
+        <div class="log-grid">${fields.map(([k,v])=>`<div class="log-kv"><span class="log-k">${k}</span><span class="log-v">${v}</span></div>`).join('')}</div>
+        ${allSymp.length?`<div class="log-detail-label">Symptomer</div><div class="log-tags">${allSymp.map(s=>`<span class="log-tag">${s}</span>`).join('')}</div>`:''}
+        ${allSyk.length?`<div class="log-detail-label">Sykdomsmistanke</div><div class="log-tags">${allSyk.map(s=>`<span class="log-tag warn">${s}</span>`).join('')}</div>`:''}
+        ${tiltak?`<div class="log-detail-label">Anbefalt tiltak</div><div class="log-tiltak">${tiltak}</div>`:''}
+        <div class="log-item-btns">
+          <button class="btn-log-use" onclick="applyLogEntry(${e.id})">Bruk i skjema</button>
+          <button class="btn-log-del" onclick="deleteLogEntry(event,${e.id})">Slett</button>
         </div>
       </div>`;
     list.appendChild(item);
@@ -1287,56 +2130,46 @@ function renderLog() {
 }
 
 function toggleLogItem(id) {
-  const item = document.querySelector(`.log-item[data-id="${id}"]`);
-  if (item) item.classList.toggle('open');
+  document.querySelector(`.log-item[data-id="${id}"]`)?.classList.toggle('open');
 }
 
 function applyLogEntry(id) {
-  const entries = getSavedEntries();
-  const entry = entries.find(e => e.id === id);
+  const entry = getSavedEntries().find(e => e.id === id);
   if (!entry) return;
-  parsedData = entry.parsed;
   if (entry.data) {
-    // Restore form data
     const d = entry.data;
-    const setVal = (elId, val) => { const el = document.getElementById(elId); if (el && val) { el.value = val; el.classList.add('ai-filled'); } };
-    setVal('f-lokalitet', d.lokalitet); setVal('f-selskap', d.selskap);
-    setVal('f-merd', d.merd); setVal('f-vekt', d.snittvekt);
-    setVal('f-dod', d.dod_fisk); setVal('f-lus', d.luseniva);
-    setVal('f-lus-hunnlus', d.lus_hunnlus); setVal('f-lus-bevegelig', d.lus_bevegelig);
-    setVal('f-lus-fastsittende', d.lus_fastsittende);
-    setVal('f-prove', d.prove_type); setVal('f-temp', d.temperatur);
-    setVal('f-oksygen', d.oksygen); setVal('f-salinitet', d.salinitet);
-    setVal('f-fritekst', d.fritekst); setVal('f-tiltak', d.tiltak);
-    setVal('f-antall-fisk', d.antall_fisk); setVal('f-biomasse', d.biomasse);
-    if (d.dato) document.getElementById('f-dato').value = d.dato;
-    if (d.tid) document.getElementById('f-tid').value = d.tid;
+    const sv = (eid, val) => { const el=document.getElementById(eid); if(el&&val){el.value=val;el.classList.add('ai-filled');} };
+    sv('f-lokalitet',d.lokalitet); sv('f-selskap',d.selskap);
+    sv('f-merd',d.merd); sv('f-vekt',d.snittvekt);
+    sv('f-dod',d.dod_fisk); sv('f-lus',d.luseniva);
+    sv('f-lus-hunnlus',d.lus_hunnlus); sv('f-lus-bevegelig',d.lus_bevegelig);
+    sv('f-lus-fastsittende',d.lus_fastsittende);
+    sv('f-prove',d.prove_type); sv('f-temp',d.temperatur);
+    sv('f-oksygen',d.oksygen); sv('f-salinitet',d.salinitet);
+    sv('f-fritekst',d.fritekst); sv('f-tiltak',d.tiltak);
+    sv('f-antall-fisk',d.antall_fisk); sv('f-biomasse',d.biomasse);
+    sv('f-ansvarlig',d.ansvarlig);
+    if(d.dato) document.getElementById('f-dato').value=d.dato;
+    if(d.tid)  document.getElementById('f-tid').value=d.tid;
   }
+  parsedData = entry.parsed;
   if (parsedData) applyParsed();
   else {
-    showToast('Skjema gjenopprettet fra logg');
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab')[1].classList.add('active');
-    document.getElementById('panel-skjema').classList.add('active');
+    showToast('Skjema gjenopprettet');
+    showTab('skjema', document.getElementById('nav-skjema'));
   }
 }
 
-function deleteLogEntry(event, id) {
-  event.stopPropagation();
-  const entries = getSavedEntries().filter(e => e.id !== id);
-  setSavedEntries(entries);
-  renderLog();
-  updateLogBadge();
-  updateOnlineStatus();
-  showToast('Registrering slettet');
+function deleteLogEntry(e, id) {
+  e.stopPropagation();
+  setSavedEntries(getSavedEntries().filter(e => e.id !== id));
+  renderLog(); updateLogBadge(); updateStats(); updateOnlineStatus();
+  showToast('Slettet');
 }
-
 function clearLog() {
-  if (!confirm('Slette alle registreringer i loggen?')) return;
+  if (!confirm('Slette alle registreringer?')) return;
   setSavedEntries([]);
-  renderLog();
-  updateLogBadge();
+  renderLog(); updateLogBadge(); updateStats();
   showToast('Logg tømt');
 }
 
@@ -1344,138 +2177,105 @@ function clearLog() {
 function exportLogCSV() {
   const entries = getSavedEntries();
   if (!entries.length) { showToast('Ingen data å eksportere'); return; }
-
-  const headers = [
-    'Dato','Tid','Lokalitet','Selskap','Ansvarlig','GPS','Merd',
-    'Snittvekt_kg','Antall_fisk','Biomasse_tonn','Dodfisk',
-    'Luseniva','Hunnlus','Bevegelig_lus','Fastsittende_lus',
-    'Temperatur_C','Oksygen_pct','Salinitet_ppt','Provetype',
-    'Symptomer','Sykdomsmistanke','Alvorlighetsgrad','Anbefalt_tiltak',
-    'Fritekst','Transkripsjon'
-  ];
-
+  const headers = ['Dato','Tid','Lokalitet','Selskap','Ansvarlig','GPS','Merd',
+    'Snittvekt_kg','Antall_fisk','Biomasse_tonn','Dodfisk','Luseniva',
+    'Hunnlus','Bevegelig','Fastsittende','Temp_C','Oksygen_pct','Salinitet_ppt',
+    'Provetype','Symptomer','Sykdomsmistanke','Alvorlighetsgrad','Tiltak','Fritekst','Transkripsjon'];
   const rows = entries.map(e => {
-    const p = e.parsed || {};
-    const d = e.data || {};
-    const dt = new Date(e.timestamp);
+    const p=e.parsed||{}, d=e.data||{}, dt=new Date(e.timestamp);
     return [
-      dt.toLocaleDateString('nb-NO', {day:'2-digit',month:'2-digit',year:'numeric'}),
-      dt.toLocaleTimeString('nb-NO', {hour:'2-digit',minute:'2-digit'}),
-      d.lokalitet || '',
-      d.selskap || '',
-      d.ansvarlig || '',
-      d.gps || '',
-      p.merd || d.merd || '',
-      p.snittvekt_kg || d.snittvekt || '',
-      p.antall_fisk || d.antall_fisk || '',
-      p.biomasse_tonn || d.biomasse || '',
-      p.dod_fisk || d.dod_fisk || '',
-      p.luseniva || d.luseniva || '',
-      p.lus_voksen_hunnlus || d.lus_hunnlus || '',
-      p.lus_bevegelig || d.lus_bevegelig || '',
-      p.lus_fastsittende || d.lus_fastsittende || '',
-      p.temperatur || d.temperatur || '',
-      p.oksygen || d.oksygen || '',
-      p.salinitet || d.salinitet || '',
-      p.prove_type || d.prove_type || '',
-      [...(p.symptomer || []), ...(d.symptomer || [])].filter((v,i,a)=>a.indexOf(v)===i).join('; '),
-      [...(p.sykdomsmistanke || []), ...(d.sykdomsmistanke || [])].filter((v,i,a)=>a.indexOf(v)===i).join('; '),
-      p.alvorlighetsgrad || '',
-      (p.anbefalt_tiltak || d.tiltak || '').replace(/"/g, "'"),
-      (p.fritekst || d.fritekst || '').replace(/"/g, "'"),
-      (e.transcript || '').replace(/"/g, "'")
-    ].map(v => `"${v}"`).join(',');
+      dt.toLocaleDateString('nb-NO',{day:'2-digit',month:'2-digit',year:'numeric'}),
+      dt.toLocaleTimeString('nb-NO',{hour:'2-digit',minute:'2-digit'}),
+      d.lokalitet||'', d.selskap||'', d.ansvarlig||'', d.gps||'',
+      p.merd||d.merd||'', p.snittvekt_kg||d.snittvekt||'',
+      p.antall_fisk||d.antall_fisk||'', p.biomasse_tonn||d.biomasse||'',
+      p.dod_fisk||d.dod_fisk||'', p.luseniva||d.luseniva||'',
+      p.lus_voksen_hunnlus||d.lus_hunnlus||'', p.lus_bevegelig||d.lus_bevegelig||'',
+      p.lus_fastsittende||d.lus_fastsittende||'',
+      p.temperatur||d.temperatur||'', p.oksygen||d.oksygen||'', p.salinitet||d.salinitet||'',
+      p.prove_type||d.prove_type||'',
+      [...(p.symptomer||[]),...(d.symptomer||[])].filter((v,i,a)=>a.indexOf(v)===i).join('; '),
+      [...(p.sykdomsmistanke||[]),...(d.sykdomsmistanke||[])].filter((v,i,a)=>a.indexOf(v)===i).join('; '),
+      p.alvorlighetsgrad||'',
+      (p.anbefalt_tiltak||d.tiltak||'').replace(/"/g,"'"),
+      (p.fritekst||d.fritekst||'').replace(/"/g,"'"),
+      (e.transcript||'').replace(/"/g,"'")
+    ].map(v=>`"${v}"`).join(',');
   });
-
-  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n'); // BOM for Excel
-  const date = new Date().toISOString().split('T')[0];
-  downloadFile(`feltai_logg_${date}.csv`, csv, 'text/csv;charset=utf-8;');
+  downloadFile(`feltai_${new Date().toISOString().split('T')[0]}.csv`,
+    '\uFEFF'+[headers.join(','),...rows].join('\n'), 'text/csv;charset=utf-8;');
   showToast(`Eksporterte ${entries.length} registrering(er)`);
 }
 
 function exportLogJSON() {
   const entries = getSavedEntries();
   if (!entries.length) { showToast('Ingen data å eksportere'); return; }
-  const json = JSON.stringify({ exportDate: new Date().toISOString(), count: entries.length, entries }, null, 2);
-  const date = new Date().toISOString().split('T')[0];
-  downloadFile(`feltai_logg_${date}.json`, json, 'application/json');
+  downloadFile(`feltai_${new Date().toISOString().split('T')[0]}.json`,
+    JSON.stringify({exportDate:new Date().toISOString(),count:entries.length,entries},null,2),
+    'application/json');
   showToast(`Eksporterte ${entries.length} registrering(er)`);
 }
 
 function downloadFile(name, content, type) {
-  const blob = new Blob([content], { type });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = name;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const blob = new Blob([content],{type});
+  const url  = URL.createObjectURL(blob);
+  const a    = Object.assign(document.createElement('a'),{href:url,download:name});
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 // ─── Sync ─────────────────────────────────────────────────────────────────────
 function autoSync() {
-  const entries = getSavedEntries();
-  const pending = entries.filter(e => e.status === 'pending');
+  const pending = getSavedEntries().filter(e => e.status==='pending');
   if (!pending.length) return;
   setTimeout(() => {
-    const updated = getSavedEntries().map(e => e.status === 'pending' ? { ...e, status: 'synced' } : e);
-    setSavedEntries(updated);
-    renderLog();
-    updateOnlineStatus();
-    if (pending.length) showToast(`${pending.length} registrering(er) synkronisert`);
-  }, 800);
+    setSavedEntries(getSavedEntries().map(e => e.status==='pending'?{...e,status:'synced'}:e));
+    renderLog(); updateOnlineStatus();
+    if (pending.length) showToast(`${pending.length} synkronisert`);
+  }, 900);
 }
-
 function syncAll() {
-  if (!isOnline) { showToast('Ingen nettilgang — prøv igjen senere'); return; }
+  if (!isOnline) { showToast('Ingen nettilgang'); return; }
   autoSync();
 }
 
-// ─── Export ───────────────────────────────────────────────────────────────────
+// ─── Export panel ─────────────────────────────────────────────────────────────
 const exportConfig = {
-  vi:  { k1: 'Vekt',               k2: 'Antall døde',    format: 'PDF (VET-standard)',   btn: 'Send til Veterinærinstituttet' },
-  pat: { k1: 'Biomasse-indikator', k2: 'Mortality',      format: 'API (Patogen)',        btn: 'Send via Patogen API' },
-  phq: { k1: 'Weight (kg)',        k2: 'Loss',           format: 'JSON (PHARMAQ)',       btn: 'Eksporter til PHARMAQ' },
-  ba:  { k1: 'avg_weight',         k2: 'dead_count',     format: 'API (Blue Analytics)', btn: 'Send til Blue Analytics' }
+  vi:  { k1:'Vekt',               k2:'Antall døde',   format:'PDF (VET)',           btn:'Send til Veterinærinstituttet' },
+  pat: { k1:'Biomasse-indikator', k2:'Mortality',      format:'API (Patogen)',       btn:'Send via Patogen API' },
+  phq: { k1:'Weight (kg)',        k2:'Loss',           format:'JSON (PHARMAQ)',      btn:'Eksporter til PHARMAQ' },
+  ba:  { k1:'avg_weight',         k2:'dead_count',     format:'API (Blue Analytics)',btn:'Send til Blue Analytics' }
 };
-
 function selectExport(key, el) {
   selectedExport = key;
   document.querySelectorAll('.export-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   updatePreview();
 }
-
 function updatePreview() {
-  const d = getFormData();
-  const c = exportConfig[selectedExport];
+  const d = getFormData(), c = exportConfig[selectedExport];
   document.getElementById('pk1').textContent = c.k1;
   document.getElementById('pk2').textContent = c.k2;
-  document.getElementById('pv1').textContent = d.snittvekt ? d.snittvekt + ' kg' : '—';
-  document.getElementById('pv2').textContent = d.dod_fisk || '—';
+  document.getElementById('pv1').textContent = d.snittvekt ? d.snittvekt+' kg' : '—';
+  document.getElementById('pv2').textContent = d.dod_fisk  || '—';
   document.getElementById('pv3').textContent = d.lokalitet || '—';
-  document.getElementById('pv4').textContent = d.merd || '—';
-  document.getElementById('pv5').textContent = d.luseniva || '—';
-  document.getElementById('pv6').textContent = d.dato || '—';
+  document.getElementById('pv4').textContent = d.merd      || '—';
+  document.getElementById('pv5').textContent = d.luseniva  || '—';
+  document.getElementById('pv6').textContent = d.dato      || '—';
   document.getElementById('pv7').textContent = d.symptomer.length ? d.symptomer.join(', ') : '—';
   document.getElementById('pv8').textContent = d.sykdomsmistanke.length ? d.sykdomsmistanke.join(', ') : '—';
   document.getElementById('pv-format').textContent = c.format;
-  document.getElementById('sendBtn').textContent = c.btn;
+  document.getElementById('sendBtn').textContent    = c.btn;
 }
-
 function sendReport() {
   const btn = document.getElementById('sendBtn');
-  btn.textContent = 'Sender...';
   btn.disabled = true;
+  btn.textContent = 'Sender...';
   saveToLocal();
   setTimeout(() => {
     btn.classList.add('success');
-    btn.textContent = 'Rapport sendt!';
-    setTimeout(() => {
-      btn.classList.remove('success');
-      btn.disabled = false;
-      updatePreview();
-    }, 2500);
+    btn.textContent = 'Rapport sendt ✓';
+    setTimeout(() => { btn.classList.remove('success'); btn.disabled=false; updatePreview(); }, 2500);
   }, 1000);
 }
 
@@ -1483,24 +2283,23 @@ function sendReport() {
 function openApiModal() {
   document.getElementById('apiKeyInput').value = apiKey;
   document.getElementById('apiModal').classList.add('open');
-  setTimeout(() => document.getElementById('apiKeyInput').focus(), 100);
+  setTimeout(() => document.getElementById('apiKeyInput').focus(), 350);
 }
-function closeApiModal() {
-  document.getElementById('apiModal').classList.remove('open');
-}
+function closeApiModal() { document.getElementById('apiModal').classList.remove('open'); }
 function saveApiKey() {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  apiKey = val;
+  apiKey = document.getElementById('apiKeyInput').value.trim();
   localStorage.setItem('feltai_api_key', apiKey);
   closeApiModal();
   updateApiKeyBtn();
-  showToast(apiKey ? 'API-nøkkel lagret — forblir på denne enheten' : 'API-nøkkel fjernet');
+  showToast(apiKey ? 'API-nøkkel lagret ✓' : 'API-nøkkel fjernet');
 }
 function updateApiKeyBtn() {
   const btn = document.getElementById('apiKeyBtn');
-  if (apiKey) { btn.classList.add('set'); btn.textContent = 'API ✓'; }
-  else { btn.classList.remove('set'); btn.textContent = 'API-nøkkel'; }
+  btn.classList.toggle('active', !!apiKey);
+  btn.title = apiKey ? 'API-nøkkel aktiv — klikk for å endre' : 'Legg inn API-nøkkel';
 }
+document.getElementById('apiModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeApiModal(); });
+document.getElementById('apiKeyInput').addEventListener('keydown', e => { if(e.key==='Enter') saveApiKey(); });
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -1512,29 +2311,14 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// Close modal on overlay click
-document.getElementById('apiModal').addEventListener('click', function(e) {
-  if (e.target === this) closeApiModal();
-});
+// ─── Service worker ───────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator)
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 
-// Enter key saves API key
-document.getElementById('apiKeyInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') saveApiKey();
-});
-
-// ─── Service Worker (PWA offline-støtte) ──────────────────────────────────────
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
-  });
-}
-
-// ─── iOS: Prevent double-tap zoom ────────────────────────────────────────────
+// ─── iOS double-tap prevention ────────────────────────────────────────────────
 document.addEventListener('touchend', e => {
-  if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
-    e.preventDefault();
-    e.target.closest('button')?.click();
-  }
+  const btn = e.target.closest('button');
+  if (btn) { e.preventDefault(); btn.click(); }
 }, { passive: false });
 </script>
 </body>

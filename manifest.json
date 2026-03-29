@@ -5,8 +5,8 @@
   "start_url": "./feltai_2.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F5F4F0",
-  "theme_color": "#1D9E75",
+  "background_color": "#F0F4FA",
+  "theme_color": "#0057FF",
   "icons": [
     {
       "src": "icon-192.png",
