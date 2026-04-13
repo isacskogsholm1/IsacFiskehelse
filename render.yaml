@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: vela-ai
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: BW_CLIENT_ID
+        value: isacskogsholm1@live.no:AquAI
+      - key: BW_CLIENT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: VELA_USERS
+        sync: false

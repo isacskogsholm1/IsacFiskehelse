@@ -1,12 +1,12 @@
 {
-  "name": "FeltAI — Prøvedokumentasjon",
-  "short_name": "FeltAI",
-  "description": "Stemmestyrt prøvedokumentasjon for havbruk",
+  "name": "Vela AI",
+  "short_name": "Vela AI",
+  "description": "AI-assistert feltdokumentasjon for havbruk",
   "start_url": "./feltai_2.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F0F4FA",
-  "theme_color": "#0057FF",
+  "background_color": "#0A1628",
+  "theme_color": "#054370",
   "icons": [
     {
       "src": "icon-192.png",
