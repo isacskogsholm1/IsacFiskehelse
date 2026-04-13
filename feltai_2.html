@@ -5390,7 +5390,8 @@ body.mode-rokter .nav-item.r-only { display: flex; }
 
 <script>
 // ─── State ────────────────────────────────────────────────────────────────────
-let apiKey      = localStorage.getItem('feltai_api_key') || '';
+let apiKey = 'server'; // All AI calls go through server proxy — no client key needed
+function _claudeUrl() { return _serverBase() + '/claude'; }
 let recording   = false;
 let recognition = null;
 let currentTranscript = '';
@@ -5988,9 +5989,10 @@ async function _checkWhisper() {
 async function _transcribeWithWhisper(blob) {
   const fd = new FormData();
   fd.append('file', blob, 'audio.webm');
-  fd.append('model', 'whisper-1');
+  fd.append('model', 'whisper-large-v3-turbo');
   fd.append('language', 'no');
-  fd.append('prompt', 'Norsk lakseoppdrett. Fagtermer: lus, lakselus, hunnlus, bevegelig lus, fastsittende lus, dødfisk, merd, lokalitet, lusetelling, snittvekt, FCR, fôringsautomat, smolt, matfisk, stamfisk, biolog, driftsteknikker, Barentswatch, ILA, PD, oksygen, salinitet, temperatur.');
+  fd.append('prompt', 'Norsk lakseoppdrett feltregistrering. Fagtermer: lakselus, hunnlus, bevegelig lus, fastsittende lus, voksne hunnlus, lusetelling, avlusning, lusegrense, behandling. Merd, not, fortøyning, fôringsautomat, fôrflåte, fôrspill, fôringsrespons, FCR. Dødfisk, dødelighet, PD, ILA, AGD, kardiomyopati, gjellesykdom, amøbegjellesykdom. Snittvekt, stykkvekt, individuell vekt, kondisjonsfaktor, vekst. Oksygen, temperatur, salinitet, strøm, siktdyp, bunnforhold. Driftsteknikker, fiskehelsebiolog, veterinær, Mattilsynet, Barentswatch, lokalitetsnummer, produksjonsområde. Smolt, settefisk, matfisk, stamfisk, slakt, slaktevekt, biomasse. Medikament, vaksinasjon, behandlingsskjema, karens. Brønnbåt, servicebåt, notvask, luseskjørt, snorkelmerder.');
+  fd.append('response_format', 'text');
   const r = await fetch(_serverBase() + '/transcribe', { method:'POST', body: fd, signal: AbortSignal.timeout(60000) });
   if (!r.ok) throw new Error('Whisper HTTP ' + r.status);
   const d = await r.json();
@@ -6400,9 +6402,9 @@ async function doQueryTranscript() {
   res.textContent = '⏳ Søker i opptak...';
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    const resp = await fetch('_claudeUrl()', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001', max_tokens: 400,
         system: `Du er assistent for norsk havbruk. Svar kort og presist på spørsmål om feltnotater. ${_getLangInstruction(window._detectedLang)}`,
@@ -6560,13 +6562,11 @@ OPPGAVE — korriger systematisk:
 7. SVAR: Returner KUN den rettede teksten — ingen forklaring, ingen kommentarer`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
@@ -6689,13 +6689,11 @@ INSTRUKSJON: Teksten er feltnotater — ekstraher KUN det som faktisk er nevnt. 
       document.getElementById('parseBar').classList.add('visible');
     }
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
@@ -7002,13 +7000,11 @@ REGLER: Konverter tallord til siffer. Ta med alt faglig relevant. Ikke dikt tall
 
   try {
     // ── STREAMING (Notion AI inspired) ──────────────────────────────────────
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: localStorage.getItem('feltai_ai_model') || 'claude-sonnet-4-6',
@@ -7093,13 +7089,11 @@ async function extractActionPoints() {
   const systemPrompt = `Du er en havbruksfaglig assistent. Ekstraher alle handlingspunkter, tiltak og oppfølgingspunkter fra feltnotatet. Returner en nummerert liste. Hvert punkt skal være kort og konkret. Start hvert punkt med hvem som er ansvarlig (om nevnt) og hva som skal gjøres. Avslutt med eventuelle hasteoppgaver øverst. Forstå nynorsk og dialektuttrykk automatisk. ${_getLangInstruction(_detectNorwegianVariant(txt))} Svar KUN med listen.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: localStorage.getItem('feltai_ai_model') || 'claude-sonnet-4-6',
@@ -7135,13 +7129,11 @@ async function shortenTranscript() {
   const systemPrompt = `Du er en havbruksfaglig assistent. Forkort og kondensr følgende feltnotat til essensen — behold alle viktige tall, funn og fagtermer, men fjern gjentakelser, fyllord og unødvendig tekst. Forstå nynorsk og dialektuttrykk automatisk (ikkje=ikke, kva=hva, daudfisk=dødfisk osv.). ${_getLangInstruction(_detectNorwegianVariant(txt))} Returner kun den forkortede teksten.`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: localStorage.getItem('feltai_ai_model') || 'claude-sonnet-4-6',
@@ -7242,10 +7234,9 @@ async function checkFormCompleteness() {
   const utfylte = Object.entries(formData).filter(([,v])=>!!v).map(([k,v])=>`${k}: ${v}`).join('\n');
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key': key,
-        'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001', max_tokens: 700,
         messages: [{ role: 'user', content:
@@ -8242,13 +8233,11 @@ async function reanalyzeEdit() {
 
   try {
     const systemPrompt = `Du er en spesialisert AI-assistent for norsk havbruksnæring. Analyser feltnotat og returner KUN gyldig JSON.`;
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6', max_tokens: 1200, system: systemPrompt,
@@ -10400,9 +10389,9 @@ ${recent ? 'Nylige registreringer: ' + recent : ''}
 Returner JSON: {"S":"subjektivt","O":"objektivt","A":"analyse","P":"plan"}`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('_claudeUrl()', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1200,
         messages:[{role:'user',content:prompt}] })
     });
@@ -10584,13 +10573,11 @@ TILLEGG/NOTATER:
 ${data.notat}`;
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
@@ -13206,13 +13193,11 @@ async function analyzeRSection(section) {
   };
   const sysPrompt = sectionPrompts[section] || 'Du er havbruksfaglig assistent. Analyser dataene og gi norsk faglig vurdering.';
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('_claudeUrl()', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: 'claude-opus-4-5',
@@ -13732,9 +13717,9 @@ async function aiAnalyzeDok() {
   const key = localStorage.getItem('feltai_api_key');
   if (!key) { resEl.textContent = 'Legg inn Anthropic API-nøkkel (tannhjulikonet øverst) for AI-analyse.'; return; }
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('_claudeUrl()', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         model: 'claude-opus-4-5', max_tokens: 600,
         system: 'Du er en faglig assistent for fiskehelse og havbruk. Analyser og oppsummer teksten på norsk. Gi strukturert tilbakemelding med observasjoner, nøkkelpunkter og eventuelle anbefalinger.',
@@ -13905,9 +13890,9 @@ Rå data: ${JSON.stringify(_ikFish.slice(0,20))}
 Gi analyse med: gjennomsnitt, standardavvik, veksttrend, avvik fra forventet vekst (laks ~1.0 kondisjonsfaktor = god), eventuelle bekymringer og anbefalinger. Maks 300 ord.`;
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('_claudeUrl()', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true' },
+      headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
         model: 'claude-opus-4-5', max_tokens: 500,
         messages: [{ role: 'user', content: prompt }]
@@ -14382,9 +14367,9 @@ Kontekst for lokaliteten:
 ${dodEntries || 'Ingen data'}`;
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const r = await fetch('_claudeUrl()', {
       method: 'POST',
-      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: localStorage.getItem('feltai_ai_model') || 'claude-sonnet-4-6',
         max_tokens: 600,

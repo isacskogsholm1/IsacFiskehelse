@@ -32,8 +32,11 @@ const mime = { '.html':'text/html', '.js':'application/javascript', '.css':'text
 const BW_CLIENT_ID     = process.env.BW_CLIENT_ID     || 'isacskogsholm1@live.no:AquAI';
 const BW_CLIENT_SECRET = process.env.BW_CLIENT_SECRET || 'm,sbog17ksBrevika';
 
-// ── OpenAI Whisper ─────────────────────────────────────────────────────────
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
+// ── Groq API (gratis — Whisper + Llama 3.3 70B) ───────────────────────────
+// Gratis nøkkel på: console.groq.com
+const GROQ_API_KEY   = process.env.GROQ_API_KEY   || '';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY  || ''; // fallback for Whisper
+
 
 // ── Users / sessions ───────────────────────────────────────────────────────
 const USERS_FILE = path.join(dir, 'users.json');
@@ -700,7 +703,7 @@ http.createServer(async (req, res) => {
     req.on('end', () => {
       try {
         const { name, pin, invite } = JSON.parse(body);
-        if (invite !== 'VELA2025') {
+        if (invite !== 'IsacVela') {
           res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Feil invitasjonskode' })); return;
         }
@@ -750,13 +753,16 @@ http.createServer(async (req, res) => {
       const boundary = ct.split('boundary=')[1];
       if (!boundary) { res.writeHead(400, {'Access-Control-Allow-Origin':'*'}); res.end('{}'); return; }
 
-      // Forward multipart directly to OpenAI Whisper
+      // Forward to Groq Whisper (gratis), fallback to OpenAI
+      const whisperKey  = GROQ_API_KEY || OPENAI_API_KEY;
+      const whisperHost = GROQ_API_KEY ? 'api.groq.com' : 'api.openai.com';
+      const whisperPath = GROQ_API_KEY ? '/openai/v1/audio/transcriptions' : '/v1/audio/transcriptions';
       const options = {
-        hostname: 'api.openai.com',
-        path: '/v1/audio/transcriptions',
+        hostname: whisperHost,
+        path: whisperPath,
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          'Authorization': `Bearer ${whisperKey}`,
           'Content-Type': ct,
           'Content-Length': body.length,
         }
@@ -776,6 +782,95 @@ http.createServer(async (req, res) => {
       oaiReq.write(body);
       oaiReq.end();
     }); return;
+  }
+
+  // ── AI proxy (/claude POST) — accepts Anthropic format, runs on Groq (gratis) ─────
+  // Maps claude-opus/sonnet → llama-3.3-70b-versatile, claude-haiku → llama-3.1-8b-instant
+  if (req.method === 'POST' && req.url === '/claude') {
+    const chunks = []; req.on('data', c => chunks.push(c));
+    req.on('end', () => {
+      try {
+        const incoming = JSON.parse(Buffer.concat(chunks).toString());
+
+        // Model mapping: best model for main analysis, mini for helpers
+        const modelHint = (incoming.model || '').toLowerCase();
+        const oaiModel = modelHint.includes('haiku') ? 'llama-3.1-8b-instant' : 'llama-3.3-70b-versatile';
+
+        // Convert Anthropic format → OpenAI format
+        const messages = [];
+        if (incoming.system) messages.push({ role: 'system', content: incoming.system });
+        (incoming.messages || []).forEach(m => {
+          const content = Array.isArray(m.content)
+            ? m.content.map(c => c.text || c).join('') : m.content;
+          messages.push({ role: m.role, content });
+        });
+
+        const oaiBody = JSON.stringify({
+          model: oaiModel,
+          max_tokens: incoming.max_tokens || 1024,
+          messages,
+          temperature: incoming.temperature ?? 0.3,
+        });
+
+        const aiKey  = GROQ_API_KEY || OPENAI_API_KEY;
+        const aiHost = GROQ_API_KEY ? 'api.groq.com' : 'api.openai.com';
+        const aiPath = GROQ_API_KEY ? '/openai/v1/chat/completions' : '/v1/chat/completions';
+        const options = {
+          hostname: aiHost,
+          path: aiPath,
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${aiKey}`,
+            'Content-Length': Buffer.byteLength(oaiBody),
+          }
+        };
+
+        const oaiReq = https.request(options, oaiRes => {
+          let data = '';
+          oaiRes.on('data', c => data += c);
+          oaiRes.on('end', () => {
+            try {
+              const oaiResp = JSON.parse(data);
+              // Convert OpenAI response → Anthropic format so client code works unchanged
+              if (oaiResp.choices?.[0]?.message) {
+                const text = oaiResp.choices[0].message.content || '';
+                const anthropicResp = {
+                  id: oaiResp.id,
+                  type: 'message',
+                  role: 'assistant',
+                  content: [{ type: 'text', text }],
+                  model: oaiModel,
+                  stop_reason: 'end_turn',
+                  usage: {
+                    input_tokens: oaiResp.usage?.prompt_tokens || 0,
+                    output_tokens: oaiResp.usage?.completion_tokens || 0,
+                  }
+                };
+                res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                res.end(JSON.stringify(anthropicResp));
+              } else {
+                res.writeHead(oaiRes.statusCode, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                res.end(data);
+              }
+            } catch(e) {
+              res.writeHead(502, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+              res.end(JSON.stringify({ error: { message: e.message } }));
+            }
+          });
+        });
+        oaiReq.on('error', e => {
+          res.writeHead(502, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ error: { message: e.message } }));
+        });
+        oaiReq.write(oaiBody);
+        oaiReq.end();
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ error: { message: e.message } }));
+      }
+    });
+    return;
   }
 
   // ── Static file serving ────────────────────────────────────────────────────

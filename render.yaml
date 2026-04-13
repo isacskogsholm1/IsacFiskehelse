@@ -10,6 +10,8 @@ services:
         value: isacskogsholm1@live.no:AquAI
       - key: BW_CLIENT_SECRET
         sync: false
+      - key: GROQ_API_KEY
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: VELA_USERS

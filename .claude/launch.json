@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "feltai",
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["/Users/skogsholm/Desktop/FeltAI/server.js"],
+      "port": 7823,
+      "autoPort": false
+    }
+  ]
+}
