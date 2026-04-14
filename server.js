@@ -732,7 +732,7 @@ http.createServer(async (req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Passord må ha minst 6 tegn' })); return;
         }
-        const validRole = (role === 'rokter') ? 'rokter' : 'biolog';
+        const validRole = (role === 'driftsteknikker') ? 'driftsteknikker' : 'biolog';
         const users = loadUsers();
         if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
           res.writeHead(409, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
