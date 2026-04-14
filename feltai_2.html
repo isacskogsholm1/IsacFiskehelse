@@ -9420,6 +9420,7 @@ function toggleVektMic() {
         const val = parseFloat(n.replace(',', '.'));
         if (!isNaN(val) && val >= 10 && val <= 50000) {
           vektFisker.push(val);
+          vektLengder.push(null);
           showToast(`+${val}g`);
           added = true;
         }
