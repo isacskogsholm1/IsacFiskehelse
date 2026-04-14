@@ -3,7 +3,7 @@
 // Offline-first PWA strategy with per-route caching policies
 // =============================================================================
 
-const CACHE = 'vela-v3';
+const CACHE = 'vela-v4';
 
 // Files to pre-cache during install
 const FILES = [
@@ -115,9 +115,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // ── 2. Same-origin HTML — cache-first with network fallback + cache update
+  // ── 2. Same-origin HTML — network-first (always fresh when online)
   if (isSameOrigin(url) && isCacheFirstHtml(url)) {
-    event.respondWith(cacheFirstWithUpdate(request));
+    event.respondWith(networkFirstWithCacheFallback(request));
     return;
   }
 
