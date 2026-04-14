@@ -631,7 +631,7 @@ http.createServer(async (req, res) => {
       const buf = await wb.xlsx.writeBuffer();
       res.writeHead(200, {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename="snittvekt_${(payload.lok||'').replace(/[^a-zA-Z0-9]/g,'_')}_merd${payload.merd}_${(payload.dato||'').replace(/\./g,'-')}.xlsx"`,
+        'Content-Disposition': `attachment; filename="${['snittvekt',(payload.lok||''),(payload.merd||''),(payload.dato||'')].map(s=>s.replace(/[^a-zA-Z0-9\-]/g,'_')).join('_')}.xlsx"`,
         'Access-Control-Allow-Origin': '*',
       });
       res.end(buf);
@@ -649,7 +649,7 @@ http.createServer(async (req, res) => {
       const buf = await wb.xlsx.writeBuffer();
       res.writeHead(200, {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': `attachment; filename="individkontroll_${(payload.lok||'').replace(/[^a-zA-Z0-9]/g,'_')}_merd${payload.merd}_${(payload.dato||'').replace(/\./g,'-')}.xlsx"`,
+        'Content-Disposition': `attachment; filename="${['individkontroll',(payload.lok||''),(payload.merd||''),(payload.dato||'')].map(s=>s.replace(/[^a-zA-Z0-9\-]/g,'_')).join('_')}.xlsx"`,
         'Access-Control-Allow-Origin': '*',
       });
       res.end(buf);
