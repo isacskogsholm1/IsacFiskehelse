@@ -10313,51 +10313,56 @@ async function _fetchAndDownload(url, payload, filename) {
 }
 
 // ── Chart PNG generators (klientside via Chart.js) ───────────────────────────
-// Histogram of weight distribution with mean line — used for Excel export
+// Histogram of weight distribution — used for Excel export
 async function _genVektDistributionPng(vekter, lengder, sv, sl) {
   return new Promise(resolve => {
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = 760; canvas.height = 380;
+      canvas.width = 800; canvas.height = 400;
       const ctx = canvas.getContext('2d');
-      // Build bins (8-10 buckets)
+      // White background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
       const binCount = Math.min(Math.max(Math.ceil(Math.sqrt(vekter.length)), 5), 10);
       const binSize  = Math.ceil((sv.max - sv.min) / binCount / 50) * 50 || 50;
       const binMin   = Math.floor(sv.min / binSize) * binSize;
       const bins = []; let b = binMin;
       while (b <= sv.max) { bins.push(b); b += binSize; }
       if (bins[bins.length-1] < sv.max) bins.push(bins[bins.length-1] + binSize);
-      const counts = bins.slice(0,-1).map((lo,i) => {
-        const hi = bins[i+1];
-        return vekter.filter(v => v >= lo && v < hi).length;
-      });
+      const counts = bins.slice(0,-1).map((lo,i) => vekter.filter(v => v >= lo && v < bins[i+1]).length);
       const labels = bins.slice(0,-1).map((lo,i) => `${lo}–${bins[i+1]}g`);
       const barColors = bins.slice(0,-1).map(lo => {
         const mid = lo + binSize/2;
-        return mid < sv.mean*0.75 ? 'rgba(217,119,6,0.8)' : mid > sv.mean*1.25 ? 'rgba(220,38,38,0.8)' : 'rgba(11,114,181,0.82)';
+        return mid < sv.mean*0.75 ? 'rgba(217,119,6,0.85)' :
+               mid > sv.mean*1.25 ? 'rgba(220,38,38,0.85)' :
+                                    'rgba(13,148,136,0.85)';
       });
-      const hasLengde = lengder && lengder.some(l=>l!=null);
       const datasets = [
-        { type:'bar', label:'Antall fisk', data:counts, backgroundColor:barColors, borderRadius:4, order:2 }
+        { type:'bar', label:'Antall fisk', data:counts, backgroundColor:barColors, borderRadius:5, order:2 }
       ];
-      // Overlay mean as vertical annotation (via dummy line)
       const meanBinIdx = bins.slice(0,-1).findIndex((lo,i) => sv.mean >= lo && sv.mean < bins[i+1]);
       if (meanBinIdx >= 0) {
         const meanData = counts.map((_,i) => i === meanBinIdx ? Math.max(...counts) : null);
         datasets.push({ type:'bar', label:`Snitt ${sv.mean.toFixed(0)}g`, data:meanData,
-          backgroundColor:'rgba(5,67,112,0.35)', borderRadius:4, order:1 });
+          backgroundColor:'rgba(15,118,110,0.3)', borderColor:'rgba(15,118,110,0.8)',
+          borderWidth:2, borderRadius:5, order:1 });
       }
       const chart = new Chart(ctx, {
         data: { labels, datasets },
         options: {
           responsive:false, animation:false,
+          layout: { padding: { top:12, right:20, bottom:8, left:8 } },
           plugins: {
-            title:{ display:true, text:`Vektfordeling — n=${sv.n}, snitt=${sv.mean.toFixed(0)}g, SD=${sv.sd.toFixed(0)}g, CV=${sv.cv}%`, font:{size:13} },
-            legend:{ display:true, labels:{font:{size:11}} }
+            title:{ display:true, text:`Vektfordeling  ·  n=${sv.n}  ·  snitt=${sv.mean.toFixed(0)}g  ·  SD=${sv.sd.toFixed(0)}g  ·  CV=${sv.cv}%`,
+              font:{size:13, weight:'600', family:'sans-serif'}, color:'#134E4A', padding:{bottom:10} },
+            legend:{ display:true, labels:{ font:{size:11}, color:'#374151', boxWidth:14, padding:16 } }
           },
           scales: {
-            y:{ beginAtZero:true, title:{display:true,text:'Antall fisk'}, ticks:{stepSize:1}, grid:{color:'rgba(0,0,0,0.06)'} },
-            x:{ title:{display:true,text:'Vektintervall (g)'}, grid:{display:false} }
+            y:{ beginAtZero:true, title:{display:true,text:'Antall fisk',color:'#6B7280',font:{size:11}},
+                ticks:{stepSize:1,color:'#6B7280'}, grid:{color:'rgba(0,0,0,0.05)'}, border:{display:false} },
+            x:{ title:{display:true,text:'Vektintervall (g)',color:'#6B7280',font:{size:11}},
+                ticks:{color:'#374151'}, grid:{display:false}, border:{display:false} }
           }
         }
       });
@@ -10370,32 +10375,35 @@ async function _genVektChartPng(fisker, stats) {
   return new Promise(resolve => {
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = 700; canvas.height = 320;
+      canvas.width = 800; canvas.height = 360;
       const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
       const s = stats || calcVektStats(fisker);
       const colors = fisker.map(v =>
-        v > s.mean * 1.25 ? 'rgba(220,38,38,0.82)' :
-        v < s.mean * 0.75 ? 'rgba(217,119,6,0.82)' :
-        'rgba(11,114,181,0.82)'
+        v > s.mean * 1.25 ? 'rgba(220,38,38,0.85)' :
+        v < s.mean * 0.75 ? 'rgba(217,119,6,0.85)' :
+                            'rgba(13,148,136,0.85)'
       );
       const chart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: fisker.map((_, i) => `Fisk ${i+1}`),
+          labels: fisker.map((_, i) => `${i+1}`),
           datasets: [
             { label: 'Vekt (g)', data: fisker, backgroundColor: colors, borderRadius: 4, order: 2 },
             { label: `Snitt ${s.mean.toFixed(0)}g`, data: fisker.map(() => s.mean),
-              type: 'line', borderColor: '#054370', borderDash: [6,3], borderWidth: 2,
+              type: 'line', borderColor: '#0F766E', borderDash: [6,3], borderWidth: 2,
               pointRadius: 0, fill: false, order: 1 }
           ]
         },
         options: {
           responsive: false, animation: false,
-          plugins: { legend: { display: true, labels: { font: { size: 12 } } } },
+          layout: { padding: { top:12, right:20, bottom:8, left:8 } },
+          plugins: { legend: { display: true, labels: { font:{size:11}, color:'#374151', boxWidth:14, padding:14 } } },
           scales: {
-            y: { beginAtZero: false, title: { display: true, text: 'Vekt (g)' },
-                 grid: { color: 'rgba(0,0,0,0.06)' } },
-            x: { grid: { display: false } }
+            y: { beginAtZero: false, title: { display:true, text:'Vekt (g)', color:'#6B7280', font:{size:11} },
+                 ticks: { color:'#6B7280' }, grid: { color:'rgba(0,0,0,0.05)' }, border:{display:false} },
+            x: { title: { display:true, text:'Fisk nr', color:'#6B7280', font:{size:11} },
+                 ticks: { color:'#374151', maxTicksLimit:20 }, grid:{display:false}, border:{display:false} }
           }
         }
       });
@@ -10408,38 +10416,42 @@ async function _genIndividChartPng(fisker, avgV, avgK) {
   return new Promise(resolve => {
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = 700; canvas.height = 320;
+      canvas.width = 800; canvas.height = 360;
       const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
       const valid = fisker.filter(f => f.vekt || f.lengde);
       const vekter = valid.map(f => f.vekt ? +f.vekt : null).filter(v => v != null);
       const kArr   = valid.map(f => f.k != null ? +f.k : null);
       const kColors = kArr.map(k =>
-        k == null ? 'rgba(150,150,150,0.6)' :
-        k < 0.8   ? 'rgba(220,38,38,0.82)' :
-        k < 1.0   ? 'rgba(217,119,6,0.82)' :
-                    'rgba(22,163,74,0.82)'
+        k == null ? 'rgba(150,150,150,0.5)' :
+        k < 0.8   ? 'rgba(220,38,38,0.9)' :
+        k < 1.0   ? 'rgba(217,119,6,0.9)' :
+                    'rgba(22,163,74,0.9)'
       );
       const chart = new Chart(ctx, {
         data: {
-          labels: valid.map((_, i) => `Fisk ${i+1}`),
+          labels: valid.map((_, i) => `${i+1}`),
           datasets: [
-            { type: 'bar', label: 'Vekt (g)', data: vekter, backgroundColor: 'rgba(11,114,181,0.75)',
-              borderRadius: 3, yAxisID: 'y', order: 2 },
-            { type: 'line', label: 'K-faktor', data: kArr, borderColor: '#16a34a',
-              backgroundColor: kColors, pointBackgroundColor: kColors,
-              pointRadius: 5, borderWidth: 2, fill: false, yAxisID: 'y2', order: 1 }
+            { type: 'bar', label: 'Vekt (g)', data: vekter,
+              backgroundColor: 'rgba(13,148,136,0.78)', borderRadius: 4,
+              yAxisID: 'y', order: 2 },
+            { type: 'line', label: 'K-faktor', data: kArr,
+              borderColor: '#16a34a', backgroundColor: kColors, pointBackgroundColor: kColors,
+              pointRadius: 5, pointHoverRadius: 7, borderWidth: 2.5,
+              fill: false, yAxisID: 'y2', order: 1 }
           ]
         },
         options: {
           responsive: false, animation: false,
-          plugins: { legend: { display: true, labels: { font: { size: 12 } } } },
+          layout: { padding: { top:12, right:20, bottom:8, left:8 } },
+          plugins: { legend: { display:true, labels:{ font:{size:11}, color:'#374151', boxWidth:14, padding:14 } } },
           scales: {
-            y:  { position: 'left',  title: { display: true, text: 'Vekt (g)' },
-                  grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: false },
-            y2: { position: 'right', title: { display: true, text: 'K-faktor' },
-                  grid: { drawOnChartArea: false }, min: 0.4, max: 2.0,
-                  ticks: { color: '#16a34a' } },
-            x:  { grid: { display: false } }
+            y:  { position:'left', title:{display:true,text:'Vekt (g)',color:'#6B7280',font:{size:11}},
+                  ticks:{color:'#6B7280'}, grid:{color:'rgba(0,0,0,0.05)'}, border:{display:false}, beginAtZero:false },
+            y2: { position:'right', title:{display:true,text:'K-faktor',color:'#16a34a',font:{size:11}},
+                  ticks:{color:'#16a34a'}, grid:{drawOnChartArea:false}, border:{display:false},
+                  min:0.4, max:2.0 },
+            x:  { ticks:{color:'#374151',maxTicksLimit:20}, grid:{display:false}, border:{display:false} }
           }
         }
       });
@@ -10452,8 +10464,9 @@ async function _genWelferdChartPng(fisker, scoreParams) {
   return new Promise(resolve => {
     try {
       const canvas = document.createElement('canvas');
-      canvas.width = 700; canvas.height = Math.max(320, scoreParams.length * 26 + 80);
+      canvas.width = 800; canvas.height = Math.max(360, scoreParams.length * 28 + 100);
       const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height);
       const avgScores = scoreParams.map((label, i) => {
         const vals = fisker.map(f => (f.scores || [])[i] ?? 0);
         return +(vals.reduce((a,b) => a+b, 0) / (vals.length || 1)).toFixed(2);
@@ -10461,10 +10474,10 @@ async function _genWelferdChartPng(fisker, scoreParams) {
       const sorted = scoreParams.map((label, i) => ({ label, avg: avgScores[i] }))
         .sort((a, b) => b.avg - a.avg);
       const colors = sorted.map(d =>
-        d.avg === 0 ? 'rgba(22,163,74,0.82)' :
-        d.avg < 0.5 ? 'rgba(250,204,21,0.82)' :
-        d.avg < 1.0 ? 'rgba(217,119,6,0.82)' :
-                      'rgba(220,38,38,0.82)'
+        d.avg === 0   ? 'rgba(22,163,74,0.85)' :
+        d.avg < 0.5   ? 'rgba(13,148,136,0.85)' :
+        d.avg < 1.0   ? 'rgba(217,119,6,0.85)' :
+                        'rgba(220,38,38,0.85)'
       );
       const chart = new Chart(ctx, {
         type: 'bar',
@@ -10475,15 +10488,16 @@ async function _genWelferdChartPng(fisker, scoreParams) {
         },
         options: {
           indexAxis: 'y', responsive: false, animation: false,
+          layout: { padding: { top:10, right:24, bottom:8, left:8 } },
           plugins: {
             legend: { display: false },
-            title: { display: true, text: `Velferdsskår per parameter — ${fisker.length} fisk`,
-              font: { size: 13, weight: 'bold' } }
+            title: { display:true, text:`Velferdsskår per parameter  ·  ${fisker.length} fisk`,
+              font:{size:13,weight:'600',family:'sans-serif'}, color:'#134E4A', padding:{bottom:10} }
           },
           scales: {
-            x: { min: 0, max: 3, title: { display: true, text: 'Score (0=OK  1=mild  2=moderat  3=alvorlig)' },
-                 ticks: { stepSize: 1 }, grid: { color: 'rgba(0,0,0,0.07)' } },
-            y: { grid: { display: false } }
+            x: { min:0, max:3, title:{display:true,text:'Score  (0=OK  ·  1=mild  ·  2=moderat  ·  3=alvorlig)',color:'#6B7280',font:{size:10}},
+                 ticks:{stepSize:1,color:'#6B7280'}, grid:{color:'rgba(0,0,0,0.05)'}, border:{display:false} },
+            y: { ticks:{color:'#374151',font:{size:10}}, grid:{display:false}, border:{display:false} }
           }
         }
       });
