@@ -5387,6 +5387,20 @@ body.mode-rokter .nav-item.r-only { display: flex; }
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── Per-bruker localStorage-namespace ───────────────────────────────────────
+// All user data is prefixed with the logged-in username so each user only
+// sees their own data. Auth tokens (vela_token, vela_user) stay global.
+const _LS = {
+  _ns() {
+    const u = localStorage.getItem('vela_user');
+    return u ? 'u_' + u.toLowerCase().replace(/\s+/g, '_') + '_' : 'u_guest_';
+  },
+  get(k)    { return localStorage.getItem(this._ns() + k); },
+  set(k, v) { localStorage.setItem(this._ns() + k, v); },
+  del(k)    { localStorage.removeItem(this._ns() + k); },
+  keys()    { const ns = this._ns(); return Object.keys(localStorage).filter(k => k.startsWith(ns)).map(k => k.slice(ns.length)); },
+};
+
 // ─── State ────────────────────────────────────────────────────────────────────
 let apiKey = 'server'; // All AI calls go through server proxy — no client key needed
 function _claudeUrl() { return _serverBase() + '/claude'; }
@@ -5782,7 +5796,7 @@ function _enterApp(name) {
   const ls = document.getElementById('login-screen');
   if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity .4s'; setTimeout(() => ls.style.display = 'none', 400); }
   // Set username in app
-  if (name) { userName = name; localStorage.setItem('feltai_name', name); }
+  if (name) { userName = name; _LS.set('name', name); }
   showToast('👋 Velkommen, ' + name + '!');
 }
 
@@ -5823,7 +5837,7 @@ document.addEventListener('DOMContentLoaded', () => {
   detectSpeechSupport();
 
   // ── Offline auto-save recovery ────────────────────────────────────────────
-  const saved = localStorage.getItem('feltai_autosave');
+  const saved = _LS.get('autosave');
   if (saved) {
     try {
       const { txt, saved: ts, lok } = JSON.parse(saved);
@@ -5842,10 +5856,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showTab('opptak', document.getElementById('nav-opptak'));
             showToast('✅ Opptak gjenopprettet');
           }
-          localStorage.removeItem('feltai_autosave');
+          _LS.del('autosave');
         }, 1500);
       }
-    } catch(e) { localStorage.removeItem('feltai_autosave'); }
+    } catch(e) { _LS.del('autosave'); }
   }
 
   // ── GDPR / Personvern — vis ved første gangs bruk ─────────────────────────
@@ -5861,15 +5875,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const savedAns = localStorage.getItem('feltai_ansvarlig');
+  const savedAns = _LS.get('ansvarlig');
   if (savedAns) document.getElementById('f-ansvarlig').value = savedAns;
   document.getElementById('f-ansvarlig').addEventListener('change', e =>
-    localStorage.setItem('feltai_ansvarlig', e.target.value));
+    _LS.set('ansvarlig', e.target.value));
 
-  const savedSel = localStorage.getItem('feltai_selskap');
+  const savedSel = _LS.get('selskap');
   if (savedSel) document.getElementById('f-selskap').value = savedSel;
   document.getElementById('f-selskap').addEventListener('change', e =>
-    localStorage.setItem('feltai_selskap', e.target.value));
+    _LS.set('selskap', e.target.value));
 });
 
 function setDates() {
@@ -6029,7 +6043,7 @@ function startRecording(appendMode = false) {
   if (!SR) { showManualFallback(); return; }
 
   recording = true;
-  if (!appendMode) { currentTranscript = ''; _lastFinalTime = 0; localStorage.removeItem('feltai_autosave'); }
+  if (!appendMode) { currentTranscript = ''; _lastFinalTime = 0; _LS.del('autosave'); }
   setDates(); getGPS();
   // Start MediaRecorder for Whisper backup (runs in parallel with browser SR)
   if (!appendMode) _startMediaRecorder();
@@ -6037,7 +6051,7 @@ function startRecording(appendMode = false) {
   clearInterval(window._autoSaveInterval);
   window._autoSaveInterval = setInterval(() => {
     if (currentTranscript.trim().length > 10) {
-      localStorage.setItem('feltai_autosave', JSON.stringify({
+      _LS.set('autosave', JSON.stringify({
         txt: currentTranscript, saved: new Date().toISOString(),
         lok: document.getElementById('f-lokalitet')?.value || ''
       }));
@@ -6693,11 +6707,11 @@ REGLER:
 }
 
 function _renderFiskStatusResult(data, rawText) {
-  // Store in localStorage keyed by date
-  const key = 'vela_fiskstatus_' + data.dato;
-  const existing = JSON.parse(localStorage.getItem(key) || '[]');
+  // Store per-user, keyed by date
+  const key = 'fiskstatus_' + data.dato;
+  const existing = JSON.parse(_LS.get(key) || '[]');
   existing.push({ ts: new Date().toISOString(), data });
-  localStorage.setItem(key, JSON.stringify(existing));
+  _LS.set(key, JSON.stringify(existing));
 
   // Build result HTML
   const varselCount = data.funn_oversikt?.varsel_funn || 0;
@@ -6861,10 +6875,10 @@ REGLER: Sett aktiv:false for seksjoner som ikke er nevnt. Konverter tallord til 
 
 function _renderSmartAIResult(d) {
   // Store
-  const key = 'vela_smart_' + d.dato;
-  const existing = JSON.parse(localStorage.getItem(key) || '[]');
+  const key = 'smart_' + d.dato;
+  const existing = JSON.parse(_LS.get(key) || '[]');
   existing.push({ ts: new Date().toISOString(), data: d });
-  localStorage.setItem(key, JSON.stringify(existing));
+  _LS.set(key, JSON.stringify(existing));
 
   const hasteColor = d.hastegrad === 'haster' ? '#ef4444' : d.hastegrad === 'forhøyet' ? '#f59e0b' : '#22c55e';
   const hasteLabel = d.hastegrad === 'haster' ? '🔴 HASTER' : d.hastegrad === 'forhøyet' ? '🟡 Forhøyet' : '🟢 Normal';
@@ -7065,7 +7079,7 @@ Konverter tallord. SVAR KUN med valid JSON.`;
 }
 
 function _renderMerdOversiktResult(d) {
-  localStorage.setItem('vela_merd_' + d.dato + '_' + Date.now(), JSON.stringify(d));
+  _LS.set('merd_' + d.dato + '_' + Date.now(), JSON.stringify(d));
   const velferdColor = d.velferd_score === 'bekymringsfull' ? '#ef4444' : d.velferd_score === 'akseptabel' ? '#f59e0b' : '#22c55e';
 
   const rows = [
@@ -7802,8 +7816,8 @@ function getFormData() {
 }
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
-function getSavedEntries() { return JSON.parse(localStorage.getItem('feltai_entries')||'[]'); }
-function setSavedEntries(a) { localStorage.setItem('feltai_entries', JSON.stringify(a)); }
+function getSavedEntries() { return JSON.parse(_LS.get('entries') || '[]'); }
+function setSavedEntries(a) { _LS.set('entries', JSON.stringify(a)); }
 
 function saveToLocal() {
   const entries = getSavedEntries();
@@ -8802,7 +8816,7 @@ function shareLog() {
 
 // ─── User mode (biolog / driftsteknikker) ──────────────────────────────────────────────
 let userMode = localStorage.getItem('feltai_mode') || 'biolog';
-let userName = localStorage.getItem('feltai_name') || '';
+let userName = _LS.get('name') || '';
 
 function toggleUserMode() {
   userMode = userMode === 'biolog' ? 'rokter' : 'biolog';
@@ -8842,7 +8856,7 @@ function promptName() {
   const n = prompt('Ditt navn:', userName);
   if (n !== null) {
     userName = n.trim();
-    localStorage.setItem('feltai_name', userName);
+    _LS.set('name', userName);
     updateGreeting();
   }
 }
@@ -11726,9 +11740,41 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ─── Service worker ───────────────────────────────────────────────────────────
-if ('serviceWorker' in navigator)
-  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+// ─── Service worker + offline-støtte ─────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js');
+      // Listen for updates from the new SW
+      navigator.serviceWorker.addEventListener('message', e => {
+        if (e.data?.type === 'SW_ACTIVATED') {
+          showToast('✓ Vela oppdatert og klar for offline bruk');
+        }
+      });
+      // Check for waiting SW (new version available)
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW?.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            showToast('🔄 Ny versjon tilgjengelig — oppdaterer...', 3000);
+            setTimeout(() => { newSW.postMessage({ type: 'SKIP_WAITING' }); location.reload(); }, 2500);
+          }
+        });
+      });
+    } catch(e) { console.warn('SW:', e); }
+  });
+}
+
+// Offline / online banner
+function _updateOnlineStatus() {
+  const online = navigator.onLine;
+  const dot = document.getElementById('connDot');
+  const txt = document.getElementById('connText');
+  if (dot) dot.className = 'conn-dot ' + (online ? 'online' : 'offline');
+  if (txt) txt.textContent = online ? 'Online' : '📵 Offline — tale lagres lokalt';
+}
+window.addEventListener('online',  _updateOnlineStatus);
+window.addEventListener('offline', _updateOnlineStatus);
 
 // ─── iOS double-tap prevention ────────────────────────────────────────────────
 document.addEventListener('touchend', e => {
@@ -13114,7 +13160,7 @@ function saveSettingsName() {
   const n = (document.getElementById('settings-name-input')?.value || '').trim();
   if (!n) return;
   userName = n;
-  localStorage.setItem('feltai_name', n);
+  _LS.set('name', n);
   updateGreeting();
   showToast('✓ Navn lagret');
 }
@@ -14581,11 +14627,11 @@ function _saveRapportForDate(date) {
   _RP_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) data[id] = el.value; });
   // Only save if there's actual content
   const hasContent = Object.values(data).some(v => v && v.trim());
-  if (hasContent) localStorage.setItem('feltai_rapport_' + date, JSON.stringify(data));
+  if (hasContent) _LS.set('rapport_' + date, JSON.stringify(data));
 }
 
 function _loadRapportForDate(date) {
-  const saved = localStorage.getItem('feltai_rapport_' + date);
+  const saved = _LS.get('rapport_' + date);
   // Clear all fields first
   _RP_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   if (saved) {
@@ -14604,12 +14650,7 @@ function _loadRapportForDate(date) {
 }
 
 function _getRapportDates() {
-  const dates = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith('feltai_rapport_')) dates.push(key.replace('feltai_rapport_', ''));
-  }
-  return dates.sort().reverse(); // newest first
+  return _LS.keys().filter(k => k.startsWith('rapport_')).map(k => k.replace('rapport_', '')).sort().reverse();
 }
 
 function shiftRapportDate(delta) {
@@ -14993,7 +15034,7 @@ function loadDemoData() {
     localStorage.setItem('feltai_mode', 'rokter');
     applyUserMode();
   }
-  localStorage.setItem('feltai_name', localStorage.getItem('feltai_name') || 'Ola Nordmann');
+  _LS.set('name', _LS.get('name') || 'Ola Nordmann');
   renderRokterHistory('dod');
   showToast('Demo-data lastet inn ✓');
   showTab('rokter', document.getElementById('nav-rokter'));
