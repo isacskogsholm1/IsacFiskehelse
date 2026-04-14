@@ -711,9 +711,9 @@ http.createServer(async (req, res) => {
           saveUsers(users);
         }
         const token = makeToken();
-        _sessions[token] = { userId: user.id, name: user.name, expires: Date.now() + 86400000 };
+        _sessions[token] = { userId: user.id, name: user.name, role: user.role || 'biolog', expires: Date.now() + 86400000 };
         res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-        res.end(JSON.stringify({ token, name: user.name, role: user.role || 'user' }));
+        res.end(JSON.stringify({ token, name: user.name, role: user.role || 'biolog' }));
       } catch { res.writeHead(400, {'Access-Control-Allow-Origin':'*'}); res.end('{}'); }
     }); return;
   }
@@ -723,7 +723,7 @@ http.createServer(async (req, res) => {
     let body = ''; req.on('data', c => body += c);
     req.on('end', () => {
       try {
-        const { name, pin, invite } = JSON.parse(body);
+        const { name, pin, invite, role } = JSON.parse(body);
         if (invite !== 'IsacVela') {
           res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Feil invitasjonskode' })); return;
@@ -732,16 +732,17 @@ http.createServer(async (req, res) => {
           res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Passord må ha minst 6 tegn' })); return;
         }
+        const validRole = (role === 'rokter') ? 'rokter' : 'biolog';
         const users = loadUsers();
         if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
           res.writeHead(409, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Brukernavnet er tatt' })); return;
         }
-        const newUser = { id: makeToken().slice(0,8), name: name.trim(), password: hashPassword(String(pin)), role: 'user', created: new Date().toISOString() };
+        const newUser = { id: makeToken().slice(0,8), name: name.trim(), password: hashPassword(String(pin)), role: validRole, created: new Date().toISOString() };
         users.push(newUser);
         saveUsers(users);
         const token = makeToken();
-        _sessions[token] = { userId: newUser.id, name: newUser.name, expires: Date.now() + 86400000 };
+        _sessions[token] = { userId: newUser.id, name: newUser.name, role: newUser.role, expires: Date.now() + 86400000 };
         res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         res.end(JSON.stringify({ token, name: newUser.name, role: newUser.role }));
       } catch { res.writeHead(400, {'Access-Control-Allow-Origin':'*'}); res.end('{}'); }
@@ -756,7 +757,7 @@ http.createServer(async (req, res) => {
     const s = _sessions[token];
     if (s && Date.now() < s.expires) {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-      res.end(JSON.stringify({ ok: true, name: s.name }));
+      res.end(JSON.stringify({ ok: true, name: s.name, role: s.role || 'biolog' }));
     } else {
       res.writeHead(401, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
       res.end(JSON.stringify({ ok: false }));

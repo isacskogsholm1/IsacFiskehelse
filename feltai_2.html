@@ -3321,6 +3321,20 @@ body.mode-rokter .nav-item.r-only { display: flex; }
           <input id="reg-pin" type="password" autocomplete="new-password" placeholder="Velg passord"
             style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#fff;font-size:15px;outline:none;">
         </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Din rolle</div>
+          <div style="display:flex;gap:8px;">
+            <button type="button" id="role-btn-biolog" onclick="_selectRole('biolog')"
+              style="flex:1;padding:11px 8px;border-radius:8px;border:2px solid rgba(13,148,136,0.7);background:rgba(13,148,136,0.25);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">
+              🔬 Fiskehelsebiolog
+            </button>
+            <button type="button" id="role-btn-rokter" onclick="_selectRole('rokter')"
+              style="flex:1;padding:11px 8px;border-radius:8px;border:2px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;">
+              🐟 Driftsteknikker
+            </button>
+          </div>
+          <input type="hidden" id="reg-role" value="biolog">
+        </div>
         <div style="margin-bottom:20px;">
           <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Invitasjonskode</div>
           <input id="reg-invite" type="text" placeholder="Kode fra administrator"
@@ -3423,10 +3437,10 @@ body.mode-rokter .nav-item.r-only { display: flex; }
           <span class="status-dot" id="statusDot"></span>
           <span id="statusText" style="font-size:12px;">Klar</span>
         </div>
-        <button id="headerModeToggle" class="mode-toggle-pill" onclick="toggleUserMode()">
+        <div id="headerModeToggle" class="mode-toggle-pill" style="cursor:default;">
           <span class="mode-toggle-dot"></span>
           <span id="headerModeLabel">BIOLOG</span>
-        </button>
+        </div>
         <button onclick="_logout()" title="Logg ut" style="background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:8px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='rgba(255,255,255,0.5)'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
           Logg ut
@@ -4901,15 +4915,8 @@ body.mode-rokter .nav-item.r-only { display: flex; }
         <div style="background:var(--surface);border-radius:var(--r-xl);border:1px solid var(--border);overflow:hidden;">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
             <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Brukerrolle</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-              <button id="settings-role-biolog" onclick="setUserModeSettings('biolog')"
-                style="padding:10px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:2px solid var(--blue-500);background:var(--blue-50);color:var(--blue-600);">
-                🔬 Fiskebiolog
-              </button>
-              <button id="settings-role-rokter" onclick="setUserModeSettings('rokter')"
-                style="padding:10px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:2px solid var(--border2);background:var(--surface2);color:var(--text2);">
-                🐟 Driftsteknikker
-              </button>
+            <div id="settings-role-display" style="padding:12px;border-radius:var(--r-md);background:var(--surface2);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text2);text-align:center;">
+              <!-- Updated by updateSettingsRoleDisplay() -->
             </div>
           </div>
           <div style="padding:14px 16px;">
@@ -5792,6 +5799,27 @@ function _loginTab(tab) {
   reg.style.color      = tab === 'reg' ? '#031f35' : 'rgba(255,255,255,0.6)';
 }
 
+function _selectRole(role) {
+  document.getElementById('reg-role').value = role;
+  const bBtn = document.getElementById('role-btn-biolog');
+  const rBtn = document.getElementById('role-btn-rokter');
+  if (role === 'biolog') {
+    bBtn.style.border = '2px solid rgba(13,148,136,0.7)';
+    bBtn.style.background = 'rgba(13,148,136,0.25)';
+    bBtn.style.color = '#fff';
+    rBtn.style.border = '2px solid rgba(255,255,255,0.15)';
+    rBtn.style.background = 'rgba(255,255,255,0.05)';
+    rBtn.style.color = 'rgba(255,255,255,0.5)';
+  } else {
+    rBtn.style.border = '2px solid rgba(13,148,136,0.7)';
+    rBtn.style.background = 'rgba(13,148,136,0.25)';
+    rBtn.style.color = '#fff';
+    bBtn.style.border = '2px solid rgba(255,255,255,0.15)';
+    bBtn.style.background = 'rgba(255,255,255,0.05)';
+    bBtn.style.color = 'rgba(255,255,255,0.5)';
+  }
+}
+
 async function _doLogin() {
   const name = document.getElementById('li-name').value.trim();
   const pin  = document.getElementById('li-pin').value.trim();
@@ -5804,7 +5832,8 @@ async function _doLogin() {
     if (!r.ok) { err.textContent = d.error || 'Feil navn eller passord'; err.style.display = ''; return; }
     localStorage.setItem('vela_token', d.token);
     localStorage.setItem('vela_user',  d.name);
-    _enterApp(d.name);
+    localStorage.setItem('vela_role',  d.role || 'biolog');
+    _enterApp(d.name, d.role || 'biolog');
   } catch { err.textContent = 'Kunne ikke nå server — er Vela kjørende?'; err.style.display = ''; }
 }
 
@@ -5812,25 +5841,38 @@ async function _doRegister() {
   const name   = document.getElementById('reg-name').value.trim();
   const pin    = document.getElementById('reg-pin').value.trim();
   const invite = document.getElementById('reg-invite').value.trim();
+  const role   = document.getElementById('reg-role').value || 'biolog';
   const err    = document.getElementById('reg-error');
   if (!name || !pin || !invite) { err.textContent = 'Fyll inn alle felt'; err.style.display = ''; return; }
   if (pin.length < 6) { err.textContent = 'Passord må ha minst 6 tegn'; err.style.display = ''; return; }
   err.style.display = 'none';
   try {
-    const r = await fetch(_serverBase() + '/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, pin, invite }) });
+    const r = await fetch(_serverBase() + '/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, pin, invite, role }) });
     const d = await r.json();
     if (!r.ok) { err.textContent = d.error || 'Registrering feilet'; err.style.display = ''; return; }
     localStorage.setItem('vela_token', d.token);
     localStorage.setItem('vela_user',  d.name);
-    _enterApp(d.name);
+    localStorage.setItem('vela_role',  d.role || 'biolog');
+    _enterApp(d.name, d.role || 'biolog');
   } catch { err.textContent = 'Kunne ikke nå server'; err.style.display = ''; }
 }
 
-function _enterApp(name) {
+function _enterApp(name, role) {
   const ls = document.getElementById('login-screen');
   if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity .4s'; setTimeout(() => ls.style.display = 'none', 400); }
   // Set username in app
-  if (name) { userName = name; _LS.set('name', name); }
+  if (name) { userName = name; _LS.set('name', name); updateGreeting(); }
+  // Apply role from server — fixed per account, not toggleable
+  const resolvedRole = role || localStorage.getItem('vela_role') || 'biolog';
+  userMode = resolvedRole;
+  localStorage.setItem('vela_role', resolvedRole);
+  applyUserMode();
+  // Navigate to the right starting tab
+  if (resolvedRole === 'rokter') {
+    showTab('rokter', document.getElementById('nav-rokter'));
+  } else {
+    showTab('stemme', document.getElementById('nav-stemme'));
+  }
   showToast('👋 Velkommen, ' + name + '!');
 }
 
@@ -5838,6 +5880,7 @@ function _logout() {
   if (!confirm('Logge ut av Vela?')) return;
   localStorage.removeItem('vela_token');
   localStorage.removeItem('vela_user');
+  localStorage.removeItem('vela_role');
   // Show login screen again
   const ls = document.getElementById('login-screen');
   if (ls) {
@@ -5855,18 +5898,21 @@ function _logout() {
 
 async function _checkLoginSession() {
   const token = localStorage.getItem('vela_token');
-  const ls = document.getElementById('login-screen');
   if (!token) return; // show login
   try {
     const r = await fetch(_serverBase() + '/check-session', { headers:{ 'Authorization': 'Bearer ' + token }, signal: AbortSignal.timeout(4000) });
     if (r.ok) {
       const d = await r.json();
-      if (d.ok) { _enterApp(d.name); return; }
+      if (d.ok) {
+        if (d.role) localStorage.setItem('vela_role', d.role);
+        _enterApp(d.name, d.role); return;
+      }
     }
   } catch { /* server unreachable — still allow cached session */ }
   // If server not reachable but token exists, let user in (offline mode)
   const cachedName = localStorage.getItem('vela_user') || '';
-  if (cachedName) _enterApp(cachedName);
+  const cachedRole = localStorage.getItem('vela_role') || 'biolog';
+  if (cachedName) _enterApp(cachedName, cachedRole);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8867,17 +8913,9 @@ function shareLog() {
   }
 }
 
-// ─── User mode (biolog / driftsteknikker) ──────────────────────────────────────────────
-let userMode = localStorage.getItem('feltai_mode') || 'biolog';
+// ─── User mode (biolog / driftsteknikker) — fixed per account, set at login ────
+let userMode = localStorage.getItem('vela_role') || 'biolog';
 let userName = _LS.get('name') || '';
-
-function toggleUserMode() {
-  userMode = userMode === 'biolog' ? 'rokter' : 'biolog';
-  localStorage.setItem('feltai_mode', userMode);
-  applyUserMode();
-  if (userMode === 'rokter') showTab('rokter', document.getElementById('nav-rokter'));
-  else showTab('stemme', document.getElementById('nav-stemme'));
-}
 
 function applyUserMode() {
   // Toggle body class — drives CSS nav visibility (.b-only / .r-only)
@@ -8896,6 +8934,7 @@ function applyUserMode() {
     const lbl = document.getElementById('headerModeLabel');
     if (lbl) lbl.textContent = userMode === 'rokter' ? 'DRIFTSTEKNIKKER' : 'BIOLOG';
   }
+  updateSettingsRoleDisplay();
 }
 
 function updateGreeting() {
@@ -13334,24 +13373,17 @@ function navCtxClick() {
 }
 
 // ─── Settings functions ───────────────────────────────────────────────────────
-function setUserModeSettings(mode) {
-  userMode = mode;
-  localStorage.setItem('feltai_mode', mode);
-  applyUserMode();
-  updateSettingsRoleButtons();
-  showToast(mode === 'rokter' ? '🐟 Driftsteknikker-modus aktivert' : '🔬 Fiskebiolog-modus aktivert');
-}
-
-function updateSettingsRoleButtons() {
-  const bBtn = document.getElementById('settings-role-biolog');
-  const rBtn = document.getElementById('settings-role-rokter');
-  if (!bBtn || !rBtn) return;
+function updateSettingsRoleDisplay() {
+  const el = document.getElementById('settings-role-display');
+  if (!el) return;
   if (userMode === 'rokter') {
-    bBtn.style.cssText = 'padding:10px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:2px solid var(--border2);background:var(--surface2);color:var(--text2);';
-    rBtn.style.cssText = 'padding:10px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:2px solid var(--teal-500);background:var(--teal-50);color:var(--teal-600);';
+    el.innerHTML = '🐟 Driftsteknikker';
+    el.style.color = 'var(--teal-600)';
+    el.style.borderColor = 'var(--teal-500)';
   } else {
-    bBtn.style.cssText = 'padding:10px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:2px solid var(--blue-500);background:var(--blue-50);color:var(--blue-600);';
-    rBtn.style.cssText = 'padding:10px;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;border:2px solid var(--border2);background:var(--surface2);color:var(--text2);';
+    el.innerHTML = '🔬 Fiskehelsebiolog';
+    el.style.color = 'var(--blue-600)';
+    el.style.borderColor = 'var(--blue-500)';
   }
 }
 
@@ -13529,7 +13561,7 @@ function initSettingsPanel() {
   if (msSiteUrl)  msSiteUrl.value  = localStorage.getItem('feltai_ms_site_url')  || '';
   if (msFolder)   msFolder.value   = localStorage.getItem('feltai_ms_folder')    || 'Vela Rapporter';
   updateMSStatus();
-  updateSettingsRoleButtons();
+  updateSettingsRoleDisplay();
   // Language preference buttons
   const langPref = localStorage.getItem('feltai_lang_pref') || 'auto';
   ['auto','bokmål','nynorsk','dialekt'].forEach(p => {
@@ -15227,12 +15259,6 @@ function loadDemoData() {
   rokterHistory = merged;
   localStorage.setItem('feltai_r_history', JSON.stringify(merged));
 
-  // Set mode to driftsteknikker and navigate there to show the data
-  if (userMode !== 'rokter') {
-    userMode = 'rokter';
-    localStorage.setItem('feltai_mode', 'rokter');
-    applyUserMode();
-  }
   _LS.set('name', _LS.get('name') || 'Ola Nordmann');
   renderRokterHistory('dod');
   showToast('Demo-data lastet inn ✓');
