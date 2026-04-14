@@ -3427,6 +3427,10 @@ body.mode-rokter .nav-item.r-only { display: flex; }
           <span class="mode-toggle-dot"></span>
           <span id="headerModeLabel">BIOLOG</span>
         </button>
+        <button onclick="_logout()" title="Logg ut" style="background:none;border:none;cursor:pointer;padding:6px 8px;border-radius:8px;color:rgba(255,255,255,0.5);display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)';this.style.color='#fff'" onmouseout="this.style.background='none';this.style.color='rgba(255,255,255,0.5)'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Logg ut
+        </button>
       </div>
     </div>
   </div>
@@ -5798,6 +5802,25 @@ function _enterApp(name) {
   // Set username in app
   if (name) { userName = name; _LS.set('name', name); }
   showToast('👋 Velkommen, ' + name + '!');
+}
+
+function _logout() {
+  if (!confirm('Logge ut av Vela?')) return;
+  localStorage.removeItem('vela_token');
+  localStorage.removeItem('vela_user');
+  // Show login screen again
+  const ls = document.getElementById('login-screen');
+  if (ls) {
+    ls.style.display = 'flex';
+    ls.style.opacity = '0';
+    requestAnimationFrame(() => { ls.style.transition = 'opacity .4s'; ls.style.opacity = '1'; });
+  }
+  // Clear login fields
+  ['li-name','li-pin','reg-name','reg-pin','reg-invite'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('login-error') && (document.getElementById('login-error').style.display = 'none');
+  showToast('Logget ut ✓');
 }
 
 async function _checkLoginSession() {
