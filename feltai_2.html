@@ -5862,13 +5862,20 @@ function _enterApp(name, role) {
   if (ls) { ls.style.opacity = '0'; ls.style.transition = 'opacity .4s'; setTimeout(() => ls.style.display = 'none', 400); }
   // Set username in app
   if (name) { userName = name; _LS.set('name', name); updateGreeting(); }
-  // Apply role from server — fixed per account, not toggleable
+  // Store account role
   const resolvedRole = role || localStorage.getItem('vela_role') || 'biolog';
-  userMode = resolvedRole;
   localStorage.setItem('vela_role', resolvedRole);
+  // Determine active mode
+  if (resolvedRole === 'both') {
+    // Restore last used mode, default biolog
+    userMode = localStorage.getItem('vela_mode') || 'biolog';
+  } else {
+    userMode = resolvedRole;
+  }
+  localStorage.setItem('vela_mode', userMode);
   applyUserMode();
   // Navigate to the right starting tab
-  if (resolvedRole === 'driftsteknikker') {
+  if (userMode === 'driftsteknikker') {
     showTab('driftsteknikker', document.getElementById('nav-driftsteknikker'));
   } else {
     showTab('stemme', document.getElementById('nav-stemme'));
@@ -5881,6 +5888,7 @@ function _logout() {
   localStorage.removeItem('vela_token');
   localStorage.removeItem('vela_user');
   localStorage.removeItem('vela_role');
+  localStorage.removeItem('vela_mode');
   // Show login screen again
   const ls = document.getElementById('login-screen');
   if (ls) {
@@ -5913,6 +5921,7 @@ async function _checkLoginSession() {
   const cachedName = localStorage.getItem('vela_user') || '';
   const cachedRole = localStorage.getItem('vela_role') || 'biolog';
   if (cachedName) _enterApp(cachedName, cachedRole);
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8913,9 +8922,20 @@ function shareLog() {
   }
 }
 
-// ─── User mode (biolog / driftsteknikker) — fixed per account, set at login ────
-let userMode = localStorage.getItem('vela_role') || 'biolog';
+// ─── User mode (biolog / driftsteknikker) ─────────────────────────────────────
+// vela_role = account role ('biolog' | 'driftsteknikker' | 'both')
+// vela_mode = currently active mode ('biolog' | 'driftsteknikker')
+let userMode = localStorage.getItem('vela_mode') || localStorage.getItem('vela_role') || 'biolog';
 let userName = _LS.get('name') || '';
+
+function toggleUserMode() {
+  if (localStorage.getItem('vela_role') !== 'both') return; // only 'both' users can toggle
+  userMode = userMode === 'biolog' ? 'driftsteknikker' : 'biolog';
+  localStorage.setItem('vela_mode', userMode);
+  applyUserMode();
+  if (userMode === 'driftsteknikker') showTab('driftsteknikker', document.getElementById('nav-driftsteknikker'));
+  else showTab('stemme', document.getElementById('nav-stemme'));
+}
 
 function applyUserMode() {
   // Toggle body class — drives CSS nav visibility (.b-only / .r-only)
@@ -8928,9 +8948,13 @@ function applyUserMode() {
   }
   const sub = document.querySelector('.brand-sub');
   if (sub) sub.textContent = userMode === 'driftsteknikker' ? 'Driftsteknikker-modus' : 'Fiskehelsebiolog';
+
+  const canToggle = localStorage.getItem('vela_role') === 'both';
   const headerToggle = document.getElementById('headerModeToggle');
   if (headerToggle) {
     headerToggle.className = 'mode-toggle-pill' + (userMode === 'driftsteknikker' ? ' driftsteknikker' : '');
+    headerToggle.style.cursor = canToggle ? 'pointer' : 'default';
+    headerToggle.onclick = canToggle ? toggleUserMode : null;
     const lbl = document.getElementById('headerModeLabel');
     if (lbl) lbl.textContent = userMode === 'driftsteknikker' ? 'DRIFTSTEKNIKKER' : 'BIOLOG';
   }
@@ -13376,15 +13400,18 @@ function navCtxClick() {
 function updateSettingsRoleDisplay() {
   const el = document.getElementById('settings-role-display');
   if (!el) return;
+  const canToggle = localStorage.getItem('vela_role') === 'both';
   if (userMode === 'driftsteknikker') {
-    el.innerHTML = '🐟 Driftsteknikker';
+    el.innerHTML = '🐟 Driftsteknikker' + (canToggle ? ' <span style="font-size:11px;opacity:.6;">(trykk for å bytte)</span>' : '');
     el.style.color = 'var(--teal-600)';
     el.style.borderColor = 'var(--teal-500)';
   } else {
-    el.innerHTML = '🔬 Fiskehelsebiolog';
+    el.innerHTML = '🔬 Fiskehelsebiolog' + (canToggle ? ' <span style="font-size:11px;opacity:.6;">(trykk for å bytte)</span>' : '');
     el.style.color = 'var(--blue-600)';
     el.style.borderColor = 'var(--blue-500)';
   }
+  el.style.cursor = canToggle ? 'pointer' : 'default';
+  el.onclick = canToggle ? toggleUserMode : null;
 }
 
 function saveSettingsName() {
