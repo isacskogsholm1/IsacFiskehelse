@@ -4615,29 +4615,56 @@ body.mode-rokter .nav-item.r-only { display: flex; }
         <div class="r-section-card" style="margin-bottom:10px;">
           <div class="r-section-title" style="display:flex;justify-content:space-between;align-items:center;">
             5–9 · SOAP klinisk notat
-            <button class="btn-soap-gen" onclick="generateSOAP()" style="font-size:11px;padding:4px 10px;">✦ AI-fyll SOAP</button>
+            <div style="display:flex;gap:6px;">
+              <button onclick="_aiTipsSOAP()" style="font-size:11px;padding:4px 10px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:6px;color:#818cf8;cursor:pointer;font-weight:700;">💡 Tips</button>
+              <button class="btn-soap-gen" onclick="generateSOAP()" style="font-size:11px;padding:4px 10px;">✦ AI-fyll</button>
+            </div>
           </div>
           <div class="soap-section" style="margin-top:8px;">
-            <div class="soap-section-label"><span class="soap-letter soap-s">S</span>Subjektivt — feltobservasjoner</div>
+            <div class="soap-section-label" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><span class="soap-letter soap-s">S</span>Subjektivt — feltobservasjoner</span>
+              <button onclick="_aiTipsField('soap-s','subjektivt')" style="font-size:10px;padding:2px 7px;background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);cursor:pointer;">✦</button>
+            </div>
             <textarea class="soap-text" id="soap-s" placeholder="Atferd, matlyst, svømmemønster, finnesliping, dødelighet..."></textarea>
           </div>
           <div class="soap-section">
-            <div class="soap-section-label"><span class="soap-letter soap-o">O</span>Objektivt — målinger og funn</div>
+            <div class="soap-section-label" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><span class="soap-letter soap-o">O</span>Objektivt — målinger og funn</span>
+              <button onclick="_aiTipsField('soap-o','objektivt')" style="font-size:10px;padding:2px 7px;background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);cursor:pointer;">✦</button>
+            </div>
             <textarea class="soap-text" id="soap-o" placeholder="Lusetall, temp, O₂, salinitet, bilder, prøveresultater..."></textarea>
           </div>
           <div class="soap-section">
-            <div class="soap-section-label"><span class="soap-letter soap-a">A</span>Analyse — vurdering</div>
+            <div class="soap-section-label" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><span class="soap-letter soap-a">A</span>Analyse — vurdering</span>
+              <button onclick="_aiTipsField('soap-a','analyse')" style="font-size:10px;padding:2px 7px;background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);cursor:pointer;">✦</button>
+            </div>
             <textarea class="soap-text" id="soap-a" placeholder="Differensialdiagnoser, sannsynlighet, klinisk vurdering..."></textarea>
           </div>
           <div class="soap-section">
-            <div class="soap-section-label"><span class="soap-letter soap-p">P</span>Plan — tiltak</div>
+            <div class="soap-section-label" style="display:flex;justify-content:space-between;align-items:center;">
+              <span><span class="soap-letter soap-p">P</span>Plan — tiltak</span>
+              <button onclick="_aiTipsField('soap-p','plan')" style="font-size:10px;padding:2px 7px;background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);cursor:pointer;">✦</button>
+            </div>
             <textarea class="soap-text" id="soap-p" placeholder="Prøvetaking, behandling, overvåking, ny inspeksjon..."></textarea>
+          </div>
+          <!-- AI tips output -->
+          <div id="soap-tips-box" style="display:none;margin-top:8px;padding:10px 12px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.05em;">✦ AI-tips</span>
+              <button onclick="document.getElementById('soap-tips-box').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;line-height:1;">×</button>
+            </div>
+            <div id="soap-tips-text" style="font-size:13px;color:var(--text2);line-height:1.6;white-space:pre-wrap;"></div>
+            <button id="soap-tips-apply" onclick="_applyAITips()" style="display:none;margin-top:8px;width:100%;padding:7px;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:7px;font-size:12px;font-weight:700;color:#818cf8;cursor:pointer;">✦ Legg til i feltene</button>
           </div>
         </div>
 
         <!-- SEK 7: Funn -->
         <div class="r-section-card" style="margin-bottom:10px;">
-          <div class="r-section-title">7 · Makroskopiske funn</div>
+          <div class="r-section-title" style="display:flex;justify-content:space-between;align-items:center;">
+            7 · Makroskopiske funn
+            <button onclick="_aiTipsField('rp-funn','makroskopiske funn')" style="font-size:10px;padding:2px 7px;background:none;border:1px solid var(--border2);border-radius:5px;color:var(--text3);cursor:pointer;">✦ Tips</button>
+          </div>
           <textarea class="soap-text" id="rp-funn" style="margin-top:8px;" placeholder="Gjeller: normale&#10;Lever: blek-normal&#10;Hud: lett finnesliping&#10;Øye: katarakt grad 1 (2 individer)..."></textarea>
         </div>
 
@@ -5010,24 +5037,37 @@ body.mode-rokter .nav-item.r-only { display: flex; }
       <div class="veil-section">
         <div class="veil-section-title">🤖 AI-innstillinger</div>
         <div style="background:var(--surface);border-radius:var(--r-xl);border:1px solid var(--border);overflow:hidden;">
+          <!-- AI status -->
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);">
-            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Anthropic API-nøkkel</div>
-            <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px;">
-              Hent din gratis nøkkel på
-              <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--blue-500);font-weight:700;">console.anthropic.com →</a>
-              Lagres kun lokalt på din enhet.
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">AI-status</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--text);">✦ Groq AI — Llama 3.3 70B</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px;">Analyse, sammendrag, fisk-for-fisk, SOAP</div>
+                </div>
+                <span style="font-size:11px;font-weight:700;padding:3px 8px;background:rgba(34,197,94,0.15);color:#22c55e;border-radius:20px;">Gratis</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;">
+                <div>
+                  <div style="font-size:13px;font-weight:700;color:var(--text);">🎙️ Whisper — whisper-large-v3-turbo</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px;">Tale til tekst, norsk oppdrettsvokabular</div>
+                </div>
+                <span style="font-size:11px;font-weight:700;padding:3px 8px;background:rgba(34,197,94,0.15);color:#22c55e;border-radius:20px;">Gratis</span>
+              </div>
             </div>
-            <input class="r-input" type="password" id="settings-api-key" placeholder="sk-ant-api03-..." style="width:100%;margin-bottom:8px;">
-            <button class="btn-primary" style="width:100%;" onclick="saveSettingsApiKey()">💾 Lagre API-nøkkel</button>
+            <div style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.5;">
+              All AI kjøres via Vela-serveren — ingen nøkler trengs av brukeren. AI-analyse krever internett; stemmeregistrering fungerer offline.
+            </div>
           </div>
+          <!-- AI speed -->
           <div style="padding:14px 16px;">
-            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">AI-modell</div>
+            <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">AI-hastighet</div>
             <select class="r-input" id="settings-ai-model" style="width:100%;">
-              <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (anbefalt)</option>
-              <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 (raskere)</option>
-              <option value="claude-opus-4-6">Claude Opus 4.6 (kraftigst)</option>
+              <option value="llama-3.3-70b-versatile">Llama 3.3 70B — Balansert (anbefalt)</option>
+              <option value="llama-3.1-8b-instant">Llama 3.1 8B — Rask (enklere oppgaver)</option>
             </select>
-            <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="saveAiModel()">Lagre modell</button>
+            <button class="btn-secondary" style="margin-top:8px;width:100%;" onclick="saveAiModel()">Lagre valg</button>
           </div>
         </div>
       </div>
@@ -5114,7 +5154,7 @@ body.mode-rokter .nav-item.r-only { display: flex; }
       </div>
 
       <div style="padding:16px;text-align:center;color:var(--text3);font-size:11px;">
-        Vela AI v3.1 · Havbruksdokumentasjon · Anthropic Claude
+        Vela AI v4.0 · Havbruksdokumentasjon · Groq AI (gratis)
       </div>
     </div><!-- /panel-settings -->
 
@@ -5335,19 +5375,9 @@ body.mode-rokter .nav-item.r-only { display: flex; }
 
 </div><!-- /app -->
 
-<!-- API Key Modal (bottom sheet) -->
-<div class="modal-overlay" id="apiModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">API-nøkkel</div>
-    <div class="modal-desc">Anthropic-nøkkelen brukes til AI-analyse og lagres kun lokalt på denne enheten. Den forblir mellom alle økter.</div>
-    <input class="modal-input" type="password" id="apiKeyInput" placeholder="sk-ant-api03-...">
-    <div class="modal-actions">
-      <button class="btn-modal-cancel" onclick="closeApiModal()">Avbryt</button>
-      <button class="btn-modal-save" onclick="saveApiKey()">Lagre nøkkel</button>
-    </div>
-  </div>
-</div>
+<!-- API Key Modal (kept for legacy JS refs, hidden) -->
+<div id="apiModal" style="display:none!important;"></div>
+<input id="apiKeyInput" style="display:none;">
 
 <!-- Edit overlay (full-screen) -->
 <div class="edit-overlay" id="editOverlay">
@@ -5430,7 +5460,7 @@ function _showGdprNotice() {
       <div style="font-size:15px;font-weight:700;color:var(--text1,#fff);margin-bottom:12px;">Vela — Hva lagres og hvem ser det?</div>
       <div style="font-size:13px;color:var(--text2,rgba(255,255,255,0.75));line-height:1.7;margin-bottom:16px;">
         <b>📱 Lokalt på enheten:</b> Feltregistreringer, logger, skjemadata og lydopptak lagres kun i nettleserens lokale minne (localStorage) — ingen sky, ingen server.<br><br>
-        <b>🤖 AI-analyse:</b> Når du bruker AI-analyse, sendes transkripsjon til Anthropic API (USA) for behandling. API-nøkkelen din lagres lokalt. Ingen personopplysninger om pasienter/fisk sendes uten at du eksplisitt bruker AI-knappen.<br><br>
+        <b>🤖 AI-analyse:</b> Når du bruker AI-analyse, sendes transkripsjon til Groq AI (USA) for behandling via Vela-serveren. Ingen personopplysninger om pasienter/fisk sendes uten at du eksplisitt bruker AI-knappen.<br><br>
         <b>🌊 BarentsWatch:</b> Lokalitetssøk sender anonyme spørringer til BarentsWatch og Fiskeridirektoratet.<br><br>
         <b>Ingen reklame, ingen sporing, ingen tredjeparts cookies.</b>
       </div>
@@ -6431,7 +6461,7 @@ async function doQueryTranscript() {
   const q = document.getElementById('voice-query-input')?.value?.trim();
   const txt = currentTranscript?.trim() || document.getElementById('transcriptText')?.textContent?.trim();
   if (!q || !txt) { showToast('Skriv et spørsmål og sørg for at det finnes et opptak'); return; }
-  if (!apiKey) { showToast('API-nøkkel mangler'); return; }
+  if (!apiKey) { showToast('AI utilgjengelig — sjekk internett'); return; }
 
   const res = document.getElementById('voice-query-result');
   res.style.display = 'block';
@@ -7616,7 +7646,7 @@ async function extractActionPoints() {
   const lok   = lokEl?.value?.trim() || window._lastBWData?.localityName || '';
 
   if (!apiKey) {
-    showToast('API-nøkkel mangler — kan ikke hente handlingspunkter');
+    showToast('AI utilgjengelig — sjekk internett');
     return;
   }
 
@@ -7658,7 +7688,7 @@ async function extractActionPoints() {
 async function shortenTranscript() {
   const txt = currentTranscript?.trim() || document.getElementById('transcriptText')?.textContent?.trim() || '';
   if (!txt) { showToast('Ingen transkripsjon å forkorte'); return; }
-  if (!apiKey) { showToast('API-nøkkel mangler'); return; }
+  if (!apiKey) { showToast('AI utilgjengelig — sjekk internett'); return; }
 
   showToast('⏳ Forkorter tekst...');
 
@@ -7739,7 +7769,7 @@ function _buildDocFromParsed(txt, parsed) {
 async function checkFormCompleteness() {
   const key = apiKey || localStorage.getItem('feltai_api_key') || '';
   if (!key) {
-    showToast('API-nøkkel mangler — gå til Innstillinger og legg inn nøkkelen');
+    showToast('AI utilgjengelig — sjekk internettforbindelsen');
     return;
   }
   const btn = document.getElementById('btnCheckForm');
@@ -8760,7 +8790,7 @@ function saveEditEntry() {
 async function reanalyzeEdit() {
   const transcript = document.getElementById('edit-transcript').value.trim();
   if (!transcript) { showToast('Ingen transkripsjon å analysere'); return; }
-  if (!apiKey)     { showToast('API-nøkkel mangler — legg inn i innstillinger'); return; }
+  if (!apiKey)     { showToast('AI utilgjengelig — sjekk internettforbindelsen'); return; }
 
   const btn = document.querySelector('.btn-reanalyze');
   const origHTML = btn.innerHTML;
@@ -10905,9 +10935,155 @@ function applyAutoTekst(transcript) {
   return result;
 }
 
+// ─── AI-tips for skjemafelt ──────────────────────────────────────────────────
+let _lastTipsTarget = null; // field id to apply tips to
+
+async function _aiTipsField(fieldId, sectionName) {
+  // Gather context from whole rapport form
+  const ctx = _getRapportContext();
+  const fieldVal = document.getElementById(fieldId)?.value?.trim() || '';
+
+  const tipsBox  = document.getElementById('soap-tips-box');
+  const tipsText = document.getElementById('soap-tips-text');
+  const applyBtn = document.getElementById('soap-tips-apply');
+  if (!tipsBox || !tipsText) return;
+
+  tipsBox.style.display = 'block';
+  tipsText.textContent = '🔄 Analyserer skjema og lager tips...';
+  applyBtn.style.display = 'none';
+  _lastTipsTarget = fieldId;
+
+  // Scroll tips box into view
+  setTimeout(() => tipsBox.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+
+  const sys = `Du er en erfaren fiskehelsespesialist i norsk lakseoppdrett. Du hjelper en biolog eller driftsteknikker å fylle ut en fiskehelserapport.
+
+OPPGAVE: Gi konkrete, faglig gode tips for seksjonen "${sectionName}".
+- Se hva som allerede er fylt inn i skjemaet og det aktuelle feltet
+- Foreslå hva som mangler eller bør utdypes
+- Gi 3-5 korte, konkrete faglige eksempler tilpasset det som er registrert
+- Bruk norsk fagterminologi
+- Vær direkte og nyttig — ikke vag
+
+FORMAT:
+• [tips 1]
+• [tips 2]
+...
+
+Avslutt med ett konkret forslag til tekst for feltet (merket "FORSLAG:").`;
+
+  const userMsg = `SKJEMAKONTEKST:
+${ctx || '(tomt skjema)'}
+
+NÅVÆRENDE INNHOLD I "${sectionName}":
+${fieldVal || '(tomt)'}
+
+Gi tips og et konkret forslag til hva som bør stå i "${sectionName}".`;
+
+  try {
+    const res = await fetch(_claudeUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        max_tokens: 600,
+        system: sys,
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    const txt = data.content[0].text.trim();
+    tipsText.textContent = txt;
+    // Show apply button if there's a FORSLAG
+    if (txt.includes('FORSLAG:')) applyBtn.style.display = 'block';
+  } catch(err) {
+    tipsText.textContent = '⚠ Kunne ikke hente tips: ' + err.message;
+  }
+}
+
+async function _aiTipsSOAP() {
+  // Full SOAP overview — what's missing across all sections
+  const ctx = _getRapportContext();
+  const s = document.getElementById('soap-s')?.value?.trim() || '';
+  const o = document.getElementById('soap-o')?.value?.trim() || '';
+  const a = document.getElementById('soap-a')?.value?.trim() || '';
+  const p = document.getElementById('soap-p')?.value?.trim() || '';
+
+  const tipsBox  = document.getElementById('soap-tips-box');
+  const tipsText = document.getElementById('soap-tips-text');
+  const applyBtn = document.getElementById('soap-tips-apply');
+  if (!tipsBox || !tipsText) return;
+
+  tipsBox.style.display = 'block';
+  tipsText.textContent = '🔄 Analyserer SOAP-notat...';
+  applyBtn.style.display = 'none';
+  _lastTipsTarget = null;
+
+  setTimeout(() => tipsBox.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+
+  const sys = `Du er en erfaren fiskehelsespesialist. Analyser dette SOAP-notatet og gi konkrete forbedringspunkter.
+
+Svar med:
+1. En rask vurdering av hva som er bra (1 setning)
+2. Hva mangler eller bør utdypes (bullet-liste)
+3. Faglige tips tilpasset det som er registrert
+Vær direkte og praktisk. Norsk fagterminologi.`;
+
+  const userMsg = `SKJEMAKONTEKST: ${ctx || '(tomt)'}
+S (Subjektivt): ${s || '(tomt)'}
+O (Objektivt): ${o || '(tomt)'}
+A (Analyse): ${a || '(tomt)'}
+P (Plan): ${p || '(tomt)'}`;
+
+  try {
+    const res = await fetch(_claudeUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        max_tokens: 500,
+        system: sys,
+        messages: [{ role: 'user', content: userMsg }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    tipsText.textContent = data.content[0].text.trim();
+  } catch(err) {
+    tipsText.textContent = '⚠ ' + err.message;
+  }
+}
+
+function _applyAITips() {
+  if (!_lastTipsTarget) return;
+  const tipsText = document.getElementById('soap-tips-text')?.textContent || '';
+  const match = tipsText.match(/FORSLAG:\s*([\s\S]+)$/);
+  if (!match) return;
+  const forslag = match[1].trim();
+  const el = document.getElementById(_lastTipsTarget);
+  if (!el) return;
+  el.value = (el.value ? el.value + '\n\n' : '') + forslag;
+  el.dispatchEvent(new Event('input'));
+  document.getElementById('soap-tips-box').style.display = 'none';
+  showToast('✓ Forslag lagt til i feltet');
+}
+
+function _getRapportContext() {
+  const fields = {
+    'Lokalitet': 'rp-lokalitet', 'Selskap': 'rp-selskap', 'Dato': 'rp-dato',
+    'Antall fisk': 'rp-antall', 'Snittvekt': 'rp-vekt',
+    'Hunnlus': 'rp-hunnlus', 'Bevegelig lus': 'rp-bevegelig',
+    'Temperatur': 'rp-temp', 'Oksygen': 'rp-o2',
+  };
+  return Object.entries(fields)
+    .map(([label, id]) => { const v = document.getElementById(id)?.value?.trim(); return v ? `${label}: ${v}` : null; })
+    .filter(Boolean).join('\n');
+}
+
 // ─── SOAP notat generering ────────────────────────────────────────────────────
 async function generateSOAP() {
-  if (!apiKey) { showToast('API-nøkkel mangler'); return; }
+  if (!apiKey) { showToast('AI utilgjengelig — sjekk internett'); return; }
   const d = getFormData();
   const entries = getSavedEntries();
   const recent = entries.slice(0,3).map(e => e.parsed?.sammendrag || '').filter(Boolean).join(', ');
@@ -11019,7 +11195,7 @@ async function generateFHR() {
   const btn = document.getElementById('rp-gen-btn');
   const resArea = document.getElementById('rp-result-area');
   const resEl   = document.getElementById('rp-result');
-  if (!key) { showToast('Legg inn Anthropic API-nøkkel (tannhjulikonet øverst)'); return; }
+  if (!key) { showToast('AI utilgjengelig — sjekk internett'); return; }
 
   const v = id => document.getElementById(id)?.value?.trim() || 'IKKE OPPGITT';
   const data = {
@@ -13745,7 +13921,7 @@ async function analyzeRSection(section) {
   const key = localStorage.getItem('feltai_api_key');
   const resEl = document.getElementById(`r-ai-result-${section}`);
   if (!resEl) return;
-  if (!key) { resEl.style.display='block'; resEl.textContent='Legg inn Anthropic API-nøkkel (tannhjulikonet øverst) for AI-analyse.'; return; }
+  if (!key) { resEl.style.display='block'; resEl.textContent='AI-analyse er midlertidig utilgjengelig — sjekk internettforbindelsen.'; return; }
   resEl.style.display = 'block';
   resEl.textContent   = '🤖 Analyserer...';
   const sectionPrompts = {
@@ -14283,7 +14459,7 @@ async function aiAnalyzeDok() {
   resEl.style.display = 'block';
   resEl.textContent = '🤖 Analyserer...';
   const key = localStorage.getItem('feltai_api_key');
-  if (!key) { resEl.textContent = 'Legg inn Anthropic API-nøkkel (tannhjulikonet øverst) for AI-analyse.'; return; }
+  if (!key) { resEl.textContent = 'AI-analyse er midlertidig utilgjengelig — sjekk internettforbindelsen.'; return; }
   try {
     const r = await fetch(_claudeUrl(), {
       method: 'POST',
@@ -14433,7 +14609,7 @@ async function analyzeIK() {
   const key  = localStorage.getItem('feltai_api_key');
   const btn  = document.getElementById('ik-ai-btn');
   const resEl= document.getElementById('ik-analysis');
-  if (!key) { showToast('Legg inn OpenAI API-nøkkel i Innstillinger'); return; }
+  if (!key) { showToast('AI utilgjengelig — sjekk internett'); return; }
   if (btn)  { btn.disabled = true; btn.textContent = '⏳ Analyserer...'; }
   if (resEl){ resEl.style.display = 'block'; resEl.textContent = ''; }
 
