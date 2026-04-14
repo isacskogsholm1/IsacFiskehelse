@@ -3577,6 +3577,9 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
           </div>
           <div id="voice-query-result" style="display:none;"></div>
 
+          <!-- Rapport tips box (auto-shown after analysis) -->
+          <div id="transcript-tips-box" style="display:none;padding:4px 14px 0;"></div>
+
           <!-- AI result card -->
           <div class="ai-result" id="parseBar">
             <div class="ai-result-header">
@@ -4205,9 +4208,12 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
       <!-- ── SNITTVEKT ── -->
       <div class="r-section" id="rs-vekt">
         <div class="r-field-card">
-          <div class="r-field-label">Legg inn vekt per fisk (g)</div>
+          <div class="r-field-label">Legg inn vekt (g) og lengde (cm) per fisk</div>
           <div class="vekt-input-row">
-            <input class="vekt-big-input" type="number" id="r-vekt-input" placeholder="vekt i gram"
+            <input class="vekt-big-input" type="number" id="r-vekt-input" placeholder="Vekt (g)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('r-vekt-lengde-input').focus();}">
+            <input class="vekt-big-input" type="number" step="0.1" id="r-vekt-lengde-input" placeholder="Lengde (cm)"
+              style="max-width:110px;"
               onkeydown="if(event.key==='Enter'){event.preventDefault();addVektFish();}">
             <button class="btn-vektmic" id="vektMicBtn" onclick="toggleVektMic()" title="Stemmeregistrering">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4zm-7 9h2a5 5 0 0010 0h2a7 7 0 01-6 6.92V21h2v2H9v-2h2v-2.08A7 7 0 015 10z"/></svg>
@@ -4216,7 +4222,7 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
             </button>
           </div>
-          <div style="font-size:11px;color:var(--text3);" id="vektMicStatus">Trykk + eller Enter for å legge til. Mikrofon: si et tall.</div>
+          <div style="font-size:11px;color:var(--text3);" id="vektMicStatus">Lengde er valgfri. Mikrofon: si vekt i gram.</div>
           <div class="vekt-fish-list" id="vektFishList"><span style="font-size:12px;color:var(--text3);font-style:italic;">Ingen fisk lagt inn ennå</span></div>
           <div class="stats-mini" id="vektStats" style="display:none;"></div>
           <div style="margin-top:8px;">
@@ -4263,19 +4269,10 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
               <div class="r-field-label">Lengde (cm)</div>
               <input class="r-input" type="number" step="0.1" id="ind-lengde" placeholder="—" oninput="calcKFactor()">
             </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
             <div>
-              <div class="r-field-label">Kondisjonsfaktor K</div>
-              <div style="font-size:24px;font-weight:800;" id="ind-kval">—</div>
-            </div>
-            <div id="ind-k-badge" style="margin-top:10px;"></div>
-            <div style="margin-left:auto;">
-              <div class="r-field-label">Kjønn</div>
-              <select class="r-input" id="ind-kjonn" style="width:auto;">
-                <option value="">—</option>
-                <option>Hunn</option><option>Hann</option><option>Ukjent</option>
-              </select>
+              <div class="r-field-label">K-faktor</div>
+              <div style="font-size:22px;font-weight:800;padding-top:4px;" id="ind-kval">—</div>
+              <div id="ind-k-badge"></div>
             </div>
           </div>
         </div>
@@ -7341,6 +7338,9 @@ INSTRUKSJON: Teksten er feltnotater — ekstraher KUN det som faktisk er nevnt. 
       // Scroll parseBar into view
       const pb = document.getElementById('parseBar');
       if (pb) setTimeout(() => pb.scrollIntoView({ behavior:'smooth', block:'nearest' }), 100);
+
+      // Non-blocking: suggest missing rapport fields
+      _aiRapportTips(transcript, parsedData);
     } else {
       if (parsedData.varsel) showAlert(parsedData.varsel_tekst, parsedData.alvorlighetsgrad);
       showToast((parsedData.sammendrag || '').slice(0,60) || 'Lagret');
@@ -7370,6 +7370,53 @@ function showFallbackParse(text) {
   document.getElementById('parseText').textContent = parsedData.sammendrag || 'Tolket lokalt';
   document.getElementById('parseBar').classList.add('visible');
   setMicStatus('Lagret i logg — bruk i skjema eller forkast');
+}
+
+// ─── Rapport-tips: suggest missing fields after analysis ─────────────────────
+async function _aiRapportTips(transcript, parsed) {
+  const box = document.getElementById('transcript-tips-box');
+  if (!box || !apiKey) return;
+  box.style.display = 'none';
+  try {
+    // Quick check using already-parsed data before calling API
+    const missing = [];
+    if (!parsed?.temperatur)         missing.push('temperatur');
+    if (!parsed?.oksygen)            missing.push('oksygenmetning');
+    if (parsed?.dod_fisk == null)    missing.push('dødfisk (antall)');
+    if (!parsed?.merd)               missing.push('merd-nummer');
+    // Check transcript for lokality mention
+    if (!transcript.match(/lokalitet|lok\.|anlegg|site/i)) missing.push('lokalitet');
+    // Only call API if 2+ fields missing (to avoid unnecessary calls)
+    if (missing.length < 2) {
+      box.style.display = '';
+      box.innerHTML = `<div style="font-size:12px;padding:8px 12px;background:rgba(5,67,112,.07);border:1px solid rgba(5,67,112,.15);border-radius:8px;color:var(--text2);display:flex;align-items:center;justify-content:space-between;">
+        <span>✓ Rapporten ser komplett ut</span>
+        <button onclick="document.getElementById('transcript-tips-box').style.display='none'" style="background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 4px;">✕</button>
+      </div>`;
+      setTimeout(() => { if (box) box.style.display = 'none'; }, 5000);
+      return;
+    }
+    // Ask Groq for a concise tips line
+    const res = await fetch(_claudeUrl(), {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: _groqModel ? _groqModel() : 'llama-3.3-70b-versatile',
+        max_tokens: 80,
+        messages: [{ role:'user', content:
+          `Feltnotat fra norsk lakseoppdrett:\n"${transcript.slice(0,500)}"\n\nSjekk om disse vanlige feltene mangler: lokalitet/anlegg, merd-nr, temperatur, oksygenmetning, snittvekt, lus (hunnlus/bevegelig/fastsittende), dødfisk-årsak, tiltak, ansvarlig biolog.\nSvar MED BARE ÉN LINJE (maks 15 ord): "💡 Vurder å legge til: [felt1, felt2, ...]" eller "✓ Ser komplett ut"` }]
+      })
+    });
+    const d = await res.json();
+    const tip = d.choices?.[0]?.message?.content?.trim();
+    if (!tip) return;
+    const isGood = tip.startsWith('✓');
+    box.style.display = '';
+    box.innerHTML = `<div style="font-size:12px;padding:8px 12px;background:${isGood?'rgba(5,67,112,.07)':'rgba(13,148,136,.08)'};border:1px solid ${isGood?'rgba(5,67,112,.15)':'rgba(13,148,136,.25)'};border-radius:8px;color:var(--text2);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <span>${tip}</span>
+      <button onclick="document.getElementById('transcript-tips-box').style.display='none'" style="flex-shrink:0;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:0 4px;">✕</button>
+    </div>`;
+    if (isGood) setTimeout(() => { if (box) box.style.display = 'none'; }, 6000);
+  } catch(e) { /* non-critical — silently ignore */ }
 }
 
 // ─── Norwegian number word converter ─────────────────────────────────────────
@@ -9081,6 +9128,7 @@ function autoSaveEntry(transcript, parsed) {
 // ─── Driftsteknikker full implementation ──────────────────────────────────────────────
 let anleggstype = localStorage.getItem('feltai_anlegg') || 'matfisk';
 let vektFisker  = [];
+let vektLengder = []; // parallel array: cm per fish (null if not entered)
 let individFisker = [];
 let currentIndivid = 0;
 let forSpillVal = 0;
@@ -9129,7 +9177,7 @@ function initRokter() {
 function getBlankIndivid() {
   const scores = {};
   SCORE_PARAMS.forEach(p => { scores[p.key] = 0; });
-  return { vekt:'', lengde:'', kjonn:'', scores };
+  return { vekt:'', lengde:'', scores };
 }
 
 // ── Anleggstype ───────────────────────────────────────────────────────────────
@@ -9270,17 +9318,21 @@ function _resetDodMerder() {
 
 // ── Snittvekt ─────────────────────────────────────────────────────────────────
 function addVektFish() {
-  const inp = document.getElementById('r-vekt-input');
-  const val = parseFloat(inp.value);
-  if (isNaN(val) || val <= 0) { showToast('Ugyldig vekt'); return; }
-  vektFisker.push(val);
-  inp.value = '';
-  inp.focus();
+  const vInp = document.getElementById('r-vekt-input');
+  const lInp = document.getElementById('r-vekt-lengde-input');
+  const vekt = parseFloat(vInp.value);
+  const lengde = parseFloat(lInp?.value);
+  if (isNaN(vekt) || vekt <= 0) { showToast('Ugyldig vekt'); return; }
+  vektFisker.push(vekt);
+  vektLengder.push(!isNaN(lengde) && lengde > 0 ? lengde : null);
+  vInp.value = ''; if (lInp) lInp.value = '';
+  vInp.focus();
   renderVektList();
 }
 
 function removeVektFish(i) {
   vektFisker.splice(i, 1);
+  vektLengder.splice(i, 1);
   renderVektList();
 }
 
@@ -9293,22 +9345,28 @@ function renderVektList() {
     if (stats) stats.style.display = 'none';
     return;
   }
-  list.innerHTML = vektFisker.map((v, i) => `
-    <span class="vekt-fish-chip">${v}g
+  list.innerHTML = vektFisker.map((v, i) => {
+    const l = vektLengder[i];
+    return `<span class="vekt-fish-chip">${v}g${l ? ' / ' + l + 'cm' : ''}
       <button onclick="removeVektFish(${i})"
         style="background:none;border:none;cursor:pointer;color:var(--coral-500);padding:0 3px;font-size:12px;">✕</button>
-    </span>`).join('');
+    </span>`;
+  }).join('');
   if (stats && vektFisker.length >= 2) {
     const s = calcVektStats(vektFisker);
+    const validL = vektLengder.filter(l => l != null && !isNaN(l));
+    const sl = validL.length >= 2 ? calcVektStats(validL) : null;
     stats.style.display = '';
     stats.innerHTML = `
       <div class="stat-kv"><span>n</span><strong>${s.n}</strong></div>
-      <div class="stat-kv"><span>Snitt</span><strong>${s.mean.toFixed(0)}g</strong></div>
+      <div class="stat-kv"><span>Snitt vekt</span><strong>${s.mean.toFixed(0)}g</strong></div>
       <div class="stat-kv"><span>Median</span><strong>${s.median.toFixed(0)}g</strong></div>
       <div class="stat-kv"><span>SD</span><strong>${s.sd.toFixed(0)}g</strong></div>
       <div class="stat-kv"><span>CV%</span><strong>${s.cv}%</strong></div>
       <div class="stat-kv"><span>Min</span><strong>${s.min}g</strong></div>
-      <div class="stat-kv"><span>Max</span><strong>${s.max}g</strong></div>`;
+      <div class="stat-kv"><span>Max</span><strong>${s.max}g</strong></div>
+      ${sl ? `<div class="stat-kv"><span>Snitt lengde</span><strong>${sl.mean.toFixed(1)}cm</strong></div>
+      <div class="stat-kv"><span>SD lengde</span><strong>${sl.sd.toFixed(1)}cm</strong></div>` : ''}`;
   } else if (stats) {
     stats.style.display = 'none';
   }
@@ -9391,8 +9449,10 @@ function saveVekt() {
   if (!vektFisker.length) { showToast('Ingen fisk registrert'); return; }
   const s       = calcVektStats(vektFisker);
   const merknad = document.getElementById('r-vekt-kommentar')?.value?.trim() || '';
-  saveREntry('vekt', { fisker:[...vektFisker], ...s, merknad });
-  vektFisker = [];
+  // Save as paired objects for richer Excel output
+  const fiskerPaired = vektFisker.map((v, i) => ({ vekt: v, lengde: vektLengder[i] || null }));
+  saveREntry('vekt', { fisker: fiskerPaired, ...s, merknad });
+  vektFisker = []; vektLengder = [];
   const km = document.getElementById('r-vekt-kommentar');
   if (km) km.value = '';
   renderVektList();
@@ -9457,7 +9517,6 @@ function renderIndividNav() {
   const kEl = document.getElementById('ind-kjonn');
   if (vEl) vEl.value = fish.vekt   || '';
   if (lEl) lEl.value = fish.lengde || '';
-  if (kEl) kEl.value = fish.kjonn  || '';
   calcKFactor();
   buildScoreGrid(fish);
 }
@@ -9467,7 +9526,6 @@ function saveCurrentIndivid() {
   if (!fish) return;
   fish.vekt   = document.getElementById('ind-vekt')?.value   || '';
   fish.lengde = document.getElementById('ind-lengde')?.value || '';
-  fish.kjonn  = document.getElementById('ind-kjonn')?.value  || '';
   // scores already updated live in setScore()
 }
 
@@ -10254,6 +10312,59 @@ async function _fetchAndDownload(url, payload, filename) {
 }
 
 // ── Chart PNG generators (klientside via Chart.js) ───────────────────────────
+// Histogram of weight distribution with mean line — used for Excel export
+async function _genVektDistributionPng(vekter, lengder, sv, sl) {
+  return new Promise(resolve => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 760; canvas.height = 380;
+      const ctx = canvas.getContext('2d');
+      // Build bins (8-10 buckets)
+      const binCount = Math.min(Math.max(Math.ceil(Math.sqrt(vekter.length)), 5), 10);
+      const binSize  = Math.ceil((sv.max - sv.min) / binCount / 50) * 50 || 50;
+      const binMin   = Math.floor(sv.min / binSize) * binSize;
+      const bins = []; let b = binMin;
+      while (b <= sv.max) { bins.push(b); b += binSize; }
+      if (bins[bins.length-1] < sv.max) bins.push(bins[bins.length-1] + binSize);
+      const counts = bins.slice(0,-1).map((lo,i) => {
+        const hi = bins[i+1];
+        return vekter.filter(v => v >= lo && v < hi).length;
+      });
+      const labels = bins.slice(0,-1).map((lo,i) => `${lo}–${bins[i+1]}g`);
+      const barColors = bins.slice(0,-1).map(lo => {
+        const mid = lo + binSize/2;
+        return mid < sv.mean*0.75 ? 'rgba(217,119,6,0.8)' : mid > sv.mean*1.25 ? 'rgba(220,38,38,0.8)' : 'rgba(11,114,181,0.82)';
+      });
+      const hasLengde = lengder && lengder.some(l=>l!=null);
+      const datasets = [
+        { type:'bar', label:'Antall fisk', data:counts, backgroundColor:barColors, borderRadius:4, order:2 }
+      ];
+      // Overlay mean as vertical annotation (via dummy line)
+      const meanBinIdx = bins.slice(0,-1).findIndex((lo,i) => sv.mean >= lo && sv.mean < bins[i+1]);
+      if (meanBinIdx >= 0) {
+        const meanData = counts.map((_,i) => i === meanBinIdx ? Math.max(...counts) : null);
+        datasets.push({ type:'bar', label:`Snitt ${sv.mean.toFixed(0)}g`, data:meanData,
+          backgroundColor:'rgba(5,67,112,0.35)', borderRadius:4, order:1 });
+      }
+      const chart = new Chart(ctx, {
+        data: { labels, datasets },
+        options: {
+          responsive:false, animation:false,
+          plugins: {
+            title:{ display:true, text:`Vektfordeling — n=${sv.n}, snitt=${sv.mean.toFixed(0)}g, SD=${sv.sd.toFixed(0)}g, CV=${sv.cv}%`, font:{size:13} },
+            legend:{ display:true, labels:{font:{size:11}} }
+          },
+          scales: {
+            y:{ beginAtZero:true, title:{display:true,text:'Antall fisk'}, ticks:{stepSize:1}, grid:{color:'rgba(0,0,0,0.06)'} },
+            x:{ title:{display:true,text:'Vektintervall (g)'}, grid:{display:false} }
+          }
+        }
+      });
+      setTimeout(() => { resolve(canvas.toDataURL('image/png')); chart.destroy(); }, 150);
+    } catch(e) { resolve(null); }
+  });
+}
+
 async function _genVektChartPng(fisker, stats) {
   return new Promise(resolve => {
     try {
@@ -10387,10 +10498,13 @@ async function exportVektExcel() {
   const dato    = new Date().toLocaleDateString('no');
   const merknad = document.getElementById('r-vekt-kommentar')?.value?.trim() || '';
   const s       = calcVektStats(vektFisker);
+  const validL  = vektLengder.filter(l => l != null && !isNaN(l));
+  const sl      = validL.length >= 2 ? calcVektStats(validL) : null;
+  const fiskerPaired = vektFisker.map((v, i) => ({ vekt: v, lengde: vektLengder[i] || null }));
   showToast('⏳ Genererer graf...');
-  const chartPng = await _genVektChartPng(vektFisker, s);
+  const chartPng = await _genVektDistributionPng(vektFisker, vektLengder, s, sl);
   await _fetchAndDownload('/excel-vekt',
-    { lok, merd, dato, merknad, fisker: vektFisker, stats: s, chartPng },
+    { lok, merd, dato, merknad, fisker: fiskerPaired, stats: s, statsLengde: sl, chartPng },
     `snittvekt_${lok}_merd${merd}_${dato.replace(/\./g,'-')}.xlsx`
   );
 }
@@ -10417,7 +10531,7 @@ async function exportIndividExcel() {
   const scoreSums = fisker.map(f => SCORE_PARAMS.map(p=>f.scores[p.key]??0).reduce((a,b)=>a+b,0));
   const fiskerMapped = fisker.map((f,i) => ({
     vekt: f.vekt ? +f.vekt : null, lengde: f.lengde ? +f.lengde : null,
-    k: kFaktorer[i], kjonn: f.kjonn || '', score: scoreSums[i],
+    k: kFaktorer[i], score: scoreSums[i],
     scores: SCORE_PARAMS.map(p => f.scores[p.key]??0)
   }));
   showToast('⏳ Genererer grafer...');
@@ -10444,11 +10558,17 @@ async function exportVektExcelFromEntry(idx) {
   const lok  = entry.lokName || entry.anlegg || '—';
   const merd = entry.merd   || '—';
   const dato = new Date(entry.timestamp).toLocaleDateString('no');
-  const s    = d.mean != null ? d : calcVektStats(d.fisker);
+  // Normalize: old entries store plain numbers, new ones store {vekt, lengde}
+  const fiskerPaired = d.fisker.map(f => typeof f === 'number' ? { vekt: f, lengde: null } : f);
+  const vekter = fiskerPaired.map(f => f.vekt).filter(v => v != null);
+  const lengder = fiskerPaired.map(f => f.lengde);
+  const s    = d.mean != null ? d : calcVektStats(vekter);
+  const validL = lengder.filter(l => l != null && !isNaN(l));
+  const sl   = validL.length >= 2 ? calcVektStats(validL) : null;
   showToast('⏳ Genererer graf...');
-  const chartPng = await _genVektChartPng(d.fisker, s);
+  const chartPng = await _genVektDistributionPng(vekter, lengder, s, sl);
   await _fetchAndDownload('/excel-vekt',
-    { lok, merd, dato, merknad: d.merknad || '', fisker: d.fisker, stats: s, chartPng },
+    { lok, merd, dato, merknad: d.merknad || '', fisker: fiskerPaired, stats: s, statsLengde: sl, chartPng },
     `snittvekt_${lok}_merd${merd}_${dato.replace(/\./g,'-')}.xlsx`
   );
 }
@@ -10480,7 +10600,7 @@ async function exportIndividExcelFromEntry(idx) {
   showToast('⏳ Genererer grafer...');
   const fiskerMappedFromEntry = fisker.map((f,i) => ({
     vekt: f.vekt ? +f.vekt : null, lengde: f.lengde ? +f.lengde : null,
-    k: kFaktorer[i], kjonn: f.kjonn || '', score: scoreSums[i],
+    k: kFaktorer[i], score: scoreSums[i],
     scores: SCORE_PARAMS.map(p => f.scores?.[p.key]??0)
   }));
   const [chartVektPngE, chartWelferdPngE] = await Promise.all([

@@ -247,15 +247,17 @@ async function buildDocx(payload) {
 }
 
 async function buildVektExcel(payload) {
-  const { lok, merd, dato, merknad, fisker, stats, chartPng } = payload;
+  const { lok, merd, dato, merknad, fisker, stats, statsLengde, chartPng } = payload;
   const wb = new ExcelJS.Workbook();
   wb.creator = 'Vela'; wb.created = new Date();
 
-  // ── Sheet 1: Dashboard ─────────────────────────────────────────────────────
+  const _fmt = (v) => (v != null && !isNaN(v)) ? +parseFloat(v).toFixed(1) : '—';
+
+  // ── Sheet 1: Snittvekt (single dashboard sheet) ───────────────────────────
   const ws = wb.addWorksheet('Snittvekt', { views: [{ showGridLines: true }] });
 
-  // Header row
-  ws.mergeCells('A1:F1');
+  // Row 1: Title bar spanning A1:H1
+  ws.mergeCells('A1:H1');
   const titleCell = ws.getCell('A1');
   titleCell.value = `Snittvekt — ${lok} — Merd ${merd} — ${dato}`;
   titleCell.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
@@ -263,8 +265,8 @@ async function buildVektExcel(payload) {
   titleCell.alignment = { horizontal: 'left', vertical: 'middle' };
   ws.getRow(1).height = 28;
 
-  // Column headers
-  const headers = ['Fisk nr.', 'Vekt (g)', 'Avvik (g)', 'Avvik (%)', 'Status'];
+  // Row 2: Column headers
+  const headers = ['Nr', 'Vekt (g)', 'Lengde (cm)', 'K-faktor', 'Avvik (g)', 'Avvik (%)', 'Status'];
   headers.forEach((h, i) => {
     const cell = ws.getCell(2, i + 1);
     cell.value = h;
@@ -276,87 +278,120 @@ async function buildVektExcel(payload) {
   ws.getRow(2).height = 22;
 
   // Data rows
-  fisker.forEach((v, i) => {
-    const row = ws.getRow(i + 3);
-    const avvik = +(v - stats.mean).toFixed(1);
-    const pct   = +((v - stats.mean) / stats.mean * 100).toFixed(1);
-    const status = v > stats.mean * 1.25 ? '▲ Over' : v < stats.mean * 0.75 ? '▼ Under' : '● OK';
-    const fillColor = i % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB';
-    const statusColor = v > stats.mean * 1.25 ? 'FFE74C3C' : v < stats.mean * 0.75 ? 'FFF39C12' : 'FF27AE60';
+  fisker.forEach((f, i) => {
+    const vektVal = typeof f === 'number' ? f : f.vekt;
+    const lengdeVal = typeof f === 'number' ? null : (f.lengde ?? null);
 
-    [i + 1, v, avvik, pct, status].forEach((val, ci) => {
+    const kFaktor = (lengdeVal != null && lengdeVal > 0)
+      ? +((vektVal / Math.pow(lengdeVal, 3)) * 100).toFixed(3)
+      : '—';
+    const avvik = +(vektVal - stats.mean).toFixed(1);
+    const pct   = +((vektVal - stats.mean) / stats.mean * 100).toFixed(1);
+    const status = vektVal > stats.mean * 1.25 ? '▲ Over' : vektVal < stats.mean * 0.75 ? '▼ Under' : '● OK';
+    const fillColor = i % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB';
+    const statusColor = vektVal > stats.mean * 1.25 ? 'FFE74C3C' : vektVal < stats.mean * 0.75 ? 'FFF39C12' : 'FF27AE60';
+
+    const row = ws.getRow(i + 3);
+    [i + 1, vektVal, lengdeVal ?? '—', kFaktor, avvik, pct, status].forEach((val, ci) => {
       const cell = row.getCell(ci + 1);
       cell.value = val;
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
-      cell.alignment = { horizontal: ci === 0 ? 'center' : ci === 4 ? 'center' : 'right', vertical: 'middle' };
-      if (ci === 4) cell.font = { bold: true, color: { argb: statusColor } };
-      if ((ci === 2 || ci === 3) && avvik < 0) cell.font = { color: { argb: 'FFE74C3C' } };
+      cell.alignment = { horizontal: ci === 0 ? 'center' : ci === 6 ? 'center' : 'right', vertical: 'middle' };
+      if (ci === 6) cell.font = { bold: true, color: { argb: statusColor } };
+      if ((ci === 4 || ci === 5) && avvik < 0) cell.font = { color: { argb: 'FFE74C3C' } };
       cell.border = { bottom: { style: 'hair', color: { argb: 'FFDDEEEE' } } };
     });
     row.height = 18;
   });
 
-  // Snitt row
-  const sRow = ws.getRow(fisker.length + 3);
-  ['SNITT', stats.mean.toFixed(1), '—', '—', ''].forEach((v, i) => {
-    const cell = sRow.getCell(i + 1);
-    cell.value = i === 1 ? +v : v;
+  // SNITT row
+  const snittRow = ws.getRow(fisker.length + 3);
+  const hasLengder = fisker.some(f => typeof f !== 'number' && f.lengde != null);
+  const snittLengde = hasLengder && statsLengde ? _fmt(statsLengde.mean) : '—';
+  ['SNITT', _fmt(stats.mean), snittLengde, '—', '—', '—', ''].forEach((v, i) => {
+    const cell = snittRow.getCell(i + 1);
+    cell.value = i === 1 || i === 2 ? (typeof v === 'string' && v !== '—' ? +v : v) : v;
     cell.font = { bold: true, color: { argb: 'FF054370' } };
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD0E8F8' } };
     cell.alignment = { horizontal: i === 0 ? 'left' : 'right', vertical: 'middle' };
   });
+  snittRow.height = 20;
 
-  // Col widths
+  // Stats summary block below SNITT
+  const statsStartRow = fisker.length + 5;
+  const _statBlock = (label, st, rowOffset) => {
+    if (!st) return;
+    const headerCell = ws.getCell(statsStartRow + rowOffset, 1);
+    headerCell.value = label;
+    headerCell.font = { bold: true, size: 11, color: { argb: 'FF054370' } };
+    ws.mergeCells(statsStartRow + rowOffset, 1, statsStartRow + rowOffset, 4);
+
+    const statRows = [
+      ['n (antall)', st.n ?? fisker.length],
+      ['Snitt', _fmt(st.mean)],
+      ['Median', _fmt(st.median)],
+      ['SD', _fmt(st.sd)],
+      ['CV%', st.cv != null ? +parseFloat(st.cv).toFixed(1) : '—'],
+      ['Min', st.min ?? '—'],
+      ['Maks', st.max ?? '—'],
+    ];
+    statRows.forEach(([lbl, val], si) => {
+      const r = statsStartRow + rowOffset + 1 + si;
+      const lCell = ws.getCell(r, 1);
+      lCell.value = lbl;
+      lCell.font = { bold: true, color: { argb: 'FF054370' } };
+      lCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: si % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
+      lCell.alignment = { vertical: 'middle' };
+      const vCell = ws.getCell(r, 2);
+      vCell.value = val;
+      vCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: si % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
+      vCell.alignment = { horizontal: 'right', vertical: 'middle' };
+    });
+  };
+
+  _statBlock('Statistikk — Vekt (g)', stats, 0);
+  if (statsLengde) {
+    _statBlock('Statistikk — Lengde (cm)', statsLengde, 10);
+  }
+  if (merknad) {
+    const mRow = statsStartRow + (statsLengde ? 20 : 10);
+    const mLabel = ws.getCell(mRow, 1);
+    mLabel.value = 'Merknad';
+    mLabel.font = { bold: true, color: { argb: 'FF054370' } };
+    const mVal = ws.getCell(mRow, 2);
+    mVal.value = merknad;
+    ws.mergeCells(mRow, 2, mRow, 4);
+  }
+
+  // Column widths
   ws.columns = [
-    { width: 10 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 14 }
+    { width: 10 }, { width: 12 }, { width: 12 }, { width: 12 }, { width: 14 }, { width: 12 }, { width: 16 }
   ];
 
-  // ── Sheet 2: Statistikk ───────────────────────────────────────────────────
-  const ws2 = wb.addWorksheet('Statistikk');
-  const _fmt = (v) => (v != null && !isNaN(v)) ? +parseFloat(v).toFixed(1) : '—';
-  [
-    ['Parameter', 'Verdi'],
-    ['Lokalitet', lok], ['Merd', merd], ['Dato', dato],
-    ['Antall fisk (n)', stats.n || fisker.length],
-    ['Gjennomsnitt (g)', _fmt(stats.mean)],
-    ['Median (g)',        _fmt(stats.median)],
-    ['Standardavvik (g)', _fmt(stats.sd)],
-    ['CV%', stats.cv != null ? +stats.cv : '—'],
-    ['Min (g)', stats.min ?? '—'], ['Maks (g)', stats.max ?? '—'],
-    ['Merknad', merknad || ''],
-  ].forEach((row, ri) => {
-    row.forEach((val, ci) => {
-      const cell = ws2.getCell(ri + 1, ci + 1);
-      cell.value = val;
-      if (ri === 0) {
-        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF054370' } };
-      } else {
-        if (ci === 0) cell.font = { bold: true, color: { argb: 'FF054370' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ri % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
-      }
-      cell.alignment = { vertical: 'middle' };
-    });
-  });
-  ws2.columns = [{ width: 26 }, { width: 22 }];
-
-  // ── Embed chart PNG if provided ───────────────────────────────────────────
+  // Embed chart PNG
   if (chartPng) {
     const imgId = wb.addImage({ base64: chartPng.replace(/^data:image\/png;base64,/, ''), extension: 'png' });
-    ws.addImage(imgId, { tl: { col: 6, row: 1 }, br: { col: 14, row: Math.min(fisker.length + 4, 22) } });
+    ws.addImage(imgId, { tl: { col: 8, row: 1 }, br: { col: 18, row: 26 } });
   }
 
   return wb;
 }
 
 async function buildIndividExcel(payload) {
-  const { lok, merd, dato, fisker, avgV, avgL, avgK, scoreParams, chartVektPng, chartKPng, chartWelferdPng } = payload;
+  const { lok, merd, dato, fisker, avgV, avgL, avgK, scoreParams, chartVektPng, chartWelferdPng } = payload;
   const wb = new ExcelJS.Workbook();
   wb.creator = 'Vela'; wb.created = new Date();
 
-  // ── Sheet 1: Individdata ──────────────────────────────────────────────────
-  const ws = wb.addWorksheet('Individkontroll');
-  ws.mergeCells('A1:G1');
+  // Total columns: 4 (biometrics) + 13 (welfare params) + 1 (sum) = 18
+  const totalCols = 4 + scoreParams.length + 1;
+  // Helper to get last column letter (handles beyond Z)
+  const colLetter = (n) => n <= 26 ? String.fromCharCode(64 + n) : String.fromCharCode(64 + Math.floor((n-1)/26)) + String.fromCharCode(65 + ((n-1) % 26));
+
+  // ── Sheet 1: Individkontroll ──────────────────────────────────────────────
+  const ws = wb.addWorksheet('Individkontroll', { views: [{ showGridLines: true }] });
+
+  // Row 1: Title spanning all columns
+  ws.mergeCells(1, 1, 1, totalCols);
   const tc = ws.getCell('A1');
   tc.value = `Individkontroll — ${lok} — Merd ${merd} — ${dato}`;
   tc.font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
@@ -364,155 +399,184 @@ async function buildIndividExcel(payload) {
   tc.alignment = { horizontal: 'left', vertical: 'middle' };
   ws.getRow(1).height = 28;
 
-  const heads = ['Fisk nr.', 'Vekt (g)', 'Lengde (cm)', 'K-faktor', 'Kjønn', 'Velferdssum'];
+  // Row 2: Headers — Nr | Vekt (g) | Lengde (cm) | K-faktor | [welfare params] | Sum
+  const heads = ['Nr', 'Vekt (g)', 'Lengde (cm)', 'K-faktor', ...scoreParams, 'Sum'];
   heads.forEach((h, i) => {
     const cell = ws.getCell(2, i + 1);
     cell.value = h;
-    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 10 };
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF054370' } };
-    cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+    cell.border = { bottom: { style: 'thin', color: { argb: 'FF0B72B5' } } };
   });
-  ws.getRow(2).height = 22;
+  ws.getRow(2).height = 30;
 
+  // Score color helpers
+  const scoreItemFg = (sc) => sc === 0 ? 'FF1E8449' : sc === 1 ? 'FFE67E22' : sc === 2 ? 'FFD35400' : 'FFC0392B';
+  const scoreItemBg = (sc) => sc === 0 ? 'FFD5F5E3' : sc === 1 ? 'FFFDEBD0' : sc === 2 ? 'FFFAD7A0' : 'FFFDEDEC';
+  const sumBg = (s) => s === 0 ? 'FFD5F5E3' : s <= 3 ? 'FFFDEBD0' : s <= 6 ? 'FFFAD7A0' : 'FFFDEDEC';
+  const sumFg = (s) => s === 0 ? 'FF1E8449' : s <= 3 ? 'FFE67E22' : s <= 6 ? 'FFD35400' : 'FFC0392B';
+
+  // Data rows
   fisker.forEach((f, i) => {
-    const kColor = f.k == null ? 'FF999999' : f.k >= 1.0 ? 'FF27AE60' : f.k >= 0.8 ? 'FFF39C12' : 'FFE74C3C';
-    const sColor = f.score === 0 ? 'FF27AE60' : f.score <= 3 ? 'FFF39C12' : 'FFE74C3C';
-    const fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: i % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
+    const vektVal = typeof f === 'number' ? f : f.vekt;
+    const lengdeVal = typeof f === 'number' ? null : (f.lengde ?? null);
+    const kVal = typeof f === 'number' ? null : (f.k ?? null);
+    const scores = (typeof f === 'number' ? [] : f.scores) || [];
+    const scoreSum = typeof f === 'number' ? 0 : (f.score ?? scores.reduce((a, b) => a + b, 0));
+
+    const kColor = kVal == null ? 'FF999999' : kVal >= 1.0 ? 'FF27AE60' : kVal >= 0.8 ? 'FFF39C12' : 'FFE74C3C';
+    const rowFill = i % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB';
     const row = ws.getRow(i + 3);
-    [i+1, f.vekt, f.lengde, f.k, f.kjonn, f.score].forEach((val, ci) => {
+
+    // Cols 1-4: biometrics
+    [i + 1, vektVal, lengdeVal ?? '—', kVal != null ? +kVal.toFixed(3) : '—'].forEach((val, ci) => {
       const cell = row.getCell(ci + 1);
       cell.value = val;
-      cell.fill = fill;
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowFill } };
       cell.alignment = { horizontal: 'center', vertical: 'middle' };
       if (ci === 3) cell.font = { bold: true, color: { argb: kColor } };
-      if (ci === 5) cell.font = { bold: true, color: { argb: sColor } };
+      cell.border = { bottom: { style: 'hair', color: { argb: 'FFDDEEEE' } } };
     });
+
+    // Cols 5 to 4+scoreParams.length: individual welfare scores
+    scores.forEach((sc, si) => {
+      const cell = row.getCell(5 + si);
+      cell.value = sc;
+      cell.font = { bold: true, color: { argb: scoreItemFg(sc) } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: scoreItemBg(sc) } };
+      cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      cell.border = { bottom: { style: 'hair', color: { argb: 'FFDDEEEE' } } };
+    });
+    // Fill any missing score cells with blank
+    for (let si = scores.length; si < scoreParams.length; si++) {
+      const cell = row.getCell(5 + si);
+      cell.value = '';
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowFill } };
+      cell.border = { bottom: { style: 'hair', color: { argb: 'FFDDEEEE' } } };
+    }
+
+    // Col last: sum
+    const sumCell = row.getCell(4 + scoreParams.length + 1);
+    sumCell.value = scoreSum;
+    sumCell.font = { bold: true, color: { argb: sumFg(scoreSum) } };
+    sumCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: sumBg(scoreSum) } };
+    sumCell.alignment = { horizontal: 'center', vertical: 'middle' };
+    sumCell.border = { bottom: { style: 'hair', color: { argb: 'FFDDEEEE' } } };
+
     row.height = 18;
   });
 
-  const sRow = ws.getRow(fisker.length + 3);
-  ['SNITT', +avgV, +avgL, +avgK, '', ''].forEach((v, i) => {
-    const cell = sRow.getCell(i + 1);
+  // SNITT row
+  const snittRowIdx = fisker.length + 3;
+  const snittRow = ws.getRow(snittRowIdx);
+  const avgScores = scoreParams.map((_, pi) =>
+    +(fisker.map(f => ((f.scores || [])[pi] ?? 0)).reduce((a, b) => a + b, 0) / (fisker.length || 1)).toFixed(2)
+  );
+  const avgSum = +(avgScores.reduce((a, b) => a + b, 0)).toFixed(2);
+
+  ['SNITT', avgV != null ? +avgV : '—', avgL != null ? +avgL : '—', avgK != null ? +avgK : '—', ...avgScores, avgSum].forEach((v, i) => {
+    const cell = snittRow.getCell(i + 1);
     cell.value = v;
     cell.font = { bold: true, color: { argb: 'FF054370' } };
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD0E8F8' } };
     cell.alignment = { horizontal: 'center', vertical: 'middle' };
   });
-  ws.columns = [{ width:10 },{ width:12 },{ width:14 },{ width:12 },{ width:10 },{ width:14 }];
+  snittRow.height = 20;
 
-  // Embed charts
+  // Column widths
+  ws.columns = [
+    { width: 8 }, { width: 10 }, { width: 11 }, { width: 10 },
+    ...scoreParams.map(() => ({ width: 11 })),
+    { width: 10 },
+  ];
+
+  // Embed charts to the right
   if (chartVektPng) {
     const id = wb.addImage({ base64: chartVektPng.replace(/^data:image\/png;base64,/, ''), extension: 'png' });
-    ws.addImage(id, { tl: { col: 7, row: 1 }, br: { col: 16, row: Math.min(fisker.length/2 + 4, 18) } });
+    ws.addImage(id, { tl: { col: 19, row: 1 }, br: { col: 30, row: 18 } });
   }
-  if (chartKPng) {
-    const id2 = wb.addImage({ base64: chartKPng.replace(/^data:image\/png;base64,/, ''), extension: 'png' });
-    const offset = Math.min(fisker.length/2 + 5, 19);
-    ws.addImage(id2, { tl: { col: 7, row: offset }, br: { col: 16, row: offset + 14 } });
+  if (chartWelferdPng) {
+    const id2 = wb.addImage({ base64: chartWelferdPng.replace(/^data:image\/png;base64,/, ''), extension: 'png' });
+    ws.addImage(id2, { tl: { col: 19, row: 19 }, br: { col: 30, row: 36 } });
   }
 
-  // ── Sheet 2: Velferd ──────────────────────────────────────────────────────
-  const ws2 = wb.addWorksheet('Velferd');
-  ws2.mergeCells('A1:' + String.fromCharCode(65 + scoreParams.length + 1) + '1');
+  // ── Sheet 2: Velferd-oversikt ─────────────────────────────────────────────
+  const ws2 = wb.addWorksheet('Velferd-oversikt');
+
+  // Title
+  ws2.mergeCells('A1:M1');
   const vc = ws2.getCell('A1');
-  vc.value = 'Velferdsskår per fisk — 0=ingen funn, 1=mild, 2=moderat, 3=alvorlig';
-  vc.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-  vc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF054370' } };
+  vc.value = `Velferd-oversikt — ${lok} — Merd ${merd} — ${dato}`;
+  vc.font = { bold: true, size: 13, color: { argb: 'FFFFFFFF' } };
+  vc.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B72B5' } };
+  vc.alignment = { horizontal: 'left', vertical: 'middle' };
+  ws2.getRow(1).height = 26;
 
-  ['Fisk', ...scoreParams, 'Sum'].forEach((h, i) => {
-    const cell = ws2.getCell(2, i + 1);
+  // Category summary header
+  const catHeaderRow = 3;
+  ['Kategori', 'Antall fisk', '% av total'].forEach((h, ci) => {
+    const cell = ws2.getCell(catHeaderRow, ci + 1);
     cell.value = h;
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B72B5' } };
-    cell.alignment = { horizontal: 'center' };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF054370' } };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
   });
+  ws2.getRow(catHeaderRow).height = 20;
 
-  fisker.forEach((f, ri) => {
-    const scores = f.scores || [];
-    [ri + 1, ...scores, f.score].forEach((v, ci) => {
-      const cell = ws2.getCell(ri + 3, ci + 1);
-      cell.value = v;
-      const sc = ci === 0 ? null : v;
-      if (sc !== null) {
-        const bg = sc === 0 ? 'FF27AE6020' : sc === 1 ? 'FFF39C1220' : sc === 2 ? 'FFE67E2220' : 'FFE74C3C20';
-        const fg = sc === 0 ? 'FF1E8449' : sc === 1 ? 'FFE67E22' : sc === 2 ? 'FFD35400' : 'FFC0392B';
-        cell.font = { bold: true, color: { argb: fg } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
-      }
-      cell.alignment = { horizontal: 'center' };
-    });
-  });
-  ws2.columns = [{ width: 10 }, ...scoreParams.map(() => ({ width: 14 })), { width: 10 }];
-
-  // ── Velferd summary stats below fish data ──────────────────────────────────
-  const summaryStartRow = fisker.length + 4;
-  const summaryLabels = [
-    ['', '', ''],
-    ['SAMMENDRAG', '', ''],
-    ['Kategori', 'Antall fisk', '% av total'],
-  ];
-  const scoreSums = fisker.map(f => (f.scores || []).reduce((a,b) => a+b, 0));
+  const scoreSums = fisker.map(f => (f.scores || []).reduce((a, b) => a + b, 0));
   const categories = [
-    ['OK  (sum = 0)',       scoreSums.filter(s => s === 0).length],
-    ['Mild (sum 1–3)',      scoreSums.filter(s => s >= 1 && s <= 3).length],
-    ['Moderat (sum 4–6)',   scoreSums.filter(s => s >= 4 && s <= 6).length],
-    ['Alvorlig (sum > 6)', scoreSums.filter(s => s > 6).length],
+    ['OK  (sum = 0)',      scoreSums.filter(s => s === 0).length,       'FF27AE60'],
+    ['Mild (sum 1–3)',     scoreSums.filter(s => s >= 1 && s <= 3).length, 'FFF39C12'],
+    ['Moderat (sum 4–6)',  scoreSums.filter(s => s >= 4 && s <= 6).length, 'FFE67E22'],
+    ['Alvorlig (sum > 6)', scoreSums.filter(s => s > 6).length,          'FFE74C3C'],
   ];
-  const catColors = ['FF27AE60','FFF39C12','FFE67E22','FFE74C3C'];
-  summaryLabels.concat(categories.map(([l,n]) => [l, n, fisker.length ? +(n/fisker.length*100).toFixed(0)+'%' : '0%']))
-    .forEach((row, ri) => {
-      row.forEach((val, ci) => {
-        const cell = ws2.getCell(summaryStartRow + ri, ci + 1);
-        cell.value = val;
-        if (ri === 1) {
-          cell.font = { bold: true, size: 12, color: { argb: 'FF054370' } };
-        } else if (ri === 2) {
-          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF054370' } };
-          cell.alignment = { horizontal: 'center' };
-        } else if (ri >= 3) {
-          const catIdx = ri - 3;
-          const isCount = ci === 1;
-          if (ci === 0) cell.font = { bold: true };
-          if (isCount && categories[catIdx]) {
-            cell.font = { bold: true, color: { argb: catColors[catIdx] } };
-          }
-          cell.alignment = { horizontal: ci === 0 ? 'left' : 'center' };
-          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ri % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
-        }
-      });
+  categories.forEach(([lbl, cnt, color], ri) => {
+    const pct = fisker.length ? `${Math.round(cnt / fisker.length * 100)}%` : '0%';
+    [lbl, cnt, pct].forEach((val, ci) => {
+      const cell = ws2.getCell(catHeaderRow + 1 + ri, ci + 1);
+      cell.value = val;
+      if (ci === 0) cell.font = { bold: true };
+      if (ci === 1) cell.font = { bold: true, color: { argb: color } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: ri % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
+      cell.alignment = { horizontal: ci === 0 ? 'left' : 'center', vertical: 'middle' };
     });
+    ws2.getRow(catHeaderRow + 1 + ri).height = 18;
+  });
 
-  // ── Average score per parameter (for chart context) ────────────────────────
-  const avgStartRow = summaryStartRow + categories.length + 5;
+  // Average score per parameter table
+  const avgTableStart = catHeaderRow + categories.length + 3;
   ['Parameter', 'Gj.snitt score', 'Andel med funn'].forEach((h, ci) => {
-    const cell = ws2.getCell(avgStartRow, ci + 1);
+    const cell = ws2.getCell(avgTableStart, ci + 1);
     cell.value = h;
     cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0B72B5' } };
-    cell.alignment = { horizontal: 'center' };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
   });
+  ws2.getRow(avgTableStart).height = 20;
+
   scoreParams.forEach((param, pi) => {
     const paramScores = fisker.map(f => (f.scores || [])[pi] ?? 0);
-    const avg = +(paramScores.reduce((a,b)=>a+b,0) / (paramScores.length||1)).toFixed(2);
-    const withFindings = paramScores.filter(s=>s>0).length;
-    const row = ws2.getRow(avgStartRow + 1 + pi);
-    [param, avg, fisker.length ? `${Math.round(withFindings/fisker.length*100)}%` : '0%'].forEach((v, ci) => {
+    const avg = +(paramScores.reduce((a, b) => a + b, 0) / (paramScores.length || 1)).toFixed(2);
+    const withFindings = paramScores.filter(s => s > 0).length;
+    const row = ws2.getRow(avgTableStart + 1 + pi);
+    [param, avg, fisker.length ? `${Math.round(withFindings / fisker.length * 100)}%` : '0%'].forEach((v, ci) => {
       const cell = row.getCell(ci + 1);
       cell.value = v;
       const scoreColor = avg === 0 ? 'FF27AE60' : avg < 0.5 ? 'FF92400E' : avg < 1 ? 'FFD97706' : 'FFE74C3C';
       if (ci === 1) cell.font = { bold: true, color: { argb: scoreColor } };
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: pi % 2 === 0 ? 'FFFAFCFF' : 'FFE6F4FB' } };
-      cell.alignment = { horizontal: ci === 0 ? 'left' : 'center' };
+      cell.alignment = { horizontal: ci === 0 ? 'left' : 'center', vertical: 'middle' };
     });
     row.height = 18;
   });
 
-  // ── Embed welfare chart in Velferd sheet ───────────────────────────────────
+  ws2.columns = [{ width: 26 }, { width: 16 }, { width: 16 }];
+
+  // Embed welfare chart in Velferd-oversikt sheet
   if (chartWelferdPng) {
-    const chartCol = scoreParams.length + 3;
     const welferdImgId = wb.addImage({ base64: chartWelferdPng.replace(/^data:image\/png;base64,/, ''), extension: 'png' });
-    ws2.addImage(welferdImgId, { tl: { col: chartCol, row: 1 }, br: { col: chartCol + 10, row: Math.min(fisker.length + 6, 24) } });
+    ws2.addImage(welferdImgId, { tl: { col: 0, row: 25 }, br: { col: 12, row: 48 } });
   }
 
   return wb;
