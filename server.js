@@ -3,6 +3,15 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const crypto = require('crypto');
+
+// ── Password hashing (built-in, no npm needed) ────────────────────────────
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password + 'vela_salt_2025').digest('hex');
+}
+function verifyPassword(password, hash) {
+  return hashPassword(password) === hash;
+}
 
 // Load .env for local development
 try {
@@ -683,11 +692,23 @@ http.createServer(async (req, res) => {
     req.on('end', () => {
       try {
         const { name, pin } = JSON.parse(body);
+        if (!name || !pin) { res.writeHead(400,{'Access-Control-Allow-Origin':'*'}); res.end(JSON.stringify({error:'Mangler felt'})); return; }
         const users = loadUsers();
-        const user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.pin === String(pin));
-        if (!user) {
+        const user = users.find(u => u.name.toLowerCase() === name.toLowerCase());
+        // Support both hashed password and legacy plain PIN
+        const passwordOk = user && (
+          (user.password && verifyPassword(String(pin), user.password)) ||
+          (!user.password && user.pin && user.pin === String(pin))
+        );
+        if (!passwordOk) {
           res.writeHead(401, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-          res.end(JSON.stringify({ error: 'Feil navn eller PIN' })); return;
+          res.end(JSON.stringify({ error: 'Feil navn eller passord' })); return;
+        }
+        // Upgrade plain PIN to hashed password on first login
+        if (!user.password) {
+          user.password = hashPassword(String(pin));
+          delete user.pin;
+          saveUsers(users);
         }
         const token = makeToken();
         _sessions[token] = { userId: user.id, name: user.name, expires: Date.now() + 86400000 };
@@ -707,12 +728,16 @@ http.createServer(async (req, res) => {
           res.writeHead(403, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Feil invitasjonskode' })); return;
         }
+        if (!pin || String(pin).length < 6) {
+          res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ error: 'Passord må ha minst 6 tegn' })); return;
+        }
         const users = loadUsers();
         if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
           res.writeHead(409, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
           res.end(JSON.stringify({ error: 'Brukernavnet er tatt' })); return;
         }
-        const newUser = { id: makeToken().slice(0,8), name: name.trim(), pin: String(pin), role: 'user', created: new Date().toISOString() };
+        const newUser = { id: makeToken().slice(0,8), name: name.trim(), password: hashPassword(String(pin)), role: 'user', created: new Date().toISOString() };
         users.push(newUser);
         saveUsers(users);
         const token = makeToken();

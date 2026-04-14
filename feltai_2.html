@@ -3301,9 +3301,9 @@ body.mode-rokter .nav-item.r-only { display: flex; }
             onkeydown="if(event.key==='Enter')document.getElementById('li-pin').focus()">
         </div>
         <div style="margin-bottom:20px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">PIN (4 siffer)</div>
-          <input id="li-pin" type="password" inputmode="numeric" maxlength="6" placeholder="••••"
-            style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#fff;font-size:18px;letter-spacing:6px;outline:none;"
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Passord</div>
+          <input id="li-pin" type="password" autocomplete="current-password" placeholder="Passord"
+            style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#fff;font-size:15px;outline:none;"
             onkeydown="if(event.key==='Enter')_doLogin()">
         </div>
         <button onclick="_doLogin()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0d9488,#0b72b5);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">Logg inn →</button>
@@ -3317,9 +3317,9 @@ body.mode-rokter .nav-item.r-only { display: flex; }
             style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#fff;font-size:14px;outline:none;">
         </div>
         <div style="margin-bottom:12px;">
-          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">PIN (4 siffer)</div>
-          <input id="reg-pin" type="password" inputmode="numeric" maxlength="6" placeholder="Velg PIN"
-            style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#fff;font-size:18px;letter-spacing:6px;outline:none;">
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Passord (min. 6 tegn)</div>
+          <input id="reg-pin" type="password" autocomplete="new-password" placeholder="Velg passord"
+            style="width:100%;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:11px 13px;color:#fff;font-size:15px;outline:none;">
         </div>
         <div style="margin-bottom:20px;">
           <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Invitasjonskode</div>
@@ -3427,9 +3427,6 @@ body.mode-rokter .nav-item.r-only { display: flex; }
           <span class="mode-toggle-dot"></span>
           <span id="headerModeLabel">BIOLOG</span>
         </button>
-        <button class="header-btn" id="apiKeyBtn" onclick="openApiModal()" title="API-nøkkel">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
-        </button>
       </div>
     </div>
   </div>
@@ -3509,10 +3506,11 @@ body.mode-rokter .nav-item.r-only { display: flex; }
 
           <!-- Format selector -->
           <div id="voiceFormatBar" style="display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;scrollbar-width:none;">
-            <button class="voice-fmt-btn active" data-fmt="fritekst" onclick="setVoiceFormat(this,'fritekst')">📝 Fritekst</button>
-            <button class="voice-fmt-btn" data-fmt="sbar" onclick="setVoiceFormat(this,'sbar')">🏥 SBAR</button>
+            <button class="voice-fmt-btn active" data-fmt="smart" onclick="setVoiceFormat(this,'smart')">✦ Smart AI</button>
+            <button class="voice-fmt-btn" data-fmt="fiskstatus" onclick="setVoiceFormat(this,'fiskstatus')">🐟 Fisk-for-fisk</button>
+            <button class="voice-fmt-btn" data-fmt="merd" onclick="setVoiceFormat(this,'merd')">🌊 Merd-oversikt</button>
             <button class="voice-fmt-btn" data-fmt="soap" onclick="setVoiceFormat(this,'soap')">🩺 SOAP</button>
-            <button class="voice-fmt-btn" data-fmt="roktlog" onclick="setVoiceFormat(this,'roktlog')">📋 Driftsteknikkerlogg</button>
+            <button class="voice-fmt-btn" data-fmt="roktlog" onclick="setVoiceFormat(this,'roktlog')">📋 Driftsteknikk</button>
           </div>
 
           <!-- Context bar -->
@@ -5400,7 +5398,7 @@ let selectedExport = 'vi';
 let mode        = 'ptt';
 let isOnline    = navigator.onLine;
 let continuousEntries = [];
-let _voiceFormat = 'fritekst';  // fritekst | sbar | soap | roktlog
+let _voiceFormat = 'smart';  // smart | fiskstatus | merd | soap | roktlog | fritekst
 
 // ─── Aquaculture vocabulary correction ────────────────────────────────────────
 // ─── GDPR / Personvern ────────────────────────────────────────────────────────
@@ -5750,12 +5748,12 @@ async function _doLogin() {
   const name = document.getElementById('li-name').value.trim();
   const pin  = document.getElementById('li-pin').value.trim();
   const err  = document.getElementById('login-error');
-  if (!name || !pin) { err.textContent = 'Fyll inn navn og PIN'; err.style.display = ''; return; }
+  if (!name || !pin) { err.textContent = 'Fyll inn navn og passord'; err.style.display = ''; return; }
   err.style.display = 'none';
   try {
     const r = await fetch(_serverBase() + '/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, pin }) });
     const d = await r.json();
-    if (!r.ok) { err.textContent = d.error || 'Feil navn eller PIN'; err.style.display = ''; return; }
+    if (!r.ok) { err.textContent = d.error || 'Feil navn eller passord'; err.style.display = ''; return; }
     localStorage.setItem('vela_token', d.token);
     localStorage.setItem('vela_user',  d.name);
     _enterApp(d.name);
@@ -5768,6 +5766,7 @@ async function _doRegister() {
   const invite = document.getElementById('reg-invite').value.trim();
   const err    = document.getElementById('reg-error');
   if (!name || !pin || !invite) { err.textContent = 'Fyll inn alle felt'; err.style.display = ''; return; }
+  if (pin.length < 6) { err.textContent = 'Passord må ha minst 6 tegn'; err.style.display = ''; return; }
   err.style.display = 'none';
   try {
     const r = await fetch(_serverBase() + '/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, pin, invite }) });
@@ -6402,7 +6401,7 @@ async function doQueryTranscript() {
   res.textContent = '⏳ Søker i opptak...';
 
   try {
-    const resp = await fetch('_claudeUrl()', {
+    const resp = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
@@ -6443,11 +6442,23 @@ async function stopRecording() {
       if (whisperText && whisperText.trim().length > 3) {
         currentTranscript = whisperText.trim();
         const words = currentTranscript.split(/\s+/).length;
-        setMicStatus(`✓ Whisper ferdig (${words} ord) — AI analyserer...`);
         document.getElementById('transcriptText').textContent = currentTranscript;
         document.getElementById('transcriptHint').style.display = 'none';
         document.getElementById('transcriptActions').style.display = 'flex';
-        _cleanTranscriptWithAI(currentTranscript);
+        // Route to appropriate analysis based on selected format
+        if (_voiceFormat === 'fiskstatus') {
+          setMicStatus(`✓ Whisper ferdig (${words} ord) — Analyserer fisk-for-fisk...`);
+          _analyzeFiskStatus(currentTranscript);
+        } else if (_voiceFormat === 'smart') {
+          setMicStatus(`✓ Whisper ferdig (${words} ord) — Smart AI analyserer...`);
+          _analyzeSmartAI(currentTranscript);
+        } else if (_voiceFormat === 'merd') {
+          setMicStatus(`✓ Whisper ferdig (${words} ord) — Analyserer merd-oversikt...`);
+          _analyzeMerdOversikt(currentTranscript);
+        } else {
+          setMicStatus(`✓ Whisper ferdig (${words} ord) — AI analyserer...`);
+          _cleanTranscriptWithAI(currentTranscript);
+        }
         return;
       }
     } catch(e) {
@@ -6562,7 +6573,7 @@ OPPGAVE — korriger systematisk:
 7. SVAR: Returner KUN den rettede teksten — ingen forklaring, ingen kommentarer`;
 
   try {
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -6612,11 +6623,496 @@ function _showAnalyseReady() {
 function runVoiceAnalysis() {
   const txt = currentTranscript?.trim() || document.getElementById('transcriptText')?.textContent?.trim() || '';
   if (!txt) { showToast('Ingen tekst å analysere'); return; }
+  if (_voiceFormat === 'fiskstatus') { _analyzeFiskStatus(txt); return; }
+  if (_voiceFormat === 'smart')      { _analyzeSmartAI(txt); return; }
+  if (_voiceFormat === 'merd')       { _analyzeMerdOversikt(txt); return; }
   const btn = document.getElementById('analyseBtn');
   if (btn) { btn.textContent = '⏳ Analyserer...'; btn.disabled = true; }
   analyzeWithAI(txt);
 }
 
+// ─── FISK-FOR-FISK: AI-strukturering av enkeltfisk-inspeksjon ─────────────────
+// Bruk: si "Merd 1 Fisk 1 normalfunn, Fisk 2 ascites blødning i organ, Fisk 3 katarakt"
+// AI parses det til strukturert tabell og lagrer under "Fisk-for-fisk" seksjonen
+async function _analyzeFiskStatus(rawText) {
+  setMicStatus('🔄 AI strukturerer fisk-for-fisk data...');
+  const btn = document.getElementById('analyseBtn');
+  if (btn) { btn.textContent = '⏳ Analyserer...'; btn.disabled = true; }
+
+  const systemPrompt = `Du er en fiskehelsespesialist. Du får en taleregistrering fra en enkeltfisk-inspeksjon (obduksjon/klinisk undersøkelse).
+
+OPPGAVE: Strukturer dataen som et JSON-objekt med følgende format:
+{
+  "merd": "Merd X (eller ukjent)",
+  "dato": "YYYY-MM-DD",
+  "antall_undersøkt": N,
+  "funn_oversikt": {
+    "normalfunn": N,
+    "patologi_funn": N,
+    "varsel_funn": N
+  },
+  "fisk": [
+    { "id": 1, "status": "normal|patologi|varsel", "funn": ["funn1", "funn2"], "merknad": "kort tekst" }
+  ],
+  "oppsummering": "2-3 setninger med faglig sammendrag og anbefalinger",
+  "varsel": ["kritiske funn som krever tiltak"]
+}
+
+REGLER:
+- normal = ingen patologiske funn
+- patologi = ikke-alvorlig funn (ascites, katarakt, finnesliping osv.)
+- varsel = alvorlige/meldepliktige funn (ILA, PD, furunkulose, vintersår, blødninger osv.)
+- Konverter tallord til siffer
+- Normalfunn = { funn: ["Normalfunn"], merknad: "Ingen patologiske funn" }
+- SVAR KUN med valid JSON, ingen markdown, ingen forklaring`;
+
+  try {
+    const res = await fetch(_claudeUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: rawText }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    const jsonText = data.content[0].text.trim();
+    let parsed;
+    try { parsed = JSON.parse(jsonText); } catch { throw new Error('Ugyldig JSON fra AI'); }
+    parsed.dato = parsed.dato || new Date().toISOString().slice(0,10);
+    _renderFiskStatusResult(parsed, rawText);
+    setMicStatus('✓ Fisk-for-fisk analyse fullført — lagret');
+  } catch(err) {
+    console.error('_analyzeFiskStatus error:', err);
+    setMicStatus('⚠ Analyse feilet: ' + err.message);
+    if (btn) { btn.textContent = '🔍 Analyser opptak'; btn.disabled = false; }
+  }
+}
+
+function _renderFiskStatusResult(data, rawText) {
+  // Store in localStorage keyed by date
+  const key = 'vela_fiskstatus_' + data.dato;
+  const existing = JSON.parse(localStorage.getItem(key) || '[]');
+  existing.push({ ts: new Date().toISOString(), data });
+  localStorage.setItem(key, JSON.stringify(existing));
+
+  // Build result HTML
+  const varselCount = data.funn_oversikt?.varsel_funn || 0;
+  const patCount    = data.funn_oversikt?.patologi_funn || 0;
+  const normCount   = data.funn_oversikt?.normalfunn || 0;
+
+  let rowsHtml = (data.fisk || []).map(f => {
+    const color = f.status === 'varsel' ? '#ef4444' : f.status === 'patologi' ? '#f59e0b' : '#22c55e';
+    const icon  = f.status === 'varsel' ? '⚠' : f.status === 'patologi' ? '●' : '✓';
+    return `<tr style="border-bottom:1px solid var(--border2);">
+      <td style="padding:6px 8px;font-weight:700;color:var(--text);">Fisk ${f.id}</td>
+      <td style="padding:6px 8px;color:${color};font-weight:700;">${icon} ${f.status.charAt(0).toUpperCase()+f.status.slice(1)}</td>
+      <td style="padding:6px 8px;color:var(--text2);font-size:13px;">${(f.funn||[]).join(', ')}</td>
+    </tr>`;
+  }).join('');
+
+  const varselHtml = (data.varsel||[]).length
+    ? `<div style="background:#fef2f2;border:1.5px solid #ef4444;border-radius:8px;padding:10px 12px;margin-top:10px;">
+        <b style="color:#ef4444;">⚠ Varsel — krever tiltak:</b>
+        <ul style="margin:6px 0 0 16px;color:#b91c1c;">${data.varsel.map(v=>`<li>${v}</li>`).join('')}</ul>
+       </div>` : '';
+
+  const resultHtml = `
+    <div id="fiskStatusResult" style="margin:10px 0;border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--card);">
+      <div style="background:linear-gradient(135deg,var(--teal-500),#0b72b5);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="color:#fff;font-weight:800;font-size:14px;">🐟 ${data.merd} — Fisk-for-fisk</div>
+        <div style="color:rgba(255,255,255,0.8);font-size:12px;">${data.dato} · ${data.antall_undersøkt || (data.fisk||[]).length} fisk</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border2);">
+        <div style="background:var(--surface2);padding:10px;text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#22c55e;">${normCount}</div>
+          <div style="font-size:11px;color:var(--text3);font-weight:600;">Normal</div>
+        </div>
+        <div style="background:var(--surface2);padding:10px;text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#f59e0b;">${patCount}</div>
+          <div style="font-size:11px;color:var(--text3);font-weight:600;">Patologi</div>
+        </div>
+        <div style="background:var(--surface2);padding:10px;text-align:center;">
+          <div style="font-size:20px;font-weight:800;color:#ef4444;">${varselCount}</div>
+          <div style="font-size:11px;color:var(--text3);font-weight:600;">Varsel</div>
+        </div>
+      </div>
+      <div style="padding:10px 14px;max-height:260px;overflow-y:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:13px;">${rowsHtml}</table>
+      </div>
+      <div style="padding:8px 14px;background:var(--surface2);border-top:1px solid var(--border2);">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Oppsummering</div>
+        <div style="font-size:13px;color:var(--text2);">${data.oppsummering || '—'}</div>
+      </div>
+      ${varselHtml}
+      <div style="padding:8px 14px;display:flex;gap:8px;">
+        <button onclick="_exportFiskStatusToRapport(${JSON.stringify(data).replace(/"/g,'&quot;')})" style="flex:1;padding:8px;background:var(--teal-500);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Send til Rapport</button>
+        <button onclick="document.getElementById('fiskStatusResult').remove()" style="padding:8px 14px;background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">✕</button>
+      </div>
+    </div>`;
+
+  // Insert after transcript box
+  const transcriptWrap = document.getElementById('transcriptBox');
+  if (transcriptWrap) {
+    const existing = document.getElementById('fiskStatusResult');
+    if (existing) existing.remove();
+    transcriptWrap.insertAdjacentHTML('afterend', resultHtml);
+  }
+
+  const btn = document.getElementById('analyseBtn');
+  if (btn) { btn.textContent = '🔍 Analyser opptak'; btn.disabled = false; }
+  showToast('✓ Fisk-for-fisk analyse lagret — ' + data.dato);
+}
+
+function _exportFiskStatusToRapport(data) {
+  // Navigate to rapport panel and fill in the funn section
+  showPanel('rapport');
+  setTimeout(() => {
+    const funnEl = document.getElementById('rp-funn');
+    if (!funnEl) return;
+    const lines = (data.fisk||[]).map(f =>
+      `Fisk ${f.id} [${f.status.toUpperCase()}]: ${(f.funn||[]).join(', ')}${f.merknad ? ' — ' + f.merknad : ''}`
+    ).join('\n');
+    const summary = `\n\nOPPSUMMERING: ${data.oppsummering||''}`;
+    funnEl.value = (funnEl.value ? funnEl.value + '\n\n--- ' + data.merd + ' ---\n' : '') + lines + summary;
+    funnEl.dispatchEvent(new Event('input'));
+    showToast('✓ Fiskstatus lagt til Rapport → Funn');
+  }, 300);
+}
+
+
+// ─── SMART AI: Auto-detect + kombinert oversikt ───────────────────────────────
+async function _analyzeSmartAI(rawText) {
+  setMicStatus('✦ Smart AI analyserer og strukturerer...');
+  const btn = document.getElementById('analyseBtn');
+  if (btn) { btn.textContent = '⏳ Analyserer...'; btn.disabled = true; }
+
+  const systemPrompt = `Du er en ekspert fiskehelsefaglig AI for norsk lakseoppdrett. Du får en taleregistrering fra felt og skal produsere en strukturert JSON-analyse.
+
+ANALYSE-STRUKTUR: Identifiser ALT som er nevnt og kategoriser det automatisk.
+
+Returner JSON:
+{
+  "detektert_innhold": ["fisk_for_fisk", "merd_oversikt", "miljødata", "lusestatus", "tiltak"],
+  "merd": "Merd X / ukjent",
+  "dato": "YYYY-MM-DD",
+  "fisk_for_fisk": {
+    "aktiv": true/false,
+    "antall": N,
+    "fisk": [{ "id":1, "status":"normal|patologi|varsel", "funn":["funn1"], "merknad":"" }],
+    "oppsummering": "tekst",
+    "varsel": []
+  },
+  "merd_oversikt": {
+    "aktiv": true/false,
+    "observasjoner": ["obs1", "obs2"],
+    "atferd": "",
+    "appetitt": "",
+    "miljø": { "temp":"", "oksygen":"", "salinitet":"" },
+    "velferd": ""
+  },
+  "lusestatus": {
+    "aktiv": true/false,
+    "hunnlus": null,
+    "bevegelig": null,
+    "fastsittende": null,
+    "over_grense": false,
+    "merknad": ""
+  },
+  "tiltak": {
+    "aktiv": true/false,
+    "liste": ["tiltak1"]
+  },
+  "faglig_vurdering": "2-4 setninger med faglig sammendrag, vurdering og anbefalinger",
+  "hastegrad": "normal|forhøyet|haster"
+}
+
+REGLER: Sett aktiv:false for seksjoner som ikke er nevnt. Konverter tallord til siffer. Standardiser fagtermer. SVAR KUN med valid JSON.`;
+
+  try {
+    const res = await fetch(_claudeUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2500,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: rawText }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+    let parsed;
+    try { parsed = JSON.parse(data.content[0].text.trim()); }
+    catch { throw new Error('Ugyldig JSON fra AI'); }
+    parsed.dato = parsed.dato || new Date().toISOString().slice(0,10);
+    _renderSmartAIResult(parsed);
+    setMicStatus('✓ Smart AI ferdig — lagret');
+  } catch(err) {
+    console.error('_analyzeSmartAI error:', err);
+    setMicStatus('⚠ Smart analyse feilet: ' + err.message);
+    // Fallback to regular analysis
+    _cleanTranscriptWithAI(rawText);
+  }
+}
+
+function _renderSmartAIResult(d) {
+  // Store
+  const key = 'vela_smart_' + d.dato;
+  const existing = JSON.parse(localStorage.getItem(key) || '[]');
+  existing.push({ ts: new Date().toISOString(), data: d });
+  localStorage.setItem(key, JSON.stringify(existing));
+
+  const hasteColor = d.hastegrad === 'haster' ? '#ef4444' : d.hastegrad === 'forhøyet' ? '#f59e0b' : '#22c55e';
+  const hasteLabel = d.hastegrad === 'haster' ? '🔴 HASTER' : d.hastegrad === 'forhøyet' ? '🟡 Forhøyet' : '🟢 Normal';
+
+  let sections = '';
+
+  // Fisk-for-fisk section
+  if (d.fisk_for_fisk?.aktiv) {
+    const ff = d.fisk_for_fisk;
+    const norm = ff.fisk.filter(f=>f.status==='normal').length;
+    const pat  = ff.fisk.filter(f=>f.status==='patologi').length;
+    const var_ = ff.fisk.filter(f=>f.status==='varsel').length;
+    const rows = ff.fisk.map(f => {
+      const c = f.status==='varsel'?'#ef4444':f.status==='patologi'?'#f59e0b':'#22c55e';
+      return `<tr style="border-bottom:1px solid var(--border2);">
+        <td style="padding:5px 8px;font-weight:700;">Fisk ${f.id}</td>
+        <td style="padding:5px 8px;color:${c};font-weight:700;">${f.status==='varsel'?'⚠':f.status==='patologi'?'●':'✓'} ${f.status}</td>
+        <td style="padding:5px 8px;font-size:12px;color:var(--text2);">${(f.funn||[]).join(', ')}</td>
+      </tr>`;
+    }).join('');
+    sections += `<div style="margin-bottom:10px;">
+      <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:8px 14px 4px;">🐟 Fisk-for-fisk · ${ff.antall||ff.fisk.length} fisk</div>
+      <div style="display:flex;gap:6px;padding:0 14px 6px;">
+        <span style="flex:1;text-align:center;padding:6px;background:rgba(34,197,94,.1);border-radius:6px;font-size:13px;font-weight:700;color:#22c55e;">${norm} normal</span>
+        <span style="flex:1;text-align:center;padding:6px;background:rgba(245,158,11,.1);border-radius:6px;font-size:13px;font-weight:700;color:#f59e0b;">${pat} patologi</span>
+        <span style="flex:1;text-align:center;padding:6px;background:rgba(239,68,68,.1);border-radius:6px;font-size:13px;font-weight:700;color:#ef4444;">${var_} varsel</span>
+      </div>
+      <div style="padding:0 14px 8px;max-height:180px;overflow-y:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">${rows}</table></div>
+      ${ff.oppsummering ? `<div style="padding:6px 14px 0;font-size:12px;color:var(--text2);font-style:italic;">${ff.oppsummering}</div>` : ''}
+    </div>`;
+  }
+
+  // Merd-oversikt section
+  if (d.merd_oversikt?.aktiv) {
+    const mo = d.merd_oversikt;
+    const obs = (mo.observasjoner||[]).map(o=>`<li style="color:var(--text2);font-size:13px;">${o}</li>`).join('');
+    let miljøTxt = '';
+    if (mo.miljø) {
+      if (mo.miljø.temp) miljøTxt += `🌡️ ${mo.miljø.temp}°C  `;
+      if (mo.miljø.oksygen) miljøTxt += `💨 ${mo.miljø.oksygen}%  `;
+      if (mo.miljø.salinitet) miljøTxt += `🧂 ${mo.miljø.salinitet}‰`;
+    }
+    sections += `<div style="margin-bottom:10px;padding:0 14px;">
+      <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">🌊 Merd-oversikt</div>
+      ${mo.atferd ? `<div style="font-size:13px;margin-bottom:4px;"><b>Atferd:</b> ${mo.atferd}</div>` : ''}
+      ${mo.appetitt ? `<div style="font-size:13px;margin-bottom:4px;"><b>Appetitt:</b> ${mo.appetitt}</div>` : ''}
+      ${miljøTxt ? `<div style="font-size:13px;margin-bottom:4px;font-family:monospace;">${miljøTxt}</div>` : ''}
+      ${obs ? `<ul style="margin:4px 0 0 16px;">${obs}</ul>` : ''}
+      ${mo.velferd ? `<div style="font-size:12px;color:var(--text3);margin-top:4px;font-style:italic;">Velferd: ${mo.velferd}</div>` : ''}
+    </div>`;
+  }
+
+  // Lusestatus section
+  if (d.lusestatus?.aktiv) {
+    const ls = d.lusestatus;
+    const luseColor = ls.over_grense ? '#ef4444' : '#22c55e';
+    sections += `<div style="margin-bottom:10px;padding:0 14px;">
+      <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">🦐 Lusestatus</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        ${ls.hunnlus!=null ? `<span style="padding:4px 10px;background:${luseColor}22;border:1px solid ${luseColor}44;border-radius:6px;font-size:13px;font-weight:700;color:${luseColor};">🔴 Hunnlus: ${ls.hunnlus}</span>` : ''}
+        ${ls.bevegelig!=null ? `<span style="padding:4px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-size:13px;">Bevegelig: ${ls.bevegelig}</span>` : ''}
+        ${ls.fastsittende!=null ? `<span style="padding:4px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;font-size:13px;">Fastsittende: ${ls.fastsittende}</span>` : ''}
+      </div>
+      ${ls.over_grense ? `<div style="margin-top:6px;color:#ef4444;font-size:12px;font-weight:700;">⚠ Over lusegrense — tiltak nødvendig</div>` : ''}
+      ${ls.merknad ? `<div style="font-size:12px;color:var(--text3);margin-top:4px;">${ls.merknad}</div>` : ''}
+    </div>`;
+  }
+
+  // Tiltak section
+  if (d.tiltak?.aktiv && (d.tiltak.liste||[]).length) {
+    sections += `<div style="margin-bottom:10px;padding:0 14px;">
+      <div style="font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">💊 Tiltak</div>
+      <ul style="margin:0 0 0 16px;">${d.tiltak.liste.map(t=>`<li style="font-size:13px;color:var(--text2);">${t}</li>`).join('')}</ul>
+    </div>`;
+  }
+
+  const resultHtml = `
+    <div id="smartAIResult" style="margin:10px 0;border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--card);">
+      <div style="background:linear-gradient(135deg,#6366f1,#0d9488);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="color:#fff;font-weight:800;font-size:14px;">✦ Smart AI — ${d.merd||'Felt'}</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="background:${hasteColor}33;color:${hasteColor};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800;">${hasteLabel}</span>
+          <span style="color:rgba(255,255,255,0.7);font-size:11px;">${d.dato}</span>
+        </div>
+      </div>
+      ${sections}
+      <div style="padding:10px 14px;background:var(--surface2);border-top:1px solid var(--border2);">
+        <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">✦ Faglig vurdering</div>
+        <div style="font-size:13px;color:var(--text2);">${d.faglig_vurdering||'—'}</div>
+      </div>
+      <div style="padding:8px 14px;display:flex;gap:8px;">
+        <button onclick="_exportSmartToRapport(this)" data-d='${JSON.stringify(d).replace(/'/g,"&#39;")}' style="flex:1;padding:8px;background:var(--teal-500);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Send til Rapport</button>
+        <button onclick="document.getElementById('smartAIResult').remove()" style="padding:8px 14px;background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">✕</button>
+      </div>
+    </div>`;
+
+  const transcriptWrap = document.getElementById('transcriptBox');
+  if (transcriptWrap) {
+    const existing = document.getElementById('smartAIResult');
+    if (existing) existing.remove();
+    transcriptWrap.insertAdjacentHTML('afterend', resultHtml);
+  }
+  const btn = document.getElementById('analyseBtn');
+  if (btn) { btn.textContent = '🔍 Analyser opptak'; btn.disabled = false; }
+  showToast('✦ Smart AI analyse lagret');
+}
+
+function _exportSmartToRapport(el) {
+  const d = JSON.parse(el.dataset.d);
+  showPanel('rapport');
+  setTimeout(() => {
+    // Fill funn section with fisk-for-fisk if present
+    const funnEl = document.getElementById('rp-funn');
+    if (funnEl && d.fisk_for_fisk?.aktiv) {
+      const lines = (d.fisk_for_fisk.fisk||[]).map(f =>
+        `Fisk ${f.id} [${f.status.toUpperCase()}]: ${(f.funn||[]).join(', ')}`
+      ).join('\n');
+      funnEl.value = (funnEl.value ? funnEl.value + '\n\n--- ' + d.merd + ' ---\n' : '') + lines;
+      if (d.fisk_for_fisk.oppsummering) funnEl.value += '\n\nOPPSUMMERING: ' + d.fisk_for_fisk.oppsummering;
+      funnEl.dispatchEvent(new Event('input'));
+    }
+    // Fill SOAP-O with merd observations
+    const soapO = document.getElementById('soap-o');
+    if (soapO && d.merd_oversikt?.aktiv) {
+      const mo = d.merd_oversikt;
+      let txt = '';
+      if (mo.atferd) txt += 'Atferd: ' + mo.atferd + '\n';
+      if (mo.appetitt) txt += 'Appetitt: ' + mo.appetitt + '\n';
+      if (mo.miljø?.temp) txt += 'Temp: ' + mo.miljø.temp + '°C\n';
+      if (mo.miljø?.oksygen) txt += 'O₂: ' + mo.miljø.oksygen + '%\n';
+      if ((mo.observasjoner||[]).length) txt += mo.observasjoner.join('\n');
+      if (txt) { soapO.value = (soapO.value ? soapO.value + '\n' : '') + txt; soapO.dispatchEvent(new Event('input')); }
+    }
+    // Fill luse fields
+    if (d.lusestatus?.aktiv) {
+      const ls = d.lusestatus;
+      if (ls.hunnlus!=null) { const el2=document.getElementById('rp-hunnlus'); if(el2){ el2.value=ls.hunnlus; el2.dispatchEvent(new Event('input')); } }
+      if (ls.bevegelig!=null) { const el2=document.getElementById('rp-bevegelig'); if(el2){ el2.value=ls.bevegelig; el2.dispatchEvent(new Event('input')); } }
+    }
+    // Fill SOAP-A with faglig vurdering
+    const soapA = document.getElementById('soap-a');
+    if (soapA && d.faglig_vurdering) {
+      soapA.value = (soapA.value ? soapA.value + '\n\n' : '') + d.faglig_vurdering;
+      soapA.dispatchEvent(new Event('input'));
+    }
+    showToast('✓ Smart AI data overført til Rapport');
+  }, 300);
+}
+
+// ─── MERD-OVERSIKT: Objektivt syn på merden ──────────────────────────────────
+async function _analyzeMerdOversikt(rawText) {
+  setMicStatus('🌊 Analyserer merd-oversikt...');
+  const btn = document.getElementById('analyseBtn');
+  if (btn) { btn.textContent = '⏳ Analyserer...'; btn.disabled = true; }
+
+  const sys = `Du er fiskehelsespesialist. Analyser feltregistreringen og produser en strukturert merd-oversikt.
+
+Returner JSON:
+{
+  "merd": "Merd X",
+  "dato": "YYYY-MM-DD",
+  "atferd": "tekst",
+  "appetitt": "god|redusert|ingen",
+  "svømmemønster": "normalt|unormalt",
+  "overflateatferd": "tekst",
+  "finnesliping": "ingen|lett|moderat|alvorlig",
+  "sår": "ingen|enkelttilfeller|utbredt",
+  "miljø": { "temp": null, "oksygen": null, "salinitet": null },
+  "matlyst": "tekst",
+  "utstyr": "tekst",
+  "avvik": ["avvik1"],
+  "velferd_score": "god|akseptabel|bekymringsfull",
+  "vurdering": "faglig sammendrag",
+  "tiltak": ["tiltak1"]
+}
+Konverter tallord. SVAR KUN med valid JSON.`;
+
+  try {
+    const res = await fetch(_claudeUrl(), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001', max_tokens: 1500,
+        system: sys, messages: [{ role:'user', content: rawText }]
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const parsed = JSON.parse(data.content[0].text.trim());
+    parsed.dato = parsed.dato || new Date().toISOString().slice(0,10);
+    _renderMerdOversiktResult(parsed);
+    setMicStatus('✓ Merd-oversikt ferdig — lagret');
+  } catch(err) {
+    console.error('_analyzeMerdOversikt error:', err);
+    setMicStatus('⚠ Analyse feilet: ' + err.message);
+    _cleanTranscriptWithAI(rawText);
+  }
+}
+
+function _renderMerdOversiktResult(d) {
+  localStorage.setItem('vela_merd_' + d.dato + '_' + Date.now(), JSON.stringify(d));
+  const velferdColor = d.velferd_score === 'bekymringsfull' ? '#ef4444' : d.velferd_score === 'akseptabel' ? '#f59e0b' : '#22c55e';
+
+  const rows = [
+    ['Atferd', d.atferd], ['Appetitt/matlyst', d.appetitt || d.matlyst],
+    ['Svømmemønster', d.svømmemønster], ['Overflateatferd', d.overflateatferd],
+    ['Finnesliping', d.finnesliping], ['Sår', d.sår],
+    d.miljø?.temp ? ['Temperatur', d.miljø.temp + ' °C'] : null,
+    d.miljø?.oksygen ? ['Oksygen', d.miljø.oksygen + ' %'] : null,
+    d.miljø?.salinitet ? ['Salinitet', d.miljø.salinitet + ' ‰'] : null,
+    ['Utstyr', d.utstyr],
+  ].filter(r => r && r[1]).map(([k,v]) =>
+    `<tr style="border-bottom:1px solid var(--border2);"><td style="padding:6px 8px;font-weight:600;color:var(--text3);font-size:12px;white-space:nowrap;">${k}</td><td style="padding:6px 8px;font-size:13px;color:var(--text);">${v}</td></tr>`
+  ).join('');
+
+  const avvik = (d.avvik||[]).length ? `<div style="padding:6px 14px;background:#fef3c7;border-top:1px solid var(--border2);">
+    <b style="font-size:11px;color:#92400e;text-transform:uppercase;">Avvik</b>
+    <ul style="margin:4px 0 0 16px;">${d.avvik.map(a=>`<li style="font-size:13px;color:#92400e;">${a}</li>`).join('')}</ul>
+  </div>` : '';
+
+  const html = `<div id="merdOversiktResult" style="margin:10px 0;border:1.5px solid var(--border2);border-radius:12px;overflow:hidden;background:var(--card);">
+    <div style="background:linear-gradient(135deg,#0ea5e9,#0d9488);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="color:#fff;font-weight:800;font-size:14px;">🌊 ${d.merd||'Merd'} — Objektiv oversikt</div>
+      <span style="background:${velferdColor}44;color:#fff;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:800;">${d.velferd_score||'—'}</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;">${rows}</table>
+    ${avvik}
+    <div style="padding:10px 14px;background:var(--surface2);border-top:1px solid var(--border2);">
+      <div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px;">Faglig vurdering</div>
+      <div style="font-size:13px;color:var(--text2);">${d.vurdering||'—'}</div>
+    </div>
+    ${(d.tiltak||[]).length ? `<div style="padding:8px 14px;border-top:1px solid var(--border2);"><b style="font-size:12px;color:var(--text3);">Tiltak:</b><ul style="margin:4px 0 0 16px;">${d.tiltak.map(t=>`<li style="font-size:13px;color:var(--text2);">${t}</li>`).join('')}</ul></div>` : ''}
+    <div style="padding:8px 14px;display:flex;gap:8px;">
+      <button onclick="showPanel('rapport');document.getElementById('merdOversiktResult').remove();" style="flex:1;padding:8px;background:var(--teal-500);color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;">📋 Til Rapport</button>
+      <button onclick="document.getElementById('merdOversiktResult').remove()" style="padding:8px 14px;background:var(--surface2);color:var(--text2);border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;">✕</button>
+    </div>
+  </div>`;
+
+  const transcriptWrap = document.getElementById('transcriptBox');
+  if (transcriptWrap) {
+    const existing = document.getElementById('merdOversiktResult');
+    if (existing) existing.remove();
+    transcriptWrap.insertAdjacentHTML('afterend', html);
+  }
+  const btn = document.getElementById('analyseBtn');
+  if (btn) { btn.textContent = '🔍 Analyser opptak'; btn.disabled = false; }
+  showToast('🌊 Merd-oversikt lagret — ' + d.dato);
+}
 
 // ─── AI Analysis ──────────────────────────────────────────────────────────────
 async function analyzeWithAI(transcript, continuous = false) {
@@ -6689,7 +7185,7 @@ INSTRUKSJON: Teksten er feltnotater — ekstraher KUN det som faktisk er nevnt. 
       document.getElementById('parseBar').classList.add('visible');
     }
 
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -6972,6 +7468,9 @@ async function analyzeVoiceToDoc() {
 
   const _fmtInstructions = {
     fritekst: `Skriv et strukturert feltnotat. Bruk STORE BOKSTAVER for seksjonsoverskrifter, "Nøkkel: Verdi" for målte verdier, • for observasjoner. Avslutt med VURDERING og anbefalte tiltak.`,
+    smart: `Skriv et helhetlig feltdokument med seksjoner for hvert tema som er nevnt (Fisk-for-fisk, Merd-oversikt, Lusestatus, Miljø, Tiltak). Inkluder bare seksjoner som er relevante. Avslutt med FAGLIG VURDERING og ANBEFALINGER.`,
+    merd: `Skriv en objektiv merd-oversikt. Seksjoner: ATFERD, APPETITT, MILJØ (temp/oksygen/salinitet), VELFERD, AVVIK. Avslutt med VURDERING og TILTAK.`,
+    fiskstatus: `Skriv en fisk-for-fisk inspeksjonsrapport. List hvert individ med nummer og funn. Oppsummer til slutt med totaltall (normal/patologi/varsel) og faglig vurdering.`,
     sbar: `Bruk SBAR-format:\nSITUASJON: Hva skjer nå?\nBAKGRUNN: Relevant historikk/kontekst\nANALYSE: Faglig vurdering\nRÅD: Anbefalte tiltak og oppfølging`,
     soap: `Bruk SOAP-format:\nSUBJEKTIVT: Observert/rapportert\nOBJEKTIVT: Målte verdier og funn\nANALYSE: Faglig vurdering\nPLAN: Videre tiltak og oppfølging`,
     roktlog: `Skriv en driftsteknikkerlogg med korte faktasetninger. Inkluder: fôring, adferd, dødfisk per merd, lusetelling, vannkvalitet, utstyr, avvik. Avslutt med TILTAK og NESTE KONTROLL.`
@@ -7000,7 +7499,7 @@ REGLER: Konverter tallord til siffer. Ta med alt faglig relevant. Ikke dikt tall
 
   try {
     // ── STREAMING (Notion AI inspired) ──────────────────────────────────────
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -7089,7 +7588,7 @@ async function extractActionPoints() {
   const systemPrompt = `Du er en havbruksfaglig assistent. Ekstraher alle handlingspunkter, tiltak og oppfølgingspunkter fra feltnotatet. Returner en nummerert liste. Hvert punkt skal være kort og konkret. Start hvert punkt med hvem som er ansvarlig (om nevnt) og hva som skal gjøres. Avslutt med eventuelle hasteoppgaver øverst. Forstå nynorsk og dialektuttrykk automatisk. ${_getLangInstruction(_detectNorwegianVariant(txt))} Svar KUN med listen.`;
 
   try {
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -7129,7 +7628,7 @@ async function shortenTranscript() {
   const systemPrompt = `Du er en havbruksfaglig assistent. Forkort og kondensr følgende feltnotat til essensen — behold alle viktige tall, funn og fagtermer, men fjern gjentakelser, fyllord og unødvendig tekst. Forstå nynorsk og dialektuttrykk automatisk (ikkje=ikke, kva=hva, daudfisk=dødfisk osv.). ${_getLangInstruction(_detectNorwegianVariant(txt))} Returner kun den forkortede teksten.`;
 
   try {
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -7234,7 +7733,7 @@ async function checkFormCompleteness() {
   const utfylte = Object.entries(formData).filter(([,v])=>!!v).map(([k,v])=>`${k}: ${v}`).join('\n');
 
   try {
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
@@ -8233,7 +8732,7 @@ async function reanalyzeEdit() {
 
   try {
     const systemPrompt = `Du er en spesialisert AI-assistent for norsk havbruksnæring. Analyser feltnotat og returner KUN gyldig JSON.`;
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -10389,7 +10888,7 @@ ${recent ? 'Nylige registreringer: ' + recent : ''}
 Returner JSON: {"S":"subjektivt","O":"objektivt","A":"analyse","P":"plan"}`;
 
   try {
-    const res = await fetch('_claudeUrl()', {
+    const res = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1200,
@@ -10573,7 +11072,7 @@ TILLEGG/NOTATER:
 ${data.notat}`;
 
   try {
-    const r = await fetch('_claudeUrl()', {
+    const r = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -13193,7 +13692,7 @@ async function analyzeRSection(section) {
   };
   const sysPrompt = sectionPrompts[section] || 'Du er havbruksfaglig assistent. Analyser dataene og gi norsk faglig vurdering.';
   try {
-    const r = await fetch('_claudeUrl()', {
+    const r = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -13717,7 +14216,7 @@ async function aiAnalyzeDok() {
   const key = localStorage.getItem('feltai_api_key');
   if (!key) { resEl.textContent = 'Legg inn Anthropic API-nøkkel (tannhjulikonet øverst) for AI-analyse.'; return; }
   try {
-    const r = await fetch('_claudeUrl()', {
+    const r = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
@@ -13890,7 +14389,7 @@ Rå data: ${JSON.stringify(_ikFish.slice(0,20))}
 Gi analyse med: gjennomsnitt, standardavvik, veksttrend, avvik fra forventet vekst (laks ~1.0 kondisjonsfaktor = god), eventuelle bekymringer og anbefalinger. Maks 300 ord.`;
 
   try {
-    const r = await fetch('_claudeUrl()', {
+    const r = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({
@@ -14367,7 +14866,7 @@ Kontekst for lokaliteten:
 ${dodEntries || 'Ingen data'}`;
 
   try {
-    const r = await fetch('_claudeUrl()', {
+    const r = await fetch(_claudeUrl(), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
