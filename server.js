@@ -50,9 +50,28 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY  || ''; // fallback for Whispe
 // ── Users / sessions ───────────────────────────────────────────────────────
 const USERS_FILE = path.join(dir, 'users.json');
 function loadUsers() {
-  // Try file first, fall back to VELA_USERS env var (for cloud hosting)
-  try { return JSON.parse(fs.readFileSync(USERS_FILE, 'utf8')); } catch {}
-  try { return JSON.parse(process.env.VELA_USERS || '[]'); } catch { return []; }
+  // 1. File-based users (local dev — users.json)
+  try {
+    const u = JSON.parse(fs.readFileSync(USERS_FILE, 'utf8'));
+    if (Array.isArray(u) && u.length) return u;
+  } catch {}
+  // 2. Full user list from env var (cloud — set VELA_USERS to JSON array)
+  try {
+    const u = JSON.parse(process.env.VELA_USERS || '');
+    if (Array.isArray(u) && u.length) return u;
+  } catch {}
+  // 3. Auto-seed owner from VELA_OWNER_PIN (simplest Render setup: just set one env var)
+  const ownerPin = process.env.VELA_OWNER_PIN;
+  if (ownerPin) {
+    return [{
+      id: 'owner001',
+      name: process.env.VELA_OWNER_NAME || 'Isac',
+      pin: String(ownerPin),
+      role: 'both',
+      created: '2025-01-01T00:00:00.000Z'
+    }];
+  }
+  return [];
 }
 function saveUsers(users) {
   try { fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2)); } catch {}
