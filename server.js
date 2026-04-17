@@ -33,7 +33,7 @@ function getLocalIP() {
 }
 const ExcelJS = require('exceljs');
 const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, BorderStyle, TableRow, TableCell, Table, WidthType, ShadingType } = require('docx');
-const dir  = __dirname;
+const dir  = path.join(__dirname, 'public');
 const port = process.env.PORT || 7823;
 const mime = { '.html':'text/html', '.js':'application/javascript', '.css':'text/css', '.json':'application/json', '.png':'image/png', '.ico':'image/x-icon', '.svg':'image/svg+xml' };
 
@@ -48,7 +48,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY  || ''; // fallback for Whispe
 
 
 // ── Users / sessions ───────────────────────────────────────────────────────
-const USERS_FILE = path.join(dir, 'users.json');
+const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 function loadUsers() {
   // 1. File-based users (local dev — users.json)
   try {
@@ -1020,7 +1020,7 @@ http.createServer(async (req, res) => {
   }
 
   // ── Static file serving ────────────────────────────────────────────────────
-  let p = path.join(dir, req.url === '/' ? '/landing.html' : req.url.split('?')[0]);
+  let p = path.join(dir, req.url === '/' ? '/index.html' : req.url.split('?')[0]);
   fs.readFile(p, (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found'); return; }
     res.writeHead(200, { 'Content-Type': mime[path.extname(p)] || 'text/plain', 'Cache-Control': 'no-store' });

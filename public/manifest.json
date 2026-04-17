@@ -2,7 +2,7 @@
   "name": "Vela AI",
   "short_name": "Vela AI",
   "description": "AI-assistert feltdokumentasjon for havbruk",
-  "start_url": "./feltai_2.html",
+  "start_url": "./app.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0A1628",

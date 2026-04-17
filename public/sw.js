@@ -9,7 +9,7 @@ const CACHE = 'vela-v4';
 const FILES = [
   '/',
   './index.html',
-  './feltai_2.html',
+  './app.html',
   './landing.html',
   './manifest.json',
 ];
@@ -26,7 +26,7 @@ const API_PREFIXES = [
 
 // HTML files that use cache-first with background revalidation
 const CACHE_FIRST_HTML = [
-  'feltai_2.html',
+  'app.html',
   'landing.html',
 ];
 
