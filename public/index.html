@@ -118,7 +118,7 @@ nav {
 .hero h1 em {
   font-style: normal;
   background: linear-gradient(135deg, var(--teal2) 0%, var(--blue2) 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 .hero-sub {
   font-size: clamp(16px, 2vw, 20px); color: var(--muted);
@@ -252,7 +252,7 @@ h2.section-title em { font-style: normal; color: var(--teal2); }
   transition: background .2s;
 }
 .stat-cell:hover { background: var(--mid); }
-.stat-num { font-size: 40px; font-weight: 900; letter-spacing: -2px; background: linear-gradient(135deg, var(--teal2), var(--blue2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 6px; }
+.stat-num { font-size: 40px; font-weight: 900; letter-spacing: -2px; background: linear-gradient(135deg, var(--teal2), var(--blue2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 6px; }
 .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; }
 
 /* ── PROBLEM SECTION ── */

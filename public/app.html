@@ -1514,7 +1514,6 @@ input, textarea, select { font-family: var(--font); }
 .edit-input:focus { border-color: var(--blue-500); }
 
 /* ── Log PDF + Share ──────────────────────────────────── */
-.btn-tool.share { }
 @media print {
   .app-nav, .app-header, .log-toolbar, .sync-btn, .log-item-btns { display: none !important; }
   .app-main { padding-bottom: 0 !important; overflow: visible !important; }
@@ -1601,6 +1600,7 @@ input, textarea, select { font-family: var(--font); }
   background: transparent; border: none; text-align: center;
   width: 100%; outline: none; line-height: 1;
   -webkit-appearance: textfield;
+  appearance: textfield;
 }
 .driftsteknikker-big-input::-webkit-inner-spin-button { display: none; }
 .driftsteknikker-obs-input {
@@ -1780,7 +1780,7 @@ input, textarea, select { font-family: var(--font); }
   flex:1; padding:12px 14px; border-radius:var(--r-md);
   border:2px solid var(--border2); background:var(--surface2);
   color:var(--text); font-size:22px; font-weight:700; text-align:center; outline:none;
-  transition:border-color .15s; -webkit-appearance:textfield;
+  transition:border-color .15s; -webkit-appearance:textfield; appearance:textfield;
 }
 .vekt-big-input:focus { border-color:var(--teal-500); }
 .vekt-big-input::-webkit-inner-spin-button,.vekt-big-input::-webkit-outer-spin-button { display:none; }
@@ -3166,6 +3166,7 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
   box-sizing: border-box; outline: none;
   font-family: 'SF Mono', 'Menlo', monospace;
   -webkit-appearance: none;
+  appearance: none;
 }
 /* Preview scrolls inside its pane */
 .dok-preview-inner {
@@ -5510,14 +5511,27 @@ const _AQUA_VOCAB = {
   'a g d':'AGD','amøbegjellesykdom':'AGD','amøbe':'AGD',
   'h s m i':'HSMI',
   'b k d':'BKD',
-  // Lice terms
+  // Lice terms — also catch common misrecognitions
   'lusemerd':'lusemerd','lusefri':'lusefri',
-  'hunnlus':'hunnlus','hunn lus':'hunnlus',
-  'bevegelig lus':'bevegelig lus','bevegelig':'bevegelig',
-  'fastsittende lus':'fastsittende lus','fastsittende':'fastsittende',
+  'hunnlus':'hunnlus','hunn lus':'hunnlus','hun lus':'hunnlus',
+  'bevegelig lus':'bevegelig lus',
+  'fastsittende lus':'fastsittende lus',
   'lusetelling':'lusetelling','luse telling':'lusetelling',
   'lusestatus':'lusestatus','luse status':'lusestatus',
   'lusegrense':'lusegrense',
+  // "lys" is often misheard as "lus" by Whisper in fish-health context
+  'lys normal':'lus normal','lys over':'lus over','lys under':'lus under',
+  'lys grense':'lusegrense','lys telling':'lusetelling',
+  'lys status':'lusestatus',
+  // "merd" misrecognised as "mad", "mære", "mer" etc.
+  'mad ':'merd ','måd ':'merd ','mær ':'merd ','mere ':'merd ',
+  // Number words → digits (common in Norwegian speech)
+  'null komma':'0,','en komma':'1,','to komma':'2,','tre komma':'3,',
+  'fire komma':'4,','fem komma':'5,','seks komma':'6,',
+  'sju komma':'7,','syv komma':'7,','åtte komma':'8,','ni komma':'9,',
+  ' en '  : ' 1 ' , ' to '  : ' 2 ' , ' tre ' : ' 3 ',
+  ' fire ': ' 4 ', ' fem ': ' 5 ', ' seks ': ' 6 ',
+  ' sju ' : ' 7 ', ' syv ' : ' 7 ', ' åtte ': ' 8 ', ' ni ': ' 9 ',
   // Weight / fish
   'snittvekt':'snittvekt','snitt vekt':'snittvekt','gjennomsnittsvekt':'snittvekt',
   'biomasse':'biomasse',
@@ -6128,7 +6142,7 @@ async function _transcribeWithWhisper(blob) {
   fd.append('file', blob, 'audio.webm');
   fd.append('model', 'whisper-large-v3-turbo');
   fd.append('language', 'no');
-  fd.append('prompt', 'Norsk lakseoppdrett feltregistrering. Fagtermer: lakselus, hunnlus, bevegelig lus, fastsittende lus, voksne hunnlus, lusetelling, avlusning, lusegrense, behandling. Merd, not, fortøyning, fôringsautomat, fôrflåte, fôrspill, fôringsrespons, FCR. Dødfisk, dødelighet, PD, ILA, AGD, kardiomyopati, gjellesykdom, amøbegjellesykdom. Snittvekt, stykkvekt, individuell vekt, kondisjonsfaktor, vekst. Oksygen, temperatur, salinitet, strøm, siktdyp, bunnforhold. Driftsteknikker, fiskehelsebiolog, veterinær, Mattilsynet, Barentswatch, lokalitetsnummer, produksjonsområde. Smolt, settefisk, matfisk, stamfisk, slakt, slaktevekt, biomasse. Medikament, vaksinasjon, behandlingsskjema, karens. Brønnbåt, servicebåt, notvask, luseskjørt, snorkelmerder.');
+  fd.append('prompt', 'Feltregistrering merd 4, dato 18. april. Lusetelling: 0,3 hunnlus, 1,2 bevegelig lus, 0,1 fastsittende lus — under lusegrense. Snittvekt 2,1 kg, kondisjonsfaktor 1,18. Fem dødfisk observert, ingen synlige sykdomstegn. Fôringsrespons god, fôrspill lavt, FCR estimert 1,15. Oksygen 9,4 mg/l, temperatur 11,8 °C, salinitet 34 ppt. Ingen mistanke om PD, ILA eller AGD. Merd 5: lusetelling 0,8 hunnlus, nærmer seg lusegrense. Anbefaler oppfølging. Amøbegjellesykdom ikke observert. Brønnbåt bestilt for avlusning med hydrogenperoksid neste uke. Biomasse estimert 186 tonn. Fiskehelsebiolog varslet. Lokalitetsnummer 12345, produksjonsområde 3.');
   fd.append('response_format', 'text');
   const r = await fetch(_serverBase() + '/transcribe', { method:'POST', body: fd, signal: AbortSignal.timeout(60000) });
   if (!r.ok) throw new Error('Whisper HTTP ' + r.status);
@@ -6578,7 +6592,8 @@ async function stopRecording() {
     try {
       const whisperText = await _transcribeWithWhisper(audioBlob);
       if (whisperText && whisperText.trim().length > 3) {
-        currentTranscript = whisperText.trim();
+        // Apply the same vocab corrections as browser SR
+        currentTranscript = _correctAquaVocab(whisperText.trim());
         const words = currentTranscript.split(/\s+/).length;
         document.getElementById('transcriptText').textContent = currentTranscript;
         document.getElementById('transcriptHint').style.display = 'none';
@@ -13766,7 +13781,11 @@ function initSettingsPanel() {
 // ─── BarentsWatch OAuth2 ──────────────────────────────────────────────────────
 // Støtter både http://localhost:7823 og file:// (åpnet direkte fra disk)
 function _serverBase() {
-  return window.location.protocol === 'file:' ? 'http://localhost:7823' : window.location.origin;
+  if (window.location.protocol === 'file:') return 'http://localhost:7823';
+  // Live Server and similar dev servers run on a different port than the backend
+  const devPorts = ['5500', '5501', '3000', '4200', '8080'];
+  if (devPorts.includes(window.location.port)) return 'http://localhost:7823';
+  return window.location.origin;
 }
 
 let _bwToken      = null;

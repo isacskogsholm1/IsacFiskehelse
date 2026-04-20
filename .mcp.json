@@ -1,13 +1,5 @@
 {
   "mcpServers": {
-    "ruflo": {
-      "command": "npx",
-      "args": [
-        "ruflo@latest",
-        "mcp",
-        "start"
-      ]
-    },
     "github": {
       "command": "npx",
       "args": [
