@@ -511,8 +511,6 @@ input, textarea, select { font-family: var(--font); }
   display: flex; align-items: center; justify-content: space-between;
   padding: 4px 14px 6px; font-size: 11px; color: var(--text3);
 }
-#voice-ctx-dot { width:7px;height:7px;border-radius:50%;background:var(--border2); }
-#voice-ctx-dot.recording { background:var(--coral-400); animation: ctxPulse 1s ease-in-out infinite; }
 @keyframes ctxPulse { 0%,100%{opacity:1}50%{opacity:.3} }
 
 /* Live topic pills */
@@ -3565,7 +3563,6 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
           <!-- Context bar -->
           <div id="voice-context-bar">
             <span id="voice-ctx-loc">📍 Ingen lokalitet</span>
-            <span id="voice-ctx-dot"></span>
           </div>
 
           <!-- Live topic pills -->
@@ -6153,7 +6150,7 @@ async function _transcribeWithWhisper(blob) {
   fd.append('file', blob, 'audio.webm');
   fd.append('model', 'whisper-large-v3-turbo');
   fd.append('language', 'no');
-  fd.append('prompt', 'Feltregistrering merd 4, dato 18. april. Lusetelling: 0,3 hunnlus, 1,2 bevegelig lus, 0,1 fastsittende lus — under lusegrense. Snittvekt 2,1 kg, kondisjonsfaktor 1,18. Fem dødfisk observert, ingen synlige sykdomstegn. Fôringsrespons god, fôrspill lavt, FCR estimert 1,15. Oksygen 9,4 mg/l, temperatur 11,8 °C, salinitet 34 ppt. Ingen mistanke om PD, ILA eller AGD. Merd 5: lusetelling 0,8 hunnlus, nærmer seg lusegrense. Anbefaler oppfølging. Amøbegjellesykdom ikke observert. Brønnbåt bestilt for avlusning med hydrogenperoksid neste uke. Biomasse estimert 186 tonn. Fiskehelsebiolog varslet. Lokalitetsnummer 12345, produksjonsområde 3.');
+  fd.append('prompt', 'Feltregistrering merd 4, dato 18. april. Lusetelling: 0,3 hunnlus, 1,2 bevegelig lus, 0,1 fastsittende lus — under lusegrense. Snittvekt 2,1 kg, kondisjonsfaktor 1,18. Fem dødfisk observert, ingen synlige sykdomstegn. Fôringsrespons god, fôrspill lavt, FCR estimert 1,15. Oksygen 9,4 mg/l, temperatur 11,8 °C, salinitet 34 ppt. Ingen mistanke om PD, ILA eller AGD. Merd 5: lusetelling 0,8 hunnlus, nærmer seg lusegrense. Anbefaler oppfølging. Amøbegjellesykdom ikke observert. Brønnbåt bestilt for avlusning med hydrogenperoksid neste uke. Biomasse estimert 186 tonn. Fiskehelsebiolog varslet. Lokalitetsnummer 12345, produksjonsområde 3. CMS, lusespyling, fiskedød, gjelle, lever, milt, sår, blødning, atferd, appetitt, not, fôringsautomat, rognkjeks.');
   fd.append('response_format', 'text');
   const r = await fetch(_serverBase() + '/transcribe', { method:'POST', body: fd, signal: AbortSignal.timeout(60000) });
   if (!r.ok) throw new Error('Whisper HTTP ' + r.status);
@@ -6253,7 +6250,7 @@ function startRecording(appendMode = false) {
   document.getElementById('statusDot').classList.remove('online');
   document.getElementById('parseBar').classList.remove('visible');
   document.getElementById('alertBox').classList.remove('visible');
-  document.getElementById('voice-ctx-dot').classList.add('recording');
+
 
   const hint = document.getElementById('transcriptHint');
   if (!appendMode) {
@@ -6360,12 +6357,10 @@ function startRecording(appendMode = false) {
       }, delay);
     } else if (mode === 'ptt' && currentTranscript.trim()) {
       _stopStatsTimer();
-      document.getElementById('voice-ctx-dot').classList.remove('recording');
       document.getElementById('transcriptActions').style.display = 'flex';
       _cleanTranscriptWithAI(currentTranscript.trim());
     } else if (mode === 'ptt') {
       _stopStatsTimer();
-      document.getElementById('voice-ctx-dot').classList.remove('recording');
       setMicStatus('Trykk på mikrofon for å starte opptak');
       hint.style.display = 'block';
       hint.textContent = 'Transkripsjon vises her — fagbegrep og tall korrigeres av AI etter opptak...';
