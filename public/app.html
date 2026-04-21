@@ -425,8 +425,18 @@ input, textarea, select { font-family: var(--font); }
   cursor: not-allowed;
 }
 .mic-btn.recording {
-  background: linear-gradient(145deg, var(--teal-400) 0%, var(--teal-500) 100%);
-  box-shadow: 0 8px 32px rgba(0,184,160,0.35), 0 2px 8px rgba(0,184,160,0.2);
+  background: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 2px 8px rgba(220,38,38,0.2);
+  animation: mic-pulse 1.4s ease-in-out infinite;
+}
+.mic-btn.paused {
+  background: linear-gradient(145deg, #f59e0b 0%, #d97706 100%);
+  box-shadow: 0 8px 32px rgba(217,119,6,0.35), 0 2px 8px rgba(217,119,6,0.2);
+  animation: none;
+}
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 0 rgba(220,38,38,0.4); }
+  50%       { box-shadow: 0 8px 32px rgba(220,38,38,0.5), 0 0 0 12px rgba(220,38,38,0); }
 }
 .mic-btn svg { width: 34px; height: 34px; fill: #fff; }
 
@@ -442,7 +452,7 @@ input, textarea, select { font-family: var(--font); }
   content: '';
   position: absolute;
   border-radius: 50%;
-  border: 2px solid var(--teal-400);
+  border: 2px solid #ef4444;
   opacity: 0;
   inset: -10px;
 }
@@ -476,6 +486,7 @@ input, textarea, select { font-family: var(--font); }
   background: var(--teal-400);
   animation: wave-anim 0.8s ease-in-out infinite;
 }
+#waveform.paused .wave-bar { animation-play-state: paused; }
 .wave-bar:nth-child(1) { animation-delay: 0.0s; }
 .wave-bar:nth-child(2) { animation-delay: 0.1s; }
 .wave-bar:nth-child(3) { animation-delay: 0.2s; }
@@ -3585,7 +3596,6 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
 
           <!-- Post-recording actions -->
           <div id="transcriptActions" style="display:none;">
-            <button class="vta-btn" onclick="continueRecording()">▶ Fortsett</button>
             <button class="vta-btn" onclick="toggleQueryBar()">💬 Spør AI</button>
             <button class="vta-btn danger" onclick="clearTranscript()">✕ Nullstill</button>
           </div>
@@ -5463,6 +5473,7 @@ const _LS = {
 let apiKey = 'server'; // All AI calls go through server proxy — no client key needed
 function _claudeUrl() { return _serverBase() + '/claude'; }
 let recording   = false;
+let recordingPaused = false;
 let recognition = null;
 let currentTranscript = '';
 let parsedData  = null;
@@ -6174,7 +6185,41 @@ function _stopMediaRecorder() {
   });
 }
 
-function toggleRecording() { recording ? stopRecording() : startRecording(); }
+function _setMicIcon(type) {
+  const icons = {
+    mic:   'M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4zm0 2a2 2 0 00-2 2v6a2 2 0 004 0V5a2 2 0 00-2-2zm-7 9h2a5 5 0 0010 0h2a7 7 0 01-6 6.92V21h2v2H9v-2h2v-2.08A7 7 0 015 12z',
+    pause: 'M6 19h4V5H6v14zm8-14v14h4V5h-4z',
+    play:  'M8 5v14l11-7z'
+  };
+  const svg = document.querySelector('#micBtn svg');
+  if (svg) svg.querySelector('path').setAttribute('d', icons[type] || icons.mic);
+}
+
+function toggleRecording() {
+  if (!recording)            startRecording();
+  else if (!recordingPaused) pauseRecording();
+  else                       resumeRecording();
+}
+
+function pauseRecording() {
+  recordingPaused = true;
+  if (recognition) { recognition.stop(); recognition = null; }
+  if (_mediaRecorder?.state === 'recording') _mediaRecorder.pause();
+  const mb = document.getElementById('micBtn');
+  mb.classList.remove('recording');
+  mb.classList.add('paused');
+  _setMicIcon('play');
+  document.getElementById('waveform').classList.add('paused');
+  document.getElementById('analyseRow').style.display = 'block';
+  document.getElementById('transcriptActions').style.display = 'flex';
+  setMicStatus('Satt på pause');
+}
+
+function resumeRecording() {
+  recordingPaused = false;
+  if (_mediaRecorder?.state === 'paused') _mediaRecorder.resume();
+  startRecording(true); // appendMode: restarter SpeechRecognition uten å nullstille transcript
+}
 
 function startRecording(appendMode = false) {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -6198,8 +6243,12 @@ function startRecording(appendMode = false) {
   _updateContextBar();
 
   const mb = document.getElementById('micBtn');
+  mb.classList.remove('paused');
   mb.classList.add('recording');
-  document.getElementById('waveform').style.display = 'flex';
+  _setMicIcon('pause');
+  const wf = document.getElementById('waveform');
+  wf.classList.remove('paused');
+  wf.style.display = 'flex';
   document.getElementById('statusDot').classList.add('recording');
   document.getElementById('statusDot').classList.remove('online');
   document.getElementById('parseBar').classList.remove('visible');
@@ -6572,8 +6621,12 @@ async function doQueryTranscript() {
 async function stopRecording() {
   if (!recording) return;
   recording = false;
+  recordingPaused = false;
+  if (_mediaRecorder?.state === 'paused') _mediaRecorder.resume(); // flush chunks før stop
   clearInterval(window._autoSaveInterval);
-  document.getElementById('micBtn').classList.remove('recording');
+  const mb = document.getElementById('micBtn');
+  mb.classList.remove('recording', 'paused');
+  _setMicIcon('mic');
   document.getElementById('waveform').style.display = 'none';
   document.getElementById('statusDot').classList.remove('recording');
   document.getElementById('voice-ctx-dot').classList.remove('recording');
@@ -6633,7 +6686,8 @@ function setMicStatus(t) {
   el.textContent = t;
   // Color-code status messages
   if (t.includes('✓') || t.includes('Analyserer')) el.style.color = 'var(--teal-500)';
-  else if (t.includes('🎤') || t.includes('Lytter')) el.style.color = 'var(--coral-400)';
+  else if (t.includes('🎤') || t.includes('Lytter') || t === 'Tar opp...') el.style.color = 'var(--coral-400)';
+  else if (t === 'Satt på pause') el.style.color = '#f59e0b';
   else el.style.color = '';
 }
 
