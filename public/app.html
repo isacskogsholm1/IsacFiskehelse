@@ -655,6 +655,50 @@ input, textarea, select { font-family: var(--font); }
   margin-top: 6px;
   animation: pulse 1s ease-in-out infinite alternate;
 }
+.diff-change {
+  background: #fef3c7;
+  border-bottom: 2px solid #f59e0b;
+  border-radius: 3px;
+  padding: 0 2px;
+  cursor: default;
+}
+.diff-add {
+  background: #dcfce7;
+  border-bottom: 2px solid #22c55e;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.diff-btn {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 3px;
+  padding: 0 4px;
+  height: 16px;
+  font-size: 11px;
+  border: 1px solid rgba(0,0,0,0.15);
+  border-radius: 3px;
+  background: white;
+  cursor: pointer;
+  vertical-align: middle;
+}
+#diffActions {
+  display: flex;
+  gap: 8px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface2);
+  margin-top: 4px;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+}
+#diffActions button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
 @keyframes pulse { from { opacity:.5 } to { opacity:1 } }
 
 /* AI result card */
@@ -3275,6 +3319,32 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
 .ik-stat-val { font-size:20px; font-weight:800; color:var(--blue-500); }
 .ik-stat-label { font-size:10px; color:var(--text3); font-weight:600; text-transform:uppercase; margin-top:2px; }
 .ik-analysis-box { background:var(--surface2); border:1px solid var(--border); border-radius:var(--r-lg); padding:14px; margin-top:12px; font-size:13px; color:var(--text); line-height:1.6; white-space:pre-wrap; }
+
+/* Fokus-modus: naturleg max-height for mjuk kollaps */
+#voiceFormatBar    { max-height: 200px; }
+#voice-context-bar { max-height: 80px; }
+#transcriptActions { max-height: 120px; }
+
+/* Fullstendig kollaps under opptak */
+.fade-out {
+  opacity: 0 !important;
+  pointer-events: none;
+  max-height: 0 !important;
+  overflow: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+  transition: opacity 0.2s ease-in-out, max-height 0.25s ease-in-out;
+}
+
+/* Cleaning-state: puls på mikrofon-knappen */
+@keyframes mic-pulse-clean {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(0.9); opacity: 0.6; }
+}
+.mic-btn.cleaning {
+  animation: mic-pulse-clean 1.2s ease-in-out infinite;
+  cursor: not-allowed;
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 </head>
@@ -3584,11 +3654,14 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
           <!-- Bookmarks list -->
           <div id="voice-bookmark-list"></div>
 
-          <!-- PRIMARY: Analyser button — always visible after recording -->
-          <div id="analyseRow" style="display:none;padding:8px 14px 4px;">
-            <button id="analyseBtn" onclick="runVoiceAnalysis()" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--teal-500),#0d9488);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;letter-spacing:.02em;display:flex;align-items:center;justify-content:center;gap:8px;">
-              🔍 Analyser opptak
-            </button>
+          <!-- State-based action buttons -->
+          <div id="actionButtons" style="display:none;padding:8px 14px;gap:8px;flex-wrap:wrap;">
+            <button id="btnCleanText"
+              style="display:none;flex:1;padding:10px;background:linear-gradient(135deg,var(--teal-500),#0d9488);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;"
+              onclick="_onCleanTextClick()">✅ Fullfør og rydd tekst</button>
+            <button id="btnGenerateSchema"
+              style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,#6366f1,#0d9488);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;"
+              onclick="runVoiceAnalysis()">📋 Generer skjema</button>
           </div>
 
           <!-- Post-recording actions -->
@@ -5479,6 +5552,9 @@ let mode        = 'ptt';
 let isOnline    = navigator.onLine;
 let continuousEntries = [];
 let _voiceFormat = 'smart';  // smart | fiskstatus | merd | soap | roktlog | fritekst
+let rawTranscriptAccumulated = '';  // rå tale — aldri overskrive av AI-vasking
+let _diffChanges = [];              // [{id, original, cleaned, accepted}]
+let _currentUIState = 'idle';       // idle | recording | paused | cleaning | diff_review | approved
 
 // ─── Aquaculture vocabulary correction ────────────────────────────────────────
 // ─── GDPR / Personvern ────────────────────────────────────────────────────────
@@ -6180,7 +6256,9 @@ function _startMediaRecorder() {
         if (blob.size < 5000) return;
         const whisperText = await _transcribeWithWhisper(blob);
         if (whisperText && whisperText.trim().length > 3 && recording) {
-          currentTranscript = _correctAquaVocab(whisperText.trim());
+          rawTranscriptAccumulated = whisperText.trim();
+          currentTranscript = _correctAquaVocab(rawTranscriptAccumulated);
+          _saveTranscriptDraft(currentTranscript);
           const ttEl = document.getElementById('transcriptText');
           if (ttEl) ttEl.textContent = currentTranscript;
         }
@@ -6230,12 +6308,12 @@ function pauseRecording() {
   mb.classList.add('paused');
   _setMicIcon('play');
   document.getElementById('waveform').classList.add('paused');
-  document.getElementById('analyseRow').style.display = 'block';
-  document.getElementById('transcriptActions').style.display = 'flex';
+  updateUIState('paused');
   setMicStatus('Satt på pause');
 }
 
 function resumeRecording() {
+  _clearDiffUI();
   recordingPaused = false;
   if (_mediaRecorder?.state === 'paused') _mediaRecorder.resume();
   startRecording(true); // appendMode: restarter SpeechRecognition uten å nullstille transcript
@@ -6246,7 +6324,7 @@ function startRecording(appendMode = false) {
   if (!SR) { showManualFallback(); return; }
 
   recording = true;
-  if (!appendMode) { currentTranscript = ''; _lastFinalTime = 0; _LS.del('autosave'); }
+  if (!appendMode) { currentTranscript = ''; rawTranscriptAccumulated = ''; _lastFinalTime = 0; _LS.del('autosave'); }
   setDates(); getGPS();
   // Start MediaRecorder for Whisper backup (runs in parallel with browser SR)
   if (!appendMode) _startMediaRecorder();
@@ -6283,10 +6361,11 @@ function startRecording(appendMode = false) {
     document.getElementById('transcriptActions').style.display = 'none';
     document.getElementById('voice-query-bar').style.display = 'none';
     document.getElementById('voice-query-result').style.display = 'none';
-    const ar2 = document.getElementById('analyseRow'); if (ar2) ar2.style.display = 'none';
+    updateUIState('recording');
     _startStatsTimer();
   } else {
     hint.style.display = 'none';
+    updateUIState('recording');
     setMicStatus('Fortsetter opptak — legg til mer...');
   }
   if (!appendMode) setMicStatus('Opptak pågår — talekmmandoer: «Ny merd», «Merk dette», «Stopp opptak»');
@@ -6315,6 +6394,8 @@ function startRecording(appendMode = false) {
         if (!corrected.trim()) continue;
 
         currentTranscript += corrected + ' ';
+        rawTranscriptAccumulated += raw + ' ';
+        _saveTranscriptDraft(currentTranscript);
         _lastFinalTime = Date.now();
 
         // Detect language variant after enough text
@@ -6351,7 +6432,7 @@ function startRecording(appendMode = false) {
 
   let _restartAttempts = 0;
   const _onRecognitionEnd = () => {
-    if (recording) {
+    if (recording && !recordingPaused) {
       // Auto-restart with exponential backoff (fixes 60s iOS/Safari timeout)
       const delay = Math.min(200 * Math.pow(1.5, _restartAttempts), 2000);
       _restartAttempts++;
@@ -6667,6 +6748,7 @@ async function stopRecording() {
   if (isOnline) document.getElementById('statusDot').classList.add('online');
   if (recognition) { recognition.stop(); recognition = null; }
   _stopStatsTimer();
+  updateUIState('idle');
 
   if (mode !== 'ptt') return;
 
@@ -6679,8 +6761,8 @@ async function stopRecording() {
     try {
       const whisperText = await _transcribeWithWhisper(audioBlob);
       if (whisperText && whisperText.trim().length > 3) {
-        // Apply the same vocab corrections as browser SR
-        currentTranscript = _correctAquaVocab(whisperText.trim());
+        rawTranscriptAccumulated = whisperText.trim();
+        currentTranscript = _correctAquaVocab(rawTranscriptAccumulated);
         const words = currentTranscript.split(/\s+/).length;
         document.getElementById('transcriptText').textContent = currentTranscript;
         document.getElementById('transcriptHint').style.display = 'none';
@@ -6772,54 +6854,40 @@ async function _cleanTranscriptWithAI(rawText) {
   ttEl.contentEditable = 'true';
 
   if (!apiKey) {
-    // No API — just vocab correction
     const cleaned = _removeFiller(_correctAquaVocab(rawText));
     currentTranscript = cleaned;
     ttEl.textContent = cleaned;
-    setMicStatus('✓ Klar — rediger teksten om nødvendig, trykk deretter Analyser');
-    analyzeWithAI(cleaned);
+    ttEl.contentEditable = 'true';
+    updateUIState('approved');
+    setMicStatus('✓ Klar — trykk Generer skjema');
     return;
   }
 
   setMicStatus('🔄 Retter opp fagtermer og talegjenkjenningsfeil...');
   wrap.classList.add('cleaning');
 
-  const sysClean = `Du er en ekspert på norsk havbruk og talegjenkjenning. Du får en RÅ talegjenkjenning-tekst fra en feltinspeksjon og skal rette opp feil.
+  const sysClean = `Du er ein korrekturleser for norsk talegjenkjenning i havbruk.
 
-OPPGAVE — korriger systematisk:
-1. FAGTERMER: Rett opp feilgjenkjente havbruksbegreper:
-   - Sykdommer: ILA, PD, AGD, CMS, HSMI, IHN, VHS, furunkulose, vintersår, BKD
-   - Lus: hunnlus, bevegelig lus, fastsittende lus, lusegrense, lusetelling
-   - Utstyr: brønnbåt, luseskjørt, snorkelmerd, brønnbåt, avlusning
-   - Fisk: snittvekt, biomasse, FCR, rensefisk, leppefisk, rognkjeks
-   - Organismer: Mattilsynet, Fiskeridirektoratet
+ABSOLUTTE REGLAR — ALDRI BROT:
+- Returner KUN den korrigerte teksten. Ingenting anna.
+- IKKJE legg til ny informasjon. IKKJE fyll inn detaljar. IKKJE legg til setningar.
+- IKKJE skriv kommentarar, forklaringar, innleiing eller avslutning.
+- Output skal vere omlag same lengde som input.
+- Viss du er usikker på eit ord — la det stå uendra.
 
-2. TALL: Konverter tallord til siffer:
-   - "null komma to" → 0,2 | "null komma fem" → 0,5 | "en komma tre" → 1,3
-   - "merd en/to/tre..." → Merd 1/2/3...
-   - "tjue" → 20 | "femten" → 15 | "åtte" → 8
-   - "to og en halv kilo" → 2,5 kg
+TILLAT å endre:
+- Tydelege talegjenkjenningsfeil (feil ord som lyd likt)
+- Fagtermar som er feilstava (t.d. "i l a" → "ILA", "hun lus" → "hunnlus", "mær" → "merd", "snitt bekt" → "snittvekt")
+- Talord til siffer ("null komma to" → 0,2, "merd ein" → Merd 1)
+- Dialekt til bokmål ("ikkje"→"ikke", "daudfisk"→"dødfisk", "gjella"→"gjellen")
+- Openbare grammatikkfeil frå talegjenkjenning`;
 
-3. VANLIGE FORVEKSLINGER (norsk ASR):
-   - "mær" → merd | "snitt bekt/vekt" → snittvekt | "hun lus/hunnelus" → hunnlus
-   - "brønnboat/brønn båt" → brønnbåt | "i l a/isla" → ILA | "p d" → PD
-   - "avmagra/avmager" → avmagret | "gjellebelegg" (behold) | "katarakt" (behold)
-   - "oksygen metning" → oksygenmetning | "for faktor" → fôrfaktor
-   - Nynorsk/dialekt: "ikkje"→"ikke", "kva"→"hva", "sjukdom"→"sykdom", "daudfisk"→"dødfisk", "vatn"→"vann", "straum"→"strøm", "gjella"→"gjellen", "levra"→"leveren"
-   - Dialekt: "itj/ente"→"ikke", "korsen"→"hvordan", "dokker"→"dere", "daud"→"død"
-
-4. GRAMMATIKK: Rett opp åpenbare setningsfeil fra talegjenkjenning
-5. BEVAR ALT: Ikke legg til eller fjern informasjon — bare korriger feil
-6. DIALEKT: Bevar faglig innhold, men standardiser til bokmål
-7. SVAR: Returner KUN den rettede teksten — ingen forklaring, ingen kommentarer`;
-
+  _aiCleanAbortCtrl = new AbortController();
   try {
     const res = await fetch(_claudeUrl(), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
+      signal: _aiCleanAbortCtrl.signal,
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1000,
@@ -6830,35 +6898,227 @@ OPPGAVE — korriger systematisk:
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     const cleaned = data.content[0].text.trim();
-    currentTranscript = cleaned;
-    ttEl.textContent = cleaned;
+    if (!cleaned || cleaned.length > rawText.length * 2.5) throw new Error('Ugyldig AI-respons');
     wrap.classList.remove('cleaning');
-    setMicStatus('✓ Transkripsjon rettet — rediger om nødvendig');
+    _showDiffUI(rawText, cleaned);
   } catch(err) {
+    if (err.name === 'AbortError') return; // avbroten av brukaren — _onCleaningCancel handterer UI
     console.warn('Transcript cleaner error:', err);
-    // Fallback: local vocab correction
+    wrap.classList.remove('cleaning');
     const cleaned = _removeFiller(_correctAquaVocab(rawText));
     currentTranscript = cleaned;
     ttEl.textContent = cleaned;
-    wrap.classList.remove('cleaning');
-    setMicStatus('✓ Klar — rediger teksten om nødvendig');
+    ttEl.contentEditable = 'true';
+    ttEl.oninput = () => { currentTranscript = ttEl.textContent || ttEl.innerText || ''; _saveTranscriptDraft(currentTranscript); };
+    updateUIState('paused');
+    setMicStatus('⚠ Rydding feilet — prøv igjen eller fortsett manuelt');
   }
-
-  // Sync edits back to currentTranscript
-  ttEl.oninput = () => { currentTranscript = ttEl.textContent || ttEl.innerText || ''; };
-
-  // Show Analyser button — user presses when ready (not auto-analyse)
-  _showAnalyseReady();
 }
 
 function _showAnalyseReady() {
-  const row = document.getElementById('analyseRow');
-  if (row) {
-    row.style.display = 'block';
-    // Scroll into view so user sees it
-    setTimeout(() => row.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+  updateUIState('approved');
+  setMicStatus('✓ Tekst klar — trykk Generer skjema');
+}
+
+// ─── UI STATE MACHINE ─────────────────────────────────────────────────────────
+let _aiCleanAbortCtrl = null;
+
+const _SPINNER_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9" stroke-opacity="0.25"/><path d="M12 3a9 9 0 019 9" stroke-linecap="round"/></svg>`;
+const _MIC_SVG     = `<svg viewBox="0 0 24 24"><path d="M12 1a4 4 0 014 4v6a4 4 0 01-8 0V5a4 4 0 014-4zm0 2a2 2 0 00-2 2v6a2 2 0 004 0V5a2 2 0 00-2-2zm-7 9h2a5 5 0 0010 0h2a7 7 0 01-6 6.92V21h2v2H9v-2h2v-2.08A7 7 0 015 12z"/></svg>`;
+const _PAUSE_SVG   = `<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>`;
+const _PLAY_SVG    = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+
+function updateUIState(state) {
+  _currentUIState = state;
+  const c   = document.getElementById('actionButtons');
+  const bCT = document.getElementById('btnCleanText');
+  const bGS = document.getElementById('btnGenerateSchema');
+  const micBtn = document.getElementById('micBtn');
+
+  // Fokus-fade: synkron styring av aria + tabindex
+  const isFocusMode = state === 'recording' || state === 'cleaning';
+  ['voiceFormatBar', 'voice-context-bar', 'transcriptActions'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('fade-out', isFocusMode);
+    el.setAttribute('aria-hidden', String(isFocusMode));
+    el.querySelectorAll('button, input, a').forEach(ch => {
+      if (isFocusMode) ch.setAttribute('tabindex', '-1');
+      else ch.removeAttribute('tabindex');
+    });
+  });
+
+  // Sirkulær knapp: ikon + spinner
+  if (micBtn) {
+    micBtn.classList.remove('cleaning');
+    micBtn.disabled = false;
+    micBtn.onclick = toggleRecording;
+    if (state === 'recording') {
+      micBtn.innerHTML = _PAUSE_SVG;
+    } else if (state === 'paused') {
+      micBtn.innerHTML = _PLAY_SVG;
+    } else if (state === 'cleaning') {
+      micBtn.innerHTML = _SPINNER_SVG;
+      micBtn.classList.add('cleaning');
+      micBtn.onclick = _onCleaningCancel;
+    } else {
+      micBtn.innerHTML = _MIC_SVG;
+    }
   }
-  setMicStatus('✓ Tekst korrigert — rediger om nødvendig, trykk deretter Analyser');
+
+  // actionButtons
+  if (!c) return;
+  c.style.display = (state === 'paused' || state === 'approved') ? 'flex' : 'none';
+  const show = (el, v) => { if (el) el.style.display = v ? '' : 'none'; };
+  show(bCT, state === 'paused');
+  show(bGS, state === 'approved');
+}
+
+function _onCleaningCancel() {
+  _aiCleanAbortCtrl?.abort();
+  updateUIState('paused');
+  setMicStatus('AI-vask avbroten — du kan prøve igjen');
+}
+
+function _onCleanTextClick() {
+  const txt = rawTranscriptAccumulated?.trim() || currentTranscript?.trim();
+  if (!txt) { showToast('Ingen tekst å rydde'); return; }
+  updateUIState('cleaning');
+  _cleanTranscriptWithAI(txt);
+}
+
+// ─── DIFF-VISNING ─────────────────────────────────────────────────────────────
+function _wordDiff(orig, clean) {
+  const ow = orig.split(/(\s+)/), cw = clean.split(/(\s+)/);
+  const m = ow.length, n = cw.length;
+  const dp = Array.from({length: m+1}, () => new Array(n+1).fill(0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = ow[i-1] === cw[j-1] ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
+  const ops = [];
+  let i = m, j = n;
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && ow[i-1] === cw[j-1]) { ops.unshift({type:'same', text:ow[i-1]}); i--; j--; }
+    else if (j > 0 && (i === 0 || dp[i][j-1] >= dp[i-1][j])) { ops.unshift({type:'add', text:cw[j-1]}); j--; }
+    else { ops.unshift({type:'remove', text:ow[i-1]}); i--; }
+  }
+  return ops;
+}
+
+function _groupDiffOps(ops) {
+  const groups = [];
+  let i = 0;
+  while (i < ops.length) {
+    if (ops[i].type === 'same') { groups.push({type:'same', text:ops[i].text}); i++; continue; }
+    const removes = [], adds = [];
+    while (i < ops.length && ops[i].type === 'remove') { removes.push(ops[i].text); i++; }
+    while (i < ops.length && ops[i].type === 'add')    { adds.push(ops[i].text);    i++; }
+    if (removes.length && adds.length) groups.push({type:'change', original:removes.join(''), cleaned:adds.join('')});
+    else if (removes.length)           groups.push({type:'remove', text:removes.join('')});
+    else                               groups.push({type:'add',    text:adds.join('')});
+  }
+  return groups;
+}
+
+function _escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function _showDiffUI(original, cleaned) {
+  _diffChanges = [];
+  const ops    = _wordDiff(original, cleaned);
+  const groups = _groupDiffOps(ops);
+
+  let html = '', idx = 0;
+  for (const g of groups) {
+    if (g.type === 'same') { html += _escHtml(g.text); continue; }
+    const id = idx++;
+    if (g.type === 'change') {
+      _diffChanges.push({id, original: g.original, cleaned: g.cleaned, accepted: true});
+      html += `<mark class="diff-change" data-id="${id}" title="Opphaveleg: ${_escHtml(g.original)}">${_escHtml(g.cleaned)}<button class="diff-btn" onclick="_rejectDiffChange(${id})">↩</button></mark>`;
+    } else if (g.type === 'add') {
+      _diffChanges.push({id, original: '', cleaned: g.text, accepted: true});
+      html += `<ins class="diff-add" data-id="${id}">${_escHtml(g.text)}<button class="diff-btn" onclick="_rejectDiffChange(${id})">↩</button></ins>`;
+    } else {
+      _diffChanges.push({id, original: g.text, cleaned: '', accepted: false});
+    }
+  }
+
+  const ttEl = document.getElementById('transcriptText');
+  ttEl.contentEditable = 'false';
+  ttEl.innerHTML = html;
+
+  const existing = document.getElementById('diffActions');
+  if (existing) existing.remove();
+  const actions = document.createElement('div');
+  actions.id = 'diffActions';
+  actions.innerHTML = `
+    <button style="background:var(--teal-500);color:#fff;" onclick="_applyDiffResult()">✅ Godkjenn alle</button>
+    <button style="background:var(--surface3);color:var(--text);" onclick="_rejectAllDiff()">↩ Avvis alle</button>`;
+  const wrap = document.getElementById('transcriptBox');
+  if (wrap) wrap.insertAdjacentElement('afterend', actions);
+
+  updateUIState('diff_review');
+  setMicStatus('Sjå gjennom endringane og godkjenn eller avvis');
+  setTimeout(() => actions.scrollIntoView({behavior:'smooth', block:'nearest'}), 100);
+}
+
+function _rejectDiffChange(id) {
+  const ch = _diffChanges.find(c => c.id === id);
+  if (!ch) return;
+  ch.accepted = !ch.accepted;
+  const el = document.querySelector(`[data-id="${id}"]`);
+  if (!el) return;
+  const btn = el.querySelector('.diff-btn');
+  if (ch.accepted) {
+    el.innerHTML = _escHtml(ch.cleaned) + (btn ? btn.outerHTML : '');
+    el.style.opacity = '1';
+  } else {
+    el.innerHTML = _escHtml(ch.original || '') + (btn ? btn.outerHTML : '');
+    el.style.opacity = ch.original ? '1' : '0.4';
+    el.style.textDecoration = ch.original ? 'line-through' : '';
+  }
+}
+
+function _rejectAllDiff() {
+  _diffChanges.forEach(ch => { if (ch.accepted) _rejectDiffChange(ch.id); });
+}
+
+function _applyDiffResult() {
+  const ttEl = document.getElementById('transcriptText');
+  let text = ttEl.innerText || ttEl.textContent || '';
+
+  // Deep Clean: fjern diff-artefaktar og normaliser whitespace
+  text = text
+    .replace(/[↩↵↩↵]/g, ' ') // pil-artefaktar → mellomrom (unngår smashing)
+    .replace(/\r\n/g, '\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  currentTranscript = text;
+  _saveTranscriptDraft(currentTranscript);
+  document.getElementById('diffActions')?.remove();
+  _diffChanges = [];
+  ttEl.innerHTML = '';
+  ttEl.textContent = currentTranscript;
+  ttEl.contentEditable = 'true';
+  ttEl.oninput = () => { currentTranscript = ttEl.textContent || ttEl.innerText || ''; _saveTranscriptDraft(currentTranscript); };
+  updateUIState('approved');
+  setMicStatus('✓ Tekst godkjent — trykk Generer skjema når du er klar');
+}
+
+function _clearDiffUI() {
+  document.getElementById('diffActions')?.remove();
+  _diffChanges = [];
+  const ttEl = document.getElementById('transcriptText');
+  if (ttEl) {
+    ttEl.textContent = ttEl.innerText;  // strip HTML-taggar, bevar synleg tekst
+    ttEl.contentEditable = 'true';
+  }
+}
+
+function _saveTranscriptDraft(txt) {
+  if (txt?.trim().length > 5)
+    _LS.set('transcript_draft', JSON.stringify({txt, ts: Date.now()}));
 }
 
 function runVoiceAnalysis() {
@@ -6867,8 +7127,6 @@ function runVoiceAnalysis() {
   if (_voiceFormat === 'fiskstatus') { _analyzeFiskStatus(txt); return; }
   if (_voiceFormat === 'smart')      { _analyzeSmartAI(txt); return; }
   if (_voiceFormat === 'merd')       { _analyzeMerdOversikt(txt); return; }
-  const btn = document.getElementById('analyseBtn');
-  if (btn) { btn.textContent = '⏳ Analyserer...'; btn.disabled = true; }
   analyzeWithAI(txt);
 }
 
@@ -6929,6 +7187,7 @@ REGLER:
   } catch(err) {
     console.error('_analyzeFiskStatus error:', err);
     setMicStatus('⚠ Analyse feilet: ' + err.message);
+  } finally {
     if (btn) { btn.textContent = '🔍 Analyser opptak'; btn.disabled = false; }
   }
 }
@@ -7095,7 +7354,8 @@ REGLER: Sett aktiv:false for seksjoner som ikke er nevnt. Konverter tallord til 
   } catch(err) {
     console.error('_analyzeSmartAI error:', err);
     setMicStatus('⚠ Smart analyse feilet: ' + err.message);
-    // Fallback to regular analysis
+    const btnS = document.getElementById('analyseBtn');
+    if (btnS) { btnS.textContent = '🔍 Analyser opptak'; btnS.disabled = false; }
     _cleanTranscriptWithAI(rawText);
   }
 }
@@ -7301,6 +7561,8 @@ Konverter tallord. SVAR KUN med valid JSON.`;
   } catch(err) {
     console.error('_analyzeMerdOversikt error:', err);
     setMicStatus('⚠ Analyse feilet: ' + err.message);
+    const btnM = document.getElementById('analyseBtn');
+    if (btnM) { btnM.textContent = '🔍 Analyser opptak'; btnM.disabled = false; }
     _cleanTranscriptWithAI(rawText);
   }
 }
@@ -7357,7 +7619,16 @@ function _renderMerdOversiktResult(d) {
 
 // ─── AI Analysis ──────────────────────────────────────────────────────────────
 async function analyzeWithAI(transcript, continuous = false) {
-  if (!apiKey) { if (!continuous) showFallbackParse(transcript); return; }
+  if (!apiKey) {
+    const ab = document.getElementById('analyseBtn');
+    if (ab) { ab.textContent = '🔍 Analyser opptak'; ab.disabled = false; }
+    if (!continuous) showFallbackParse(transcript);
+    return;
+  }
+  if (!continuous) {
+    const ab = document.getElementById('analyseBtn');
+    if (ab) { ab.textContent = '⏳ Analyserer...'; ab.disabled = true; }
+  }
 
   const systemPrompt = `Du er en spesialisert feltassistent for norsk havbruksnæring med dyp kunnskap om lakseoppdrett, fiskehelse og feltarbeid. Teksten DU FÅR er allerede AI-renset, men kan fortsatt ha feil.
 
