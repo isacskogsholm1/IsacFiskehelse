@@ -10,7 +10,6 @@ const FILES = [
   '/',
   './index.html',
   './app.html',
-  './landing.html',
   './manifest.json',
 ];
 
@@ -27,7 +26,6 @@ const API_PREFIXES = [
 // HTML files that use cache-first with background revalidation
 const CACHE_FIRST_HTML = [
   'app.html',
-  'landing.html',
 ];
 
 // ---------------------------------------------------------------------------

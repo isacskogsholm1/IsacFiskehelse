@@ -6135,6 +6135,8 @@ function detectSpeechSupport() {
 let _mediaRecorder = null;
 let _audioChunks   = [];
 let _whisperEnabled = null; // null=unknown, true/false
+let _liveWhisperInterval = null;
+let _liveWhisperBusy = false; // guard mot overlappande kall
 
 async function _checkWhisper() {
   if (_whisperEnabled !== null) return _whisperEnabled;
@@ -6160,16 +6162,37 @@ async function _transcribeWithWhisper(blob) {
 
 function _startMediaRecorder() {
   _audioChunks = [];
+  _liveWhisperBusy = false;
   navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
     const mimeType = ['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4']
       .find(m => MediaRecorder.isTypeSupported(m)) || '';
     _mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
     _mediaRecorder.ondataavailable = e => { if (e.data.size > 0) _audioChunks.push(e.data); };
     _mediaRecorder.start(1000);
+
+    // Kvart 5. sek: send akkumulert lyd til Whisper og erstatt browser SR-tekst stille
+    _liveWhisperInterval = setInterval(async () => {
+      if (_liveWhisperBusy || _audioChunks.length < 3) return;
+      if (!recording || recordingPaused) return;
+      _liveWhisperBusy = true;
+      try {
+        const blob = new Blob(_audioChunks, { type: _mediaRecorder?.mimeType || 'audio/webm' });
+        if (blob.size < 5000) return;
+        const whisperText = await _transcribeWithWhisper(blob);
+        if (whisperText && whisperText.trim().length > 3 && recording) {
+          currentTranscript = _correctAquaVocab(whisperText.trim());
+          const ttEl = document.getElementById('transcriptText');
+          if (ttEl) ttEl.textContent = currentTranscript;
+        }
+      } catch { /* still, browser SR held fram */ }
+      finally { _liveWhisperBusy = false; }
+    }, 5000);
   }).catch(() => { _mediaRecorder = null; });
 }
 
 function _stopMediaRecorder() {
+  clearInterval(_liveWhisperInterval);
+  _liveWhisperInterval = null;
   return new Promise(resolve => {
     if (!_mediaRecorder || _mediaRecorder.state === 'inactive') { resolve(null); return; }
     _mediaRecorder.onstop = () => {
@@ -6274,7 +6297,7 @@ function startRecording(appendMode = false) {
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
 
-  recognition.onresult = e => {
+  const _onRecognitionResult = e => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
       const raw    = e.results[i][0].transcript;
@@ -6315,7 +6338,7 @@ function startRecording(appendMode = false) {
     }
   };
 
-  recognition.onerror = e => {
+  const _onRecognitionError = e => {
     if (e.error === 'not-allowed') {
       setMicStatus('Mikrofontilgang nektet — tillat mikrofon i innstillinger');
       showToast('Mikrofontilgang nektet');
@@ -6327,7 +6350,7 @@ function startRecording(appendMode = false) {
   };
 
   let _restartAttempts = 0;
-  recognition.onend = () => {
+  const _onRecognitionEnd = () => {
     if (recording) {
       // Auto-restart with exponential backoff (fixes 60s iOS/Safari timeout)
       const delay = Math.min(200 * Math.pow(1.5, _restartAttempts), 2000);
@@ -6345,9 +6368,9 @@ function startRecording(appendMode = false) {
             recognition.lang = 'nb-NO';
             recognition.continuous = true;
             recognition.interimResults = true;
-            recognition.onresult  = arguments.callee.___onresult;
-            recognition.onerror   = arguments.callee.___onerror;
-            recognition.onend     = arguments.callee;
+            recognition.onresult  = _onRecognitionResult;
+            recognition.onerror   = _onRecognitionError;
+            recognition.onend     = _onRecognitionEnd;
             try { recognition.start(); } catch(e2) {}
           } else {
             showToast('Talegjenkjenning stoppet — trykk stopp og start på nytt');
@@ -6367,6 +6390,10 @@ function startRecording(appendMode = false) {
     }
   };
 
+  recognition.onresult = _onRecognitionResult;
+  recognition.onerror  = _onRecognitionError;
+  recognition.onend    = _onRecognitionEnd;
+
   try { recognition.start(); }
   catch(err) {
     showToast('Klarte ikke starte opptak');
@@ -6383,6 +6410,18 @@ function continueRecording() {
 }
 
 function clearTranscript() {
+  if (recording || recordingPaused) {
+    recording = false;
+    recordingPaused = false;
+    if (recognition) { recognition.stop(); recognition = null; }
+    clearInterval(window._autoSaveInterval);
+    const mb = document.getElementById('micBtn');
+    mb.classList.remove('recording', 'paused');
+    _setMicIcon('mic');
+    document.getElementById('waveform').style.display = 'none';
+    document.getElementById('statusDot').classList.remove('recording');
+    document.getElementById('voice-ctx-dot').classList.remove('recording');
+  }
   currentTranscript = '';
   parsedData = null;
   _voiceBookmarks = [];
@@ -8307,6 +8346,7 @@ function saveApiKey() {
 }
 function updateApiKeyBtn() {
   const btn = document.getElementById('apiKeyBtn');
+  if (!btn) return;
   btn.classList.toggle('active', !!apiKey);
   btn.title = apiKey ? 'API-nøkkel aktiv — klikk for å endre' : 'Legg inn API-nøkkel';
 }

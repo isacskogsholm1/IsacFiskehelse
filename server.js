@@ -879,7 +879,7 @@ http.createServer(async (req, res) => {
       res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
       res.end(JSON.stringify({ ok: true, name: s.name, role: s.role || 'biolog' }));
     } else {
-      res.writeHead(401, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
       res.end(JSON.stringify({ ok: false }));
     }
     return;
@@ -887,9 +887,9 @@ http.createServer(async (req, res) => {
 
   // ── Whisper transcription (/transcribe POST) ───────────────────────────────
   if (req.method === 'POST' && req.url === '/transcribe') {
-    if (!OPENAI_API_KEY) {
+    if (!GROQ_API_KEY && !OPENAI_API_KEY) {
       res.writeHead(503, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-      res.end(JSON.stringify({ error: 'no_key', message: 'OpenAI API-nøkkel ikke konfigurert' })); return;
+      res.end(JSON.stringify({ error: 'no_key', message: 'Ingen API-nøkkel konfigurert (GROQ_API_KEY eller OPENAI_API_KEY)' })); return;
     }
     const chunks = [];
     req.on('data', c => chunks.push(c));

@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(*)"
+      "Bash(*)",
+      "PowerShell(Stop-Process -Id 23084 -Force)",
+      "PowerShell(Stop-Process -Id 19368 -Force)",
+      "PowerShell(Start-Process -FilePath \"node\" -ArgumentList \"server.js\" -WorkingDirectory \"c:\\\\Users\\\\jabbu\\\\Documents\\\\Personlige prosjekt\\\\IsacFiskehelse\" -NoNewWindow)",
+      "PowerShell(netstat -ano)"
     ]
   }
 }
