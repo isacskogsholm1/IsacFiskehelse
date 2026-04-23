@@ -392,7 +392,7 @@ input, textarea, select { font-family: var(--font); }
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  padding: 8px 0 20px;
+  padding: 36px 0 20px;
 }
 .mic-ring {
   position: relative;
@@ -401,7 +401,7 @@ input, textarea, select { font-family: var(--font); }
   justify-content: center;
 }
 .mic-btn {
-  width: 88px; height: 88px;
+  width: 108px; height: 108px;
   border-radius: 50%;
   border: none;
   display: flex;
@@ -438,7 +438,7 @@ input, textarea, select { font-family: var(--font); }
   0%, 100% { box-shadow: 0 8px 32px rgba(220,38,38,0.35), 0 0 0 0 rgba(220,38,38,0.4); }
   50%       { box-shadow: 0 8px 32px rgba(220,38,38,0.5), 0 0 0 12px rgba(220,38,38,0); }
 }
-.mic-btn svg { width: 34px; height: 34px; fill: #fff; }
+.mic-btn svg { width: 42px; height: 42px; fill: #fff; }
 
 /* Recording ripple rings */
 .mic-ripple {
@@ -3022,7 +3022,7 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
 }
 
 /* ── Mic area modernize ───────────────────────── */
-.mic-area { padding: 6px 0 16px !important; gap: 12px !important; }
+.mic-area { padding: 36px 0 20px !important; gap: 12px !important; }
 .mic-status-text { font-size: 13px !important; color: var(--text3) !important; font-weight: 500 !important; }
 
 /* ── Section / panel titles ───────────────────── */
@@ -3593,14 +3593,6 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
 
       <!-- Recording card -->
       <div class="record-card">
-        <div class="mode-row">
-          <span class="mode-label">Modus</span>
-          <div class="mode-toggle">
-            <button class="mode-btn active" onclick="setMode('ptt',this)">Trykk&snakk</button>
-            <button class="mode-btn" onclick="setMode('continuous',this)">Kontinuerlig</button>
-          </div>
-        </div>
-
         <div class="mic-area">
           <div class="mic-ring">
             <button class="mic-btn" id="micBtn" onclick="toggleRecording()">
@@ -3620,15 +3612,6 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
 
         <!-- PTT -->
         <div id="pttMode">
-
-          <!-- Format selector -->
-          <div id="voiceFormatBar" style="display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;scrollbar-width:none;">
-            <button class="voice-fmt-btn active" data-fmt="smart" onclick="setVoiceFormat(this,'smart')">✦ Smart AI</button>
-            <button class="voice-fmt-btn" data-fmt="fiskstatus" onclick="setVoiceFormat(this,'fiskstatus')">🐟 Fisk-for-fisk</button>
-            <button class="voice-fmt-btn" data-fmt="merd" onclick="setVoiceFormat(this,'merd')">🌊 Merd-oversikt</button>
-            <button class="voice-fmt-btn" data-fmt="soap" onclick="setVoiceFormat(this,'soap')">🩺 SOAP</button>
-            <button class="voice-fmt-btn" data-fmt="roktlog" onclick="setVoiceFormat(this,'roktlog')">📋 Driftsteknikk</button>
-          </div>
 
           <!-- Context bar -->
           <div id="voice-context-bar">
@@ -3655,13 +3638,19 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
           <div id="voice-bookmark-list"></div>
 
           <!-- State-based action buttons -->
-          <div id="actionButtons" style="display:none;padding:8px 14px;gap:8px;flex-wrap:wrap;">
-            <button id="btnCleanText"
-              style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,var(--teal-500),#0d9488);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;"
-              onclick="_onCleanTextClick()">✅ Fullfør og rydd tekst</button>
+          <div id="actionButtons" style="display:none;padding:8px 14px 14px;flex-direction:column;gap:12px;">
+            <button id="btnFinish"
+              style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,#10b981,#059669);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;"
+              onclick="_onCleanTextClick()">Transkriber</button>
             <button id="btnGenerateSchema"
               style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,#6366f1,#0d9488);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;"
               onclick="runVoiceAnalysis()">📋 Generer skjema</button>
+            <div id="btnRow2" style="display:none;gap:12px;">
+              <button style="flex:1;padding:11px;background:#fff;border:2px solid #3b82f6;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#3b82f6;cursor:pointer;"
+                onclick="_openTermModal()">+ Nytt fagord</button>
+              <button id="btnReset" style="flex:1;padding:11px;background:#fff;border:2px solid #ef4444;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#ef4444;cursor:pointer;"
+                onclick="_confirmReset()">Nullstill</button>
+            </div>
           </div>
 
           <!-- Post-recording actions -->
@@ -3708,6 +3697,36 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
         <div id="continuousMode" style="display:none;">
           <div class="continuous-feed" id="continuousLog">
             <span style="color:var(--text3);font-style:italic;font-size:13px;">Løpende logg vises her under inspeksjon...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reset confirmation modal -->
+      <div id="reset-confirm-modal" class="modal-overlay" style="align-items:center;padding:20px;" onclick="if(event.target===this)document.getElementById('reset-confirm-modal').classList.remove('open')">
+        <div class="modal" style="border-radius:var(--r-2xl);">
+          <div class="modal-title">Slett opptak?</div>
+          <div class="modal-desc">Er du sikker på at du vil slette lydopptaket?</div>
+          <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="document.getElementById('reset-confirm-modal').classList.remove('open')">Avbryt</button>
+            <button class="btn-modal-save" style="background:linear-gradient(135deg,#ef4444,#dc2626);" onclick="event.stopPropagation();_doReset()">Slett</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Term suggestion modal -->
+      <div id="term-modal" class="modal-overlay" style="align-items:center;padding:20px;" onclick="if(event.target===this)document.getElementById('term-modal').classList.remove('open')">
+        <div class="modal" style="border-radius:var(--r-2xl);">
+          <div class="modal-title">Foreslå fagbegrep</div>
+          <div class="modal-desc">Vi jobber kontinuerlig med å forbedre vår AI-forståelse. Skriv inn ordet du ønsker å legge til, så vil en av våre spesialister implementere det for å sikre presis transkribering i fremtiden. Takk for ditt bidrag!</div>
+          <input id="term-input" type="text" placeholder="Skriv inn fagbegrep..." style="width:100%;padding:11px 14px;border:1.5px solid var(--gray-200);border-radius:var(--r-md);font-size:15px;color:var(--text1);background:var(--surface);box-sizing:border-box;margin:12px 0 0;outline:none;" onkeydown="if(event.key==='Enter')_sendTermSuggestion()">
+          <div id="term-confirm" style="display:none;margin-top:10px;padding:10px;background:#f0fdf4;border-radius:var(--r-md);color:#059669;font-size:14px;font-weight:600;text-align:center;">Takk! Forslaget er sendt.</div>
+          <div id="term-list" style="margin-top:14px;display:none;">
+            <div style="font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Innsendte forslag</div>
+            <div id="term-list-items" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          </div>
+          <div class="modal-actions" style="margin-top:12px;">
+            <button class="btn-modal-cancel" onclick="document.getElementById('term-modal').classList.remove('open')">Avbryt</button>
+            <button class="btn-modal-save" onclick="_sendTermSuggestion()">Send forslag</button>
           </div>
         </div>
       </div>
@@ -5851,17 +5870,6 @@ function setLangPref(pref) {
 
 function _correctAquaVocab(text) {
   let t = text;
-  // 1. Normalize dialect/nynorsk forms to bokmål first
-  const dialectKeys = Object.keys(_DIALECT_VOCAB).sort((a,b) => b.length - a.length);
-  for (const k of dialectKeys) {
-    const escaped = k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-    const re = new RegExp('(?:^|\\b)' + escaped + '(?=\\b|$)', 'gi');
-    t = t.replace(re, m => {
-      const rep = _DIALECT_VOCAB[k];
-      return m[0] === m[0].toUpperCase() && m[0].match(/[A-ZÆØÅ]/) ? rep.charAt(0).toUpperCase() + rep.slice(1) : rep;
-    });
-  }
-  // 2. Apply aquaculture vocabulary corrections (longest match first)
   const keys = Object.keys(_AQUA_VOCAB).sort((a,b) => b.length - a.length);
   for (const k of keys) {
     const re = new RegExp('\\b' + k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\b', 'gi');
@@ -6388,7 +6396,7 @@ function startRecording(appendMode = false) {
         _smartParagraph();
 
         // Apply corrections
-        const corrected = _removeFiller(_correctAquaVocab(raw));
+        const corrected = raw;
         if (!corrected.trim()) continue;
 
         currentTranscript += corrected + ' ';
@@ -6498,10 +6506,11 @@ function clearTranscript() {
     mb.classList.remove('recording', 'paused');
     _setMicIcon('mic');
     document.getElementById('waveform').style.display = 'none';
-    document.getElementById('statusDot').classList.remove('recording');
-    document.getElementById('voice-ctx-dot').classList.remove('recording');
+    document.getElementById('statusDot')?.classList.remove('recording');
+    document.getElementById('voice-ctx-dot')?.classList.remove('recording');
   }
   currentTranscript = '';
+  rawTranscriptAccumulated = '';
   parsedData = null;
   _voiceBookmarks = [];
   _detectedTopics = new Set();
@@ -6521,6 +6530,57 @@ function clearTranscript() {
   const ab = document.getElementById('analyseBtn');
   if (ab) { ab.textContent = '🔍 Analyser opptak'; ab.disabled = false; }
   setMicStatus('Trykk på mikrofon for å starte opptak');
+}
+
+function _confirmReset() {
+  document.getElementById('reset-confirm-modal').classList.add('open');
+}
+
+function _doReset() {
+  document.getElementById('reset-confirm-modal').classList.remove('open');
+  if (_liveWhisperInterval) { clearInterval(_liveWhisperInterval); _liveWhisperInterval = null; }
+  _stopStatsTimer();
+  if (_mediaRecorder && _mediaRecorder.state !== 'inactive') {
+    _mediaRecorder.ondataavailable = null;
+    _mediaRecorder.onstop = null;
+    _mediaRecorder.stop();
+  }
+  _mediaRecorder = null;
+  _audioChunks = [];
+  _liveWhisperBusy = false;
+  clearTranscript();
+  updateUIState('idle');
+}
+
+function _renderTermList(terms) {
+  const list = document.getElementById('term-list');
+  const items = document.getElementById('term-list-items');
+  if (!terms.length) { list.style.display = 'none'; return; }
+  list.style.display = 'block';
+  items.innerHTML = terms.map(t =>
+    `<span style="padding:4px 10px;background:var(--gray-100);border-radius:var(--r-full);font-size:13px;color:var(--text2);">${t}</span>`
+  ).join('');
+}
+
+function _openTermModal() {
+  document.getElementById('term-input').value = '';
+  document.getElementById('term-confirm').style.display = 'none';
+  _renderTermList(JSON.parse(_LS.get('term_suggestions') || '[]'));
+  document.getElementById('term-modal').classList.add('open');
+}
+
+function _sendTermSuggestion() {
+  const val = document.getElementById('term-input').value.trim();
+  if (!val) return;
+  const terms = JSON.parse(_LS.get('term_suggestions') || '[]');
+  if (!terms.includes(val)) { terms.push(val); _LS.set('term_suggestions', JSON.stringify(terms)); }
+  document.getElementById('term-input').value = '';
+  document.getElementById('term-confirm').style.display = 'block';
+  _renderTermList(terms);
+  setTimeout(() => {
+    document.getElementById('term-modal').classList.remove('open');
+    document.getElementById('term-confirm').style.display = 'none';
+  }, 1500);
 }
 
 function setVoiceFormat(btn, fmt) {
@@ -6741,9 +6801,9 @@ async function stopRecording() {
   mb.classList.remove('recording', 'paused');
   _setMicIcon('mic');
   document.getElementById('waveform').style.display = 'none';
-  document.getElementById('statusDot').classList.remove('recording');
-  document.getElementById('voice-ctx-dot').classList.remove('recording');
-  if (isOnline) document.getElementById('statusDot').classList.add('online');
+  document.getElementById('statusDot')?.classList.remove('recording');
+  document.getElementById('voice-ctx-dot')?.classList.remove('recording');
+  if (isOnline) document.getElementById('statusDot')?.classList.add('online');
   if (recognition) { recognition.stop(); recognition = null; }
   _stopStatsTimer();
   updateUIState('idle');
@@ -6929,8 +6989,9 @@ const _PLAY_SVG    = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
 function updateUIState(state) {
   _currentUIState = state;
   const c   = document.getElementById('actionButtons');
-  const bCT = document.getElementById('btnCleanText');
+  const bF  = document.getElementById('btnFinish');
   const bGS = document.getElementById('btnGenerateSchema');
+  const bR2 = document.getElementById('btnRow2');
   const micBtn = document.getElementById('micBtn');
 
   // Fokus-fade: synkron styring av aria + tabindex
@@ -6968,8 +7029,9 @@ function updateUIState(state) {
   if (!c) return;
   c.style.display = (state === 'paused' || state === 'approved') ? 'flex' : 'none';
   const show = (el, v) => { if (el) el.style.display = v ? '' : 'none'; };
-  show(bCT, state === 'paused');
+  show(bF,  state === 'paused');
   show(bGS, state === 'approved');
+  if (bR2) bR2.style.display = (state === 'paused' || state === 'approved') ? 'flex' : 'none';
 }
 
 function _onCleaningCancel() {
