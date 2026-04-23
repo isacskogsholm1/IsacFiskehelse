@@ -3657,7 +3657,7 @@ body.mode-driftsteknikker .nav-item.r-only { display: flex; }
           <!-- State-based action buttons -->
           <div id="actionButtons" style="display:none;padding:8px 14px;gap:8px;flex-wrap:wrap;">
             <button id="btnCleanText"
-              style="display:none;flex:1;padding:10px;background:linear-gradient(135deg,var(--teal-500),#0d9488);border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;"
+              style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,var(--teal-500),#0d9488);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;"
               onclick="_onCleanTextClick()">✅ Fullfør og rydd tekst</button>
             <button id="btnGenerateSchema"
               style="display:none;width:100%;padding:13px;background:linear-gradient(135deg,#6366f1,#0d9488);border:none;border-radius:var(--r-md);font-size:15px;font-weight:800;color:#fff;cursor:pointer;"
@@ -6306,7 +6306,6 @@ function pauseRecording() {
   const mb = document.getElementById('micBtn');
   mb.classList.remove('recording');
   mb.classList.add('paused');
-  _setMicIcon('play');
   document.getElementById('waveform').classList.add('paused');
   updateUIState('paused');
   setMicStatus('Satt på pause');
@@ -6343,7 +6342,6 @@ function startRecording(appendMode = false) {
   const mb = document.getElementById('micBtn');
   mb.classList.remove('paused');
   mb.classList.add('recording');
-  _setMicIcon('pause');
   const wf = document.getElementById('waveform');
   wf.classList.remove('paused');
   wf.style.display = 'flex';
@@ -6459,11 +6457,11 @@ function startRecording(appendMode = false) {
           }
         }
       }, delay);
-    } else if (mode === 'ptt' && currentTranscript.trim()) {
+    } else if (!recordingPaused && mode === 'ptt' && currentTranscript.trim()) {
       _stopStatsTimer();
       document.getElementById('transcriptActions').style.display = 'flex';
       _cleanTranscriptWithAI(currentTranscript.trim());
-    } else if (mode === 'ptt') {
+    } else if (!recordingPaused && mode === 'ptt') {
       _stopStatsTimer();
       setMicStatus('Trykk på mikrofon for å starte opptak');
       hint.style.display = 'block';
