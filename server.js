@@ -899,6 +899,10 @@ http.createServer(async (req, res) => {
       const boundary = ct.split('boundary=')[1];
       if (!boundary) { res.writeHead(400, {'Access-Control-Allow-Origin':'*'}); res.end('{}'); return; }
 
+      // Inject language=no as first field so Whisper always transcribes in Norwegian
+      const langPart = Buffer.from(`--${boundary}\r\nContent-Disposition: form-data; name="language"\r\n\r\nno\r\n`);
+      const forwardBody = Buffer.concat([langPart, body]);
+
       // Forward to Groq Whisper (gratis), fallback to OpenAI
       const whisperKey  = GROQ_API_KEY || OPENAI_API_KEY;
       const whisperHost = GROQ_API_KEY ? 'api.groq.com' : 'api.openai.com';
@@ -910,7 +914,7 @@ http.createServer(async (req, res) => {
         headers: {
           'Authorization': `Bearer ${whisperKey}`,
           'Content-Type': ct,
-          'Content-Length': body.length,
+          'Content-Length': forwardBody.length,
         }
       };
       const oaiReq = https.request(options, oaiRes => {
@@ -925,7 +929,7 @@ http.createServer(async (req, res) => {
         res.writeHead(502, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         res.end(JSON.stringify({ error: e.message }));
       });
-      oaiReq.write(body);
+      oaiReq.write(forwardBody);
       oaiReq.end();
     }); return;
   }
